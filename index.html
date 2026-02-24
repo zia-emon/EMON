@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gemini Clone - Universal AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Ensure smooth transitions */
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        
+        /* Mobile height fix */
+        body { min-height: 100dvh; display: flex; flex-direction: column; }
+        
+        /* Message styling */
+        .prose pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
+        .prose code { font-family: monospace; font-size: 0.9em; }
+        
+        [v-cloak] { display: none; }
+        #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: white; z-index: 9999; }
+        .dark #loading { background: #0f172a; color: white; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 transition-colors duration-200">
+
+    <div id="loading">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p class="font-medium">Initializing AI Interface...</p>
+        </div>
+    </div>
+
+    <div id="app" class="flex h-screen overflow-hidden" style="display:none;">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 transform -translate-x-full lg:translate-x-0 sidebar-transition">
+            <div class="flex flex-col h-full">
+                <div class="p-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
+                    <button id="newChatBtn" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-all w-full justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        New Chat
+                    </button>
+                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                
+                <div id="chatHistory" class="flex-1 overflow-y-auto p-2 space-y-1">
+                    </div>
+
+                <div class="p-4 border-t border-gray-200 dark:border-slate-700 space-y-2">
+                    <button id="themeToggle" class="flex items-center gap-3 w-full p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                        <span class="dark:hidden">🌙 Dark Mode</span>
+                        <span class="hidden dark:inline">☀️ Light Mode</span>
+                    </button>
+                    <button id="openSettings" class="flex items-center gap-3 w-full p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                        ⚙️ Settings
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col relative w-full lg:ml-72 h-full">
+            <header class="h-14 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between px-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+                <button id="openSidebar" class="lg:hidden p-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+                <div class="text-sm font-semibold truncate px-2" id="currentChatTitle">New Chat</div>
+                <div class="w-10"></div> </header>
+
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 pb-32">
+                <div id="welcomeView" class="max-w-2xl mx-auto mt-20 text-center space-y-4">
+                    <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Hello, how can I help?</h1>
+                    <p class="text-gray-500 dark:text-gray-400">Configure your API key in settings to start chatting.</p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent dark:from-slate-900 dark:via-slate-900">
+                <div class="max-w-3xl mx-auto relative">
+                    <div class="flex items-end gap-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-2xl p-2 shadow-lg focus-within:ring-2 ring-blue-500 transition-all">
+                        <textarea id="userInput" rows="1" placeholder="Type a message..." class="w-full p-2 bg-transparent border-none focus:ring-0 resize-none max-h-48 outline-none dark:text-white" style="line-height: 1.5rem;"></textarea>
+                        <button id="sendBtn" class="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-center mt-2 text-gray-400">AI can make mistakes. Verify important info.</p>
+                </div>
+            </div>
+        </main>
+
+        <div id="settingsModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Settings</h2>
+                    <button onclick="toggleModal('settingsModal')" class="text-gray-500">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">OpenRouter API Key</label>
+                        <input type="password" id="apiKeyInput" class="w-full p-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-2 ring-blue-500" placeholder="sk-or-...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Model ID</label>
+                        <input type="text" id="modelInput" class="w-full p-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-2 ring-blue-500" placeholder="deepseek/deepseek-r1:free">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Global System Prompt</label>
+                        <textarea id="systemPromptInput" class="w-full p-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-2 ring-blue-500" rows="3"></textarea>
+                    </div>
+                    <button id="saveSettings" class="w-full py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors">Save & Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Core State & Persistence ---
+        let state = {
+            apiKey: localStorage.getItem('ai_api_key') || '',
+            model: localStorage.getItem('ai_model') || 'deepseek/deepseek-r1:free',
+            systemPrompt: localStorage.getItem('ai_system_prompt') || 'You are a helpful assistant.',
+            chats: JSON.parse(localStorage.getItem('ai_chats')) || [],
+            currentChatId: null,
+            isStreaming: false
+        };
+
+        const elements = {
+            loading: document.getElementById('loading'),
+            app: document.getElementById('app'),
+            messages: document.getElementById('messagesContainer'),
+            userInput: document.getElementById('userInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            chatHistory: document.getElementById('chatHistory'),
+            welcome: document.getElementById('welcomeView'),
+            sidebar: document.getElementById('sidebar'),
+            currentChatTitle: document.getElementById('currentChatTitle')
+        };
+
+        // --- Initialization ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderChatHistory();
+            
+            // Hide loader, show app
+            elements.loading.style.display = 'none';
+            elements.app.style.display = 'flex';
+            
+            // Check for API Key
+            if (!state.apiKey) toggleModal('settingsModal');
+        });
+
+        // --- Event Listeners ---
+        elements.sendBtn.addEventListener('click', handleSendMessage);
+        elements.userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+
+        elements.userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        document.getElementById('openSettings').onclick = () => {
+            document.getElementById('apiKeyInput').value = state.apiKey;
+            document.getElementById('modelInput').value = state.model;
+            document.getElementById('systemPromptInput').value = state.systemPrompt;
+            toggleModal('settingsModal');
+        };
+
+        document.getElementById('saveSettings').onclick = () => {
+            state.apiKey = document.getElementById('apiKeyInput').value;
+            state.model = document.getElementById('modelInput').value;
+            state.systemPrompt = document.getElementById('systemPromptInput').value;
+            localStorage.setItem('ai_api_key', state.apiKey);
+            localStorage.setItem('ai_model', state.model);
+            localStorage.setItem('ai_system_prompt', state.systemPrompt);
+            toggleModal('settingsModal');
+        };
+
+        document.getElementById('newChatBtn').onclick = createNewChat;
+        document.getElementById('openSidebar').onclick = () => elements.sidebar.classList.remove('-translate-x-full');
+        document.getElementById('closeSidebar').onclick = () => elements.sidebar.classList.add('-translate-x-full');
+        document.getElementById('themeToggle').onclick = toggleTheme;
+
+        // --- Core Functions ---
+        async function handleSendMessage() {
+            const text = elements.userInput.value.trim();
+            if (!text || state.isStreaming || !state.apiKey) return;
+
+            if (!state.currentChatId) createNewChat();
+
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            chat.messages.push({ role: 'user', content: text });
+            
+            elements.userInput.value = '';
+            elements.userInput.style.height = 'auto';
+            renderMessages();
+            saveChats();
+
+            // Prepare API call
+            state.isStreaming = true;
+            elements.sendBtn.disabled = true;
+
+            try {
+                const aiMsgId = Date.now();
+                chat.messages.push({ role: 'assistant', content: '', id: aiMsgId });
+                renderMessages();
+
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${state.apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: state.model,
+                        messages: [
+                            { role: "system", content: state.systemPrompt },
+                            ...chat.messages.filter(m => m.content).map(m => ({ role: m.role, content: m.content }))
+                        ],
+                        stream: true
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullContent = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+                    for (const line of lines) {
+                        if (line.includes('[DONE]')) break;
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                const content = data.choices[0]?.delta?.content || "";
+                                fullContent += content;
+                                updateAIMessage(aiMsgId, fullContent);
+                            } catch (e) { console.error("Error parsing stream", e); }
+                        }
+                    }
+                }
+                
+                // Finalize title if first message
+                if (chat.messages.length <= 3) {
+                    chat.title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
+                    renderChatHistory();
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("API Error: Check your key and connection.");
+            } finally {
+                state.isStreaming = false;
+                elements.sendBtn.disabled = false;
+                saveChats();
+            }
+        }
+
+        function updateAIMessage(id, content) {
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            const msg = chat.messages.find(m => m.id === id);
+            if (msg) {
+                msg.content = content;
+                const container = document.getElementById(`msg-${id}`);
+                if (container) {
+                    container.innerHTML = marked.parse(content);
+                }
+                elements.messages.scrollTop = elements.messages.scrollHeight;
+            }
+        }
+
+        function renderMessages() {
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            if (!chat) return;
+
+            elements.welcome.classList.add('hidden');
+            elements.messages.innerHTML = '';
+            
+            chat.messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`;
+                
+                const inner = `
+                    <div class="max-w-[85%] md:max-w-[75%] p-4 rounded-2xl ${
+                        msg.role === 'user' 
+                        ? 'bg-blue-600 text-white rounded-tr-none' 
+                        : 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-tl-none shadow-sm'
+                    }">
+                        <div class="prose dark:prose-invert text-sm md:text-base leading-relaxed" id="msg-${msg.id || ''}">
+                            ${msg.content ? marked.parse(msg.content) : '<span class="animate-pulse">...</span>'}
+                        </div>
+                    </div>
+                `;
+                div.innerHTML = inner;
+                elements.messages.appendChild(div);
+            });
+            elements.messages.scrollTop = elements.messages.scrollHeight;
+        }
+
+        function createNewChat() {
+            const id = Date.now().toString();
+            state.chats.unshift({
+                id,
+                title: 'New Chat',
+                messages: [],
+                timestamp: Date.now()
+            });
+            state.currentChatId = id;
+            elements.currentChatTitle.innerText = 'New Chat';
+            elements.welcome.classList.remove('hidden');
+            elements.messages.innerHTML = '';
+            renderChatHistory();
+            saveChats();
+            if (window.innerWidth < 1024) elements.sidebar.classList.add('-translate-x-full');
+        }
+
+        function renderChatHistory() {
+            elements.chatHistory.innerHTML = '';
+            state.chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${state.currentChatId === chat.id ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600' : 'hover:bg-gray-100 dark:hover:bg-slate-700'}`;
+                item.onclick = () => loadChat(chat.id);
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 truncate flex-1">
+                        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-width="2"/></svg>
+                        <span class="truncate text-sm">${chat.title}</span>
+                    </div>
+                    <button onclick="deleteChat(event, '${chat.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2"/></svg>
+                    </button>
+                `;
+                elements.chatHistory.appendChild(item);
+            });
+        }
+
+        function loadChat(id) {
+            state.currentChatId = id;
+            const chat = state.chats.find(c => c.id === id);
+            elements.currentChatTitle.innerText = chat.title;
+            renderMessages();
+            renderChatHistory();
+            if (window.innerWidth < 1024) elements.sidebar.classList.add('-translate-x-full');
+        }
+
+        function deleteChat(e, id) {
+            e.stopPropagation();
+            state.chats = state.chats.filter(c => c.id !== id);
+            if (state.currentChatId === id) {
+                state.currentChatId = null;
+                elements.messages.innerHTML = '';
+                elements.welcome.classList.remove('hidden');
+                elements.currentChatTitle.innerText = 'New Chat';
+            }
+            saveChats();
+            renderChatHistory();
+        }
+
+        function saveChats() {
+            localStorage.setItem('ai_chats', JSON.stringify(state.chats));
+        }
+
+        // --- UI Utilities ---
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('ai_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        function initTheme() {
+            if (localStorage.getItem('ai_theme') === 'dark' || (!localStorage.getItem('ai_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+    </script>
+</body>
+</html>
