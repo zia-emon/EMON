@@ -607,7 +607,7 @@ window._onFBData=function(data){
     if(inp)inp.value=cfg.shareLink;
     if(txt)txt.textContent=cfg.shareLink;
   }
-  grievances=data.filter(d=>d._type!=="config");
+  grievances=data.filter(d=>d.id&&d.id!=="__config__"&&d._type!=="config");
   // Only cache to localStorage if data is small enough (<4MB)
   try{
     const json=JSON.stringify(grievances);
@@ -1392,6 +1392,7 @@ document.addEventListener("click",function(e){
     const db  = getDatabase(app);
     const NODE = "grievances";
 
+    let _unsubscribe = null;
     window._fb = {
       async save(g) {
         await set(ref(db, NODE + "/" + g.id), g);
@@ -1400,9 +1401,14 @@ document.addEventListener("click",function(e){
         await remove(ref(db, NODE + "/" + id));
       },
       listen() {
-        onValue(ref(db, NODE), snap => {
+        // Unsubscribe old listener first
+        if(_unsubscribe) { try{_unsubscribe();}catch(e){} }
+        _unsubscribe = onValue(ref(db, NODE), snap => {
           const list = [];
-          snap.forEach(c => list.push(c.val()));
+          snap.forEach(c => {
+            const v = c.val();
+            if(v && v.id) list.push(v);
+          });
           list.sort((a,b) => (b.date||"").localeCompare(a.date||""));
           if (typeof window._onFBData === "function") window._onFBData(list);
         }, err => {
