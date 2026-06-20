@@ -716,6 +716,11 @@ function runSplash(){
     setSyncStatus(true);
     if(window._fb)window._fb.listen();
   });
+  // If Firebase already initialized before boot (race condition fix)
+  if(window._fbReady&&window._fb){
+    setSyncStatus(true);
+    window._fb.listen();
+  }
   document.addEventListener("fb-failed",function(){
     setSyncStatus(false);
     showApp();
@@ -1331,6 +1336,9 @@ function exportCSV(){downloadCSV();}
 
 // ═══ REFRESH ═══
 function refreshData(){
+  if(window._fb&&fbOnline){
+    window._fb.listen();
+  }
   // Animate refresh icon
   const btn = document.querySelector('[onclick="refreshData()"]');
   if(btn){ btn.style.transform="rotate(360deg)"; btn.style.transition="transform 0.5s"; setTimeout(()=>{ btn.style.transform=""; btn.style.transition=""; },500); }
