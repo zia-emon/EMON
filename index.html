@@ -608,7 +608,11 @@ window._onFBData=function(data){
     if(txt)txt.textContent=cfg.shareLink;
   }
   grievances=data.filter(d=>d._type!=="config");
-  localStorage.setItem("akh_grv",JSON.stringify(grievances));
+  // Only cache to localStorage if data is small enough (<4MB)
+  try{
+    const json=JSON.stringify(grievances);
+    if(json.length<4000000) localStorage.setItem("akh_grv",json);
+  }catch(e){}
   setSyncStatus(true);
   applyFilters();
   const dlc=document.getElementById("dl-count");
@@ -619,17 +623,21 @@ window._onFBOffline=function(){setSyncStatus(false);};
 // ═══ PERSIST ═══
 let _saveTimer=null;
 function persistOne(g){
-  // Save to localStorage immediately
-  localStorage.setItem("akh_grv",JSON.stringify(grievances));
   applyFilters();
-  // Firebase save in background
+  // Firebase — primary storage (unlimited)
   if(window._fb&&fbOnline){
     setSyncSaving();
     window._fb.save(g)
       .then(()=>{ setTimeout(setSyncSaved, 500); })
       .catch(e=>{ console.error(e); setSyncStatus(false); });
   } else {
-    // Offline — show saved locally
+    // Offline fallback — localStorage (limited but works offline)
+    try{
+      localStorage.setItem("akh_grv",JSON.stringify(grievances));
+    }catch(e){
+      // localStorage full (>5MB) — show warning
+      toast("⚠ Local storage full! Connect internet to sync Firebase","err");
+    }
     ["tb-dot","mob-dot"].forEach(id=>{const el=document.getElementById(id);if(el){el.style.background="#94a3b8";el.style.boxShadow="0 0 8px #94a3b8";}});
     ["tb-txt","mob-txt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="Saved locally";});
   }
