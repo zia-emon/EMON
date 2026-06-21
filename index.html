@@ -723,7 +723,7 @@ function runSplash(){
   }
   document.addEventListener("fb-failed",function(){
     setSyncStatus(false);
-    showApp();
+    // Don't call showApp here — let the splash typing finish naturally
   });
   const saved=localStorage.getItem("akh_share");
   if(saved){
