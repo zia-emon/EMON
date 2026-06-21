@@ -223,6 +223,38 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
 .type-chk-item.checked{background:rgba(23,147,158,0.1);}
 .type-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:linear-gradient(135deg,#bbf3f7,#5ec3cc);font-size:11px;font-weight:700;color:#0a4a52;}
 .type-tag button{background:none;border:none;color:#0a4a52;cursor:pointer;font-size:13px;line-height:1;padding:0;}
+
+/* ═══ LOGIN ═══ */
+#login-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99990;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);overflow:hidden;}
+#login-screen.hidden{display:none;}
+.login-bg-blur{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);opacity:0.3;}
+.login-bg-blur.b1{background:#17939e;top:-80px;left:-80px;}
+.login-bg-blur.b2{background:#0f6c74;bottom:-80px;right:-80px;}
+.login-card{position:relative;z-index:1;background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:36px 32px;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo img{width:72px;height:72px;border-radius:50%;border:3px solid rgba(90,226,237,0.6);box-shadow:0 0 20px rgba(90,226,237,0.3);}
+.login-title{color:white;font-size:22px;font-weight:800;text-align:center;margin-bottom:4px;}
+.login-sub{color:rgba(255,255,255,0.55);font-size:12px;text-align:center;margin-bottom:28px;}
+.login-field{position:relative;margin-bottom:16px;}
+.login-field input{width:100%;padding:13px 44px 13px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:14px;background:rgba(255,255,255,0.08);color:white;font-size:14px;outline:none;transition:border .2s;box-sizing:border-box;}
+.login-field input::placeholder{color:rgba(255,255,255,0.35);}
+.login-field input:focus{border-color:rgba(90,226,237,0.6);}
+.login-field .login-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:16px;cursor:pointer;}
+.login-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(180deg,#2aeeb5,#0f9d7e);color:white;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;transition:opacity .2s;letter-spacing:.3px;}
+.login-btn:hover{opacity:.9;}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.login-err{color:#f87171;font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+.login-credit{color:rgba(255,255,255,0.25);font-size:10px;text-align:center;margin-top:20px;}
+/* User Management */
+#sec-users{display:none;flex-direction:column;}
+#sec-users.active{display:flex;}
+.user-card{background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.8);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.user-info{flex:1;}
+.user-name{font-size:13px;font-weight:700;color:var(--td);}
+.user-email{font-size:11px;color:var(--tm);}
+.user-role{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(23,147,158,0.12);color:var(--aqua);font-weight:700;}
+.btn-del-user{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;}
+.add-user-form{background:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:18px;margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -263,6 +295,48 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
 </header>
 
 <!-- APP -->
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen" class="hidden">
+  <div class="login-bg-blur b1"></div>
+  <div class="login-bg-blur b2"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="" id="login-logo-img" alt="GT">
+    </div>
+    <div class="login-title">Grievance Tracker</div>
+    <div class="login-sub">AKH Eco Apparels Ltd. — Sign in to continue</div>
+    <div class="login-field">
+      <input type="email" id="l-email" placeholder="Email address" autocomplete="email">
+      <span class="login-icon">✉</span>
+    </div>
+    <div class="login-field">
+      <input type="password" id="l-pass" placeholder="Password" id="l-pass" autocomplete="current-password">
+      <span class="login-icon" onclick="toggleLoginPass()" id="pass-eye">👁</span>
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="login-err"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:8px;">
+      <span onclick="doForgotPassword()" style="color:rgba(90,226,237,0.8);font-size:12px;cursor:pointer;text-decoration:underline;">🔑 Forgot Password?</span>
+      <span onclick="showRequestAccess()" style="color:rgba(90,226,237,0.8);font-size:12px;cursor:pointer;text-decoration:underline;">📩 Request Access</span>
+    </div>
+    <!-- Request Access Form -->
+    <div id="req-access-form" style="display:none;margin-top:16px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
+      <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-bottom:10px;">আপনার তথ্য দিন — Admin approve করলে access পাবেন</div>
+      <div class="login-field"><input type="text" id="req-name" placeholder="আপনার নাম" style="color:white;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:11px 14px;width:100%;box-sizing:border-box;outline:none;font-size:13px;"></div>
+      <div class="login-field"><input type="email" id="req-email" placeholder="Email address" style="color:white;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:11px 14px;width:100%;box-sizing:border-box;outline:none;font-size:13px;"></div>
+      <div class="login-field">
+        <select id="req-role" style="color:white;background:rgba(30,60,70,0.9);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:11px 14px;width:100%;box-sizing:border-box;outline:none;font-size:13px;">
+          <option value="handler">Handler</option>
+          <option value="investigator">Investigator</option>
+        </select>
+      </div>
+      <button onclick="submitAccessRequest()" style="width:100%;padding:11px;border:none;border-radius:12px;background:rgba(90,226,237,0.2);color:white;font-size:13px;font-weight:700;cursor:pointer;border:1px solid rgba(90,226,237,0.4);">📤 Request পাঠান</button>
+    </div>
+    <div class="login-credit">Developed by Z. H. EMON</div>
+  </div>
+</div>
+
 <div class="app-wrap">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
@@ -274,6 +348,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
       <li class="nav-item" id="n-acc" onclick="goTo('acc')">👥 Accounts Node</li>
       <li class="nav-item" id="n-tl" onclick="goTo('tl')">📅 Timeline Events</li>
       <li class="nav-item" id="n-set" onclick="goTo('set')">⚙️ Settings</li>
+      <li class="nav-item" id="n-users" onclick="goTo('users')" style="display:none;">👤 User Management</li>
     </ul>
   </aside>
 
@@ -487,9 +562,54 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
       </div>
     </div>
 
+    <!-- USERS -->
+    <div id="sec-users" class="section">
+      <div class="page">
+        <h2 style="font-size:20px;font-weight:800;color:var(--aqua);">User Management</h2>
+        <!-- Add User Form -->
+        <div class="add-user-form">
+          <div style="font-size:13px;font-weight:700;color:var(--td);margin-bottom:12px;">➕ Add New User</div>
+          <div class="form-grid">
+            <div class="fg"><label>Full Name</label><input type="text" id="nu-name" class="fc" placeholder="Name"></div>
+            <div class="fg"><label>Role</label>
+              <select id="nu-role" class="fc">
+                <option value="handler">Handler</option>
+                <option value="investigator">Investigator</option>
+              </select>
+            </div>
+            <div class="fg"><label>Email</label><input type="email" id="nu-email" class="fc" placeholder="email@example.com"></div>
+            <div class="fg"><label>Password</label><input type="password" id="nu-pass" class="fc" placeholder="Min 6 characters"></div>
+          </div>
+          <button class="btn-jelly" onclick="addUser()" style="margin-top:12px;width:100%;padding:11px;">✓ Create User</button>
+        </div>
+        <!-- Access Requests -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-title">📩 Pending Access Requests</div>
+          <div id="req-list">
+            <div style="color:var(--tm);font-size:12px;text-align:center;padding:12px;">Loading...</div>
+          </div>
+        </div>
+        <!-- User List -->
+        <div class="panel">
+          <div class="panel-title">👥 Registered Users</div>
+          <div id="user-list">
+            <div style="color:var(--tm);font-size:13px;text-align:center;padding:20px;">Loading users...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div id="sec-set" class="section">
       <div class="page">
+        <!-- Current user info -->
+        <div style="background:rgba(23,147,158,0.08);border:1px solid rgba(23,147,158,0.2);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:11px;color:var(--tm);margin-bottom:2px;">Logged in as</div>
+            <div style="font-size:13px;font-weight:700;color:var(--td);" id="current-user-name">—</div>
+          </div>
+          <button id="logout-btn" onclick="doLogout()" style="display:none;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚪 Logout</button>
+        </div>
         <h2 style="font-size:20px;font-weight:800;color:var(--aqua);">Control Settings</h2>
         <div class="panel" style="max-width:600px;">
           <div class="panel-title">System Utilities</div>
@@ -667,6 +787,9 @@ function showApp(){
     sp.style.display="none";
     sp.style.pointerEvents="none";
     sp.style.visibility="hidden";
+    // Show login screen after splash
+    const ls=document.getElementById("login-screen");
+    if(ls) ls.classList.remove("hidden");
   },700);
 }
 setTimeout(showApp,15000);
@@ -714,12 +837,10 @@ function runSplash(){
   runSplash();
   document.addEventListener("fb-ready",function(){
     setSyncStatus(true);
-    if(window._fb)window._fb.listen();
+    // Auth will handle listen() after login
   });
-  // If Firebase already initialized before boot (race condition fix)
-  if(window._fbReady&&window._fb){
+  if(window._fbReady){
     setSyncStatus(true);
-    window._fb.listen();
   }
   document.addEventListener("fb-failed",function(){
     setSyncStatus(false);
@@ -762,8 +883,145 @@ function toggleMenu(){
   ov.addEventListener("click", function(){ closeSidebar(); });
   document.body.appendChild(ov);
 }
-const SECTIONS={dash:"sec-dash",acc:"sec-acc",tl:"sec-tl",set:"sec-set"};
-const TITLES={dash:"Grievance Tracker Dashboard",acc:"Accounts Node Analytics",tl:"Timeline Audit Trail",set:"System Control Panel"};
+const SECTIONS={dash:"sec-dash",acc:"sec-acc",tl:"sec-tl",set:"sec-set",users:"sec-users"};
+const TITLES={dash:"Grievance Tracker Dashboard",acc:"Accounts Node Analytics",tl:"Timeline Audit Trail",set:"System Control Panel",users:"User Management"};
+
+// ═══ LOGIN SYSTEM ═══
+// Copy splash photo to login logo
+(function(){
+  const sp=document.getElementById("sp-photo");
+  const li=document.getElementById("login-logo-img");
+  if(sp&&li) li.src=sp.src;
+})();
+
+function showLoginScreen(){
+  const ls=document.getElementById("login-screen");
+  if(ls) ls.classList.remove("hidden");
+}
+function hideLoginScreen(){
+  const ls=document.getElementById("login-screen");
+  if(ls) ls.classList.add("hidden");
+}
+function showLoginError(msg){
+  const e=document.getElementById("login-err");
+  if(e) e.textContent=msg;
+}
+function toggleLoginPass(){
+  const inp=document.getElementById("l-pass");
+  const eye=document.getElementById("pass-eye");
+  if(!inp)return;
+  inp.type = inp.type==="password" ? "text" : "password";
+  if(eye) eye.textContent = inp.type==="password" ? "👁" : "🙈";
+}
+async function doLogin(){
+  const email=(document.getElementById("l-email")?.value||"").trim();
+  const pass=document.getElementById("l-pass")?.value||"";
+  const btn=document.getElementById("login-btn");
+  showLoginError("");
+  if(!email||!pass){showLoginError("Email ও Password দিন");return;}
+  if(btn){btn.disabled=true;btn.textContent="Signing in...";}
+  try{
+    await window._auth.login(email, pass);
+    // onAuthStateChanged will handle the rest
+  }catch(e){
+    let msg="Login failed. Check email & password.";
+    if(e.code==="auth/user-not-found"||e.code==="auth/wrong-password"||e.code==="auth/invalid-credential") msg="Email বা Password ভুল।";
+    if(e.code==="auth/too-many-requests") msg="অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+    showLoginError(msg);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="Sign In";}
+  }
+}
+// Press Enter to login
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"){
+    const ls=document.getElementById("login-screen");
+    if(ls&&!ls.classList.contains("hidden")) doLogin();
+  }
+});
+
+// Auth success callback
+window._onAuthSuccess = function(user){
+  hideLoginScreen();
+  // Show/hide user management menu
+  const nm=document.getElementById("n-users");
+  if(nm) nm.style.display = window._isSuperAdmin ? "block" : "none";
+  // Show logout option in settings
+  const lob=document.getElementById("logout-btn");
+  if(lob) lob.style.display="block";
+  // Show current user name
+  const uname=document.getElementById("current-user-name");
+  if(uname) uname.textContent = user.email===("ziahaidar.emon@gmail.com")?"Z. H. EMON (Super Admin)":user.email;
+  // Listen for Firebase data
+  if(window._fb) window._fb.listen();
+  setSyncStatus(true);
+};
+
+// ═══ USER MANAGEMENT ═══
+function renderUsers(){
+  if(!window._auth){return;}
+  window._auth.listenUsers(users=>{
+    const el=document.getElementById("user-list");
+    if(!el)return;
+    const active=users.filter(u=>u.active!==false);
+    if(!active.length){
+      el.innerHTML=`<div style="color:var(--tm);font-size:13px;text-align:center;padding:20px;">কোনো user নেই</div>`;
+      return;
+    }
+    el.innerHTML=active.map(u=>`
+      <div class="user-card">
+        <div class="user-info">
+          <div class="user-name">${esc(u.name||u.email)}</div>
+          <div class="user-email">${esc(u.email)}</div>
+        </div>
+        <span class="user-role">${u.role==="handler"?"Handler":"Investigator"}</span>
+        <button class="btn-del-user" onclick="confirmDeleteUser('${u.uid}','${esc(u.name||u.email)}')">✕ Remove</button>
+      </div>
+    `).join("");
+  });
+}
+
+async function addUser(){
+  if(!window._isSuperAdmin){toast("⚠ Permission denied","err");return;}
+  const name=(document.getElementById("nu-name")?.value||"").trim();
+  const email=(document.getElementById("nu-email")?.value||"").trim();
+  const pass=document.getElementById("nu-pass")?.value||"";
+  const role=document.getElementById("nu-role")?.value||"handler";
+  if(!name||!email||!pass){toast("⚠ সব ঘর পূরণ করুন","err");return;}
+  if(pass.length<6){toast("⚠ Password কমপক্ষে 6 অক্ষর হতে হবে","err");return;}
+  try{
+    await window._auth.createUser(email, pass, name, role);
+    // Re-login as super admin
+    const savedEmail="ziahaidar.emon@gmail.com";
+    toast("✓ User তৈরি হয়েছে। Super Admin হিসেবে আবার login করুন।","ok");
+    document.getElementById("nu-name").value="";
+    document.getElementById("nu-email").value="";
+    document.getElementById("nu-pass").value="";
+    // Force re-auth
+    setTimeout(()=>{ if(window._auth) window._auth.logout(); }, 2000);
+  }catch(e){
+    let msg="User তৈরি করা যায়নি।";
+    if(e.code==="auth/email-already-in-use") msg="এই email আগে থেকে registered।";
+    toast("⚠ "+msg,"err");
+  }
+}
+
+function confirmDeleteUser(uid, name){
+  if(!confirm(`"${name}" কে remove করবেন?
+সে আর login করতে পারবে না।`)) return;
+  deleteUserById(uid);
+}
+async function deleteUserById(uid){
+  if(!window._auth){return;}
+  try{
+    await window._auth.deleteUser(uid);
+    toast("✓ User নিষ্ক্রিয় করা হয়েছে","ok");
+  }catch(e){
+    toast("⚠ Error: "+e.message,"err");
+  }
+}
+
+// Update goTo to render users
 function goTo(id){
   // Remove active from all nav items and sections
   document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
@@ -783,6 +1041,7 @@ function goTo(id){
   // Render section content
   if(id==="acc")renderAccounts();
   if(id==="tl")renderTimeline();
+  if(id==="users"&&window._isSuperAdmin){renderUsers();renderAccessRequests();}
   if(id==="set"){
     const dlc=document.getElementById("dl-count");
     if(dlc)dlc.textContent=grievances.length;
@@ -1177,6 +1436,104 @@ function renderAccounts(){
 }
 
 // ═══ TIMELINE ═══
+
+// ═══ FORGOT PASSWORD ═══
+async function doForgotPassword(){
+  const email=(document.getElementById("l-email")?.value||"").trim();
+  if(!email){showLoginError("Email দিন তারপর Forgot Password click করুন");return;}
+  try{
+    const {getAuth,sendPasswordResetEmail}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    const auth=getAuth();
+    await sendPasswordResetEmail(auth,email);
+    showLoginError("✓ Password reset email পাঠানো হয়েছে! inbox চেক করুন।");
+  }catch(e){
+    showLoginError("Error: "+e.message);
+  }
+}
+
+// ═══ REQUEST ACCESS ═══
+function showRequestAccess(){
+  const f=document.getElementById("req-access-form");
+  if(f) f.style.display=f.style.display==="none"?"block":"none";
+}
+async function submitAccessRequest(){
+  const name=(document.getElementById("req-name")?.value||"").trim();
+  const email=(document.getElementById("req-email")?.value||"").trim();
+  const role=document.getElementById("req-role")?.value||"handler";
+  if(!name||!email){showLoginError("নাম ও email দিন");return;}
+  try{
+    const reqId="REQ_"+Date.now();
+    // Save request to Firebase
+    if(window._fb){
+      const {getDatabase,ref,set}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+      const db=getDatabase();
+      await set(ref(db,"access_requests/"+reqId),{
+        id:reqId, name, email, role, status:"pending", requestedAt:new Date().toISOString()
+      });
+    }
+    showLoginError("✓ Request পাঠানো হয়েছে! Admin approve করলে email পাবেন।");
+    document.getElementById("req-access-form").style.display="none";
+  }catch(e){
+    showLoginError("Error: "+e.message);
+  }
+}
+
+// ═══ RENDER ACCESS REQUESTS (Admin) ═══
+async function renderAccessRequests(){
+  if(!window._isSuperAdmin||!window._fb) return;
+  const {getDatabase,ref,onValue,set,remove}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+  const db=getDatabase();
+  onValue(ref(db,"access_requests"),snap=>{
+    const reqs=[];
+    snap.forEach(c=>{const v=c.val();if(v&&v.status==="pending")reqs.push(v);});
+    const el=document.getElementById("req-list");
+    if(!el)return;
+    if(!reqs.length){el.innerHTML=`<div style="color:var(--tm);font-size:12px;text-align:center;padding:12px;">কোনো pending request নেই</div>`;return;}
+    el.innerHTML=reqs.map(r=>`
+      <div class="user-card" style="flex-wrap:wrap;gap:8px;">
+        <div class="user-info">
+          <div class="user-name">${esc(r.name)}</div>
+          <div class="user-email">${esc(r.email)}</div>
+          <span class="user-role">${r.role==="handler"?"Handler":"Investigator"}</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="approveRequest('${r.id}','${esc(r.name)}','${esc(r.email)}','${r.role}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✓ Approve</button>
+          <button onclick="rejectRequest('${r.id}')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✕ Reject</button>
+        </div>
+      </div>`).join("");
+  });
+}
+
+async function approveRequest(reqId,name,email,role){
+  const pass=prompt(`"${name}" এর জন্য password সেট করুন (কমপক্ষে 6 অক্ষর):`);
+  if(!pass||pass.length<6){alert("Password কমপক্ষে 6 অক্ষর হতে হবে");return;}
+  try{
+    await window._auth.createUser(email,pass,name,role);
+    // Mark request as approved
+    const {getDatabase,ref,set}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await set(ref(getDatabase(),"access_requests/"+reqId+"/status"),"approved");
+    toast("✓ "+name+" approved! আবার login করুন।","ok");
+    setTimeout(()=>{ if(window._auth) window._auth.logout(); },2000);
+  }catch(e){
+    toast("⚠ Error: "+e.message,"err");
+  }
+}
+
+async function rejectRequest(reqId){
+  if(!confirm("Request reject করবেন?"))return;
+  const {getDatabase,ref,set}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+  await set(ref(getDatabase(),"access_requests/"+reqId+"/status"),"rejected");
+  toast("Request reject করা হয়েছে","ok");
+}
+
+async function doLogout(){
+  if(!confirm("Logout করবেন?")) return;
+  if(window._auth) await window._auth.logout();
+  showLoginScreen();
+  // Reset UI
+  const uname=document.getElementById("current-user-name");
+  if(uname) uname.textContent="—";
+}
 function clearTlFilters(){
   document.getElementById("tl-search").value="";
   document.getElementById("tl-status").value="";
@@ -1372,10 +1729,11 @@ document.addEventListener("click",function(e){
 });
 </script>
 
-<!-- ═══ FIREBASE REALTIME DATABASE ═══ -->
+<!-- ═══ FIREBASE ═══ -->
 <script type="module">
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const cfg = {
     apiKey:            "AIzaSyAloqcTSfE1QFayJvqmDGO8bZFP-xR-rLU",
@@ -1417,6 +1775,94 @@ document.addEventListener("click",function(e){
         });
       }
     };
+
+    // ═══ AUTH ═══
+    const auth = getAuth(app);
+    const SUPER_ADMIN = "ziahaidar.emon@gmail.com";
+    const USERS_NODE = "app_users";
+
+    window._auth = {
+      async login(email, pass) {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        return cred.user;
+      },
+      async logout() {
+        await signOut(auth);
+      },
+      async createUser(email, pass, name, role) {
+        // Create in Firebase Auth
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        // Save profile in DB
+        await set(ref(db, USERS_NODE + "/" + cred.user.uid), {
+          uid: cred.user.uid, email, name, role, active: true
+        });
+        // Sign back in as admin (creating user signs in as new user)
+        return cred.user;
+      },
+      async deleteUser(uid, email) {
+        // Disable in DB
+        await set(ref(db, USERS_NODE + "/" + uid + "/active"), false);
+        if(typeof window._onUserDeleted === "function") window._onUserDeleted(uid);
+      },
+      async getUsers() {
+        const snap = await get(ref(db, USERS_NODE));
+        const list = [];
+        snap.forEach(c => { const v=c.val(); if(v&&v.email!==SUPER_ADMIN) list.push(v); });
+        return list;
+      },
+      listenUsers(cb) {
+        onValue(ref(db, USERS_NODE), snap => {
+          const list = [];
+          snap.forEach(c => { const v=c.val(); if(v&&v.email!==SUPER_ADMIN) list.push(v); });
+          cb(list);
+        });
+      },
+      onAuth(cb) { onAuthStateChanged(auth, cb); },
+      isSuperAdmin(user) { return user && user.email === SUPER_ADMIN; }
+    };
+
+    // Auth state listener — wait for splash to finish
+    onAuthStateChanged(auth, (user) => {
+      function handleAuth(){
+        if(user) {
+          if(user.email === SUPER_ADMIN) {
+            window._currentUser = user;
+            window._isSuperAdmin = true;
+            hideLoginScreen();
+            if(typeof window._onAuthSuccess === "function") window._onAuthSuccess(user);
+            return;
+          }
+          get(ref(db, USERS_NODE + "/" + user.uid + "/active")).then(snap => {
+            const isActive = snap.val();
+            if(isActive === false) {
+              signOut(auth);
+              showLoginError("আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।");
+              showLoginScreen();
+              return;
+            }
+            window._currentUser = user;
+            window._isSuperAdmin = false;
+            hideLoginScreen();
+            if(typeof window._onAuthSuccess === "function") window._onAuthSuccess(user);
+          }).catch(() => {
+            signOut(auth);
+            showLoginScreen();
+          });
+        } else {
+          window._currentUser = null;
+          window._isSuperAdmin = false;
+          showLoginScreen();
+        }
+      }
+      // Wait for splash/app to be shown first
+      if(window._appShown){
+        handleAuth();
+      } else {
+        const t=setInterval(()=>{
+          if(window._appShown){ clearInterval(t); handleAuth(); }
+        },200);
+      }
+    });
 
     window._fbReady = true;
     document.dispatchEvent(new Event("fb-ready"));
