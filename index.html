@@ -897,6 +897,8 @@ function setSyncSaved(){
   const t=now.toLocaleTimeString();
   ["tb-dot","mob-dot"].forEach(id=>{const el=document.getElementById(id);if(el){el.style.background="#2aeeb5";el.style.boxShadow="0 0 8px #2aeeb5";}});
   ["tb-txt","mob-txt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="Synced "+t;});
+  // Revert to "Online" after 3s
+  setTimeout(()=>setSyncStatus(true), 3000);
 }
 
 // ═══ FIREBASE CALLBACK ═══
@@ -1153,11 +1155,16 @@ window._currentUser = window._currentUser || null;
 window._isSuperAdmin = window._isSuperAdmin || false;
 window._appShown = window._appShown || false;
 
-// Copy splash photo to login avatar
+// Copy photo to login avatar
 (function(){
+  // Try sp-photo first, then use the favicon base64
   const sp=document.getElementById("sp-photo");
   const av=document.getElementById("ls-avatar");
-  if(sp&&av) av.src=sp.src;
+  const favicon=document.querySelector("link[rel='icon']");
+  if(av){
+    if(sp&&sp.src&&sp.src.length>10) av.src=sp.src;
+    else if(favicon&&favicon.href&&favicon.href.startsWith("data:")) av.src=favicon.href;
+  }
 })();
 
 function lsShow(){
