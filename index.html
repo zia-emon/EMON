@@ -503,6 +503,8 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
       <div class="topbar-right" style="display:flex;align-items:center;gap:8px;">
         <button class="btn-top" onclick="refreshData()" title="Refresh Data" style="padding:7px 12px;font-size:16px;">🔄</button>
         <button class="btn-top" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn-top" onclick="downloadPDF()" style="background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-weight:700;">📄 Download PDF</button>
+        <button id="topbar-logout-btn" onclick="lsLogout()" style="display:none;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚪 Logout</button>
       </div>
     </header>
 
@@ -837,7 +839,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <label style="font-size:14px;color:var(--aqua);">💾 Download Data</label>
             <div style="display:flex;gap:7px;margin-top:7px;">
               <button onclick="downloadCSV()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#38bdf8,#0284c7);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;">⬇ CSV</button>
-              <button onclick="downloadJSON()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;">⬇ JSON</button>
+              <button onclick="downloadPDF()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;">📄 Download PDF</button>
             </div>
             <div style="font-size:11px;color:var(--tm);margin-top:5px;text-align:center;">Records: <strong id="dl-count">0</strong></div>
           </div>
@@ -1254,6 +1256,8 @@ function lsOnSuccess(){
   if(lb) lb.style.display="block";
   const mlb=document.getElementById("mob-logout-btn");
   if(mlb) mlb.style.display="flex";
+  const tlb=document.getElementById("topbar-logout-btn");
+  if(tlb) tlb.style.display="block";
   // Load Firebase data
   if(window._fb) window._fb.listen();
   setSyncStatus(true);
@@ -1272,6 +1276,8 @@ function lsLogout(){
   if(lb) lb.style.display="none";
   const mlb2=document.getElementById("mob-logout-btn");
   if(mlb2) mlb2.style.display="none";
+  const tlb2=document.getElementById("topbar-logout-btn");
+  if(tlb2) tlb2.style.display="none";
 }
 
 // Enter key login
@@ -2278,6 +2284,109 @@ function downloadJSON(){
   const blob=new Blob([JSON.stringify(grievances,null,2)],{type:"application/json"});
   triggerDownload(URL.createObjectURL(blob), `Grievance_${new Date().toISOString().slice(0,10)}.json`);
   toast("✓ JSON Downloaded","ok");
+}
+function downloadPDF(){
+  if(!grievances.length){toast("⚠ No data to export","err");return;}
+  const src = filtered.length ? filtered : grievances;
+  const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
+
+  const rows = src.map((g, i) => {
+    const date = g.date || "";
+    const empId = (g.empId||"—").replace(/</g,"&lt;");
+    const empName = (g.empName||"—").replace(/</g,"&lt;");
+    const section = (g.section||"—").replace(/</g,"&lt;");
+    const designation = (g.designation||"—").replace(/</g,"&lt;");
+    const type = (g.type||"—").replace(/</g,"&lt;");
+    const description = (g.description||"—").replace(/</g,"&lt;");
+    const investigator = (g.investigator||"—").replace(/</g,"&lt;");
+    const handler = (g.handler||"—").replace(/</g,"&lt;");
+    const status = g.status||"—";
+    const processing = (g.processing||"—").replace(/</g,"&lt;");
+    // Processing log
+    let logHtml = "";
+    if(g.processingLog && g.processingLog.length){
+      logHtml = '<div style="margin-top:4px;font-size:9px;color:#555;border-top:1px solid #ddd;padding-top:3px;">'
+        + g.processingLog.slice().reverse().map(pl =>
+            `<div style="padding:1px 0;">📋 ${pl.date||""} — ${(pl.action||"").replace(/</g,"&lt;")}</div>`
+          ).join("")
+        + "</div>";
+    }
+    // Status badge color
+    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[status]||"#999";
+    // Type pill color (based on class mapping)
+    const typeColors = {"ধারা ২৩/৪ (ক)":"#f87171","ধারা ২৩/৪ (খ)":"#fb923c","ধারা ২৩/৪ (গ)":"#a78bfa","ধারা ২৩/৪ (ঘ)":"#38bdf8","ধারা ২৩/৪ (ঙ)":"#4ade80","ধারা ২৩/৪ (চ)":"#f472b6","ধারা ৫২(ক)":"#818cf8"};
+    const typeClr = typeColors[g.type]||"#0a5f6a";
+    const bg = i%2 ? "#f0fafa" : "#ffffff";
+
+    return `<tr style="background:${bg};vertical-align:top;">
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;white-space:nowrap;">${date}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;"><strong>${empId}</strong><br><span style="color:#555;">${empName}</span></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;white-space:nowrap;">${section}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${designation}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
+        <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap;">${type}</span>
+      </td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;text-align:center;"><span style="background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:10px;font-size:9px;">${investigator}</span></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;text-align:center;"><span style="background:#f0fdf4;color:#166534;padding:2px 6px;border-radius:10px;font-size:9px;">${handler}</span></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
+        <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
+      </td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
+    </tr>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>AKH Grievance Report</title>
+  <style>
+    @page{margin:10mm 8mm}
+    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#1a3a3a;font-size:11px}
+    .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a5f6a;padding-bottom:10px;margin-bottom:14px}
+    .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
+    .header-left p{margin:2px 0;color:#555;font-size:10px}
+    .header-right{text-align:right;font-size:10px;color:#666}
+    table{width:100%;border-collapse:collapse;font-size:10px}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;white-space:nowrap}
+    tr:hover{background:#e6f7f9!important}
+    .footer{margin-top:14px;font-size:9px;color:#999;text-align:right;border-top:1px solid #ddd;padding-top:6px}
+    @media print{body{padding:0} .footer{position:fixed;bottom:5mm;right:8mm}}
+  </style></head>
+  <body>
+    <div class="header">
+      <div class="header-left">
+        <h1>🏭 AKH Eco Apparels Ltd.</h1>
+        <p>Grievance Tracker — Full Report</p>
+        <p>Generated: ${today} &nbsp;|&nbsp; Total Records: <strong>${src.length}</strong></p>
+      </div>
+      <div class="header-right">
+        <div style="font-size:22px;font-weight:900;color:#0a5f6a;">AKH</div>
+        <div>HR Department</div>
+        <div>Dhamrai, Dhaka</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Date</th>
+        <th>Employee (ID / Name)</th>
+        <th>Line/Sec</th>
+        <th>Designation</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Investigator</th>
+        <th>Handler</th>
+        <th>Status</th>
+        <th>Processing & Log</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Page <span id="pg"></span></div>
+    <script>window.onload=()=>{window.print()}<\/script>
+  </body></html>`;
+
+  const win = window.open("","_blank");
+  if(win){ win.document.write(html); win.document.close(); }
+  else{ toast("⚠ Pop-up blocked! Allow pop-ups and try again","err"); return; }
+  toast("📄 PDF ready — Print করুন / Save as PDF","ok");
 }
 function exportCSV(){downloadCSV();}
 
