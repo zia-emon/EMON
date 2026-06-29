@@ -132,13 +132,65 @@ textarea.fc{resize:vertical;min-height:80px;}
 .btn-clear{background:linear-gradient(180deg,#fda4af,#e11d48,#9f1239);box-shadow:0 5px 14px rgba(225,29,72,0.3);}
 
 /* TABLE */
-.tbl-wrap{overflow-x:auto;border-radius:16px;background:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.6);}
+.tbl-wrap{overflow-x:auto;border-radius:16px;background:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.6);} .tbl-wrap thead tr{background:linear-gradient(90deg,rgba(23,147,158,0.08),rgba(180,236,240,0.12));border-bottom:2px solid rgba(255,255,255,0.5);}
 table{width:100%;border-collapse:collapse;font-size:12px;font-weight:700;}
-th{background:rgba(23,147,158,0.15);padding:10px 12px;color:var(--aqua);text-transform:uppercase;font-size:9px;font-weight:800;letter-spacing:.5px;border-bottom:2px solid rgba(255,255,255,0.6);}
-td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-align:middle;}
+th{background:linear-gradient(135deg,rgba(23,147,158,0.15),rgba(180,236,240,0.2));color:var(--td);padding:8px 12px;text-align:left;font-size:10px;font-weight:800;white-space:nowrap;border-bottom:2px solid rgba(255,255,255,0.6);}
+td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.06);vertical-align:middle;}
+/* Jelly row separator: invisible spacer row effect via shadow */
+.drow{position:relative;}
+.drow td{padding-top:12px !important;padding-bottom:12px !important;}
+tbody .drow:not(:last-child) td{
+  border-bottom:6px solid transparent !important;
+  box-shadow:0 4px 0 -2px rgba(23,147,158,0.07);
+}
 .col-filter{width:100%;margin-top:4px;padding:3px 5px;border-radius:7px;font-size:9px;font-weight:700;background:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.9);color:var(--td);outline:none;}
-.drow{background:rgba(255,255,255,0.15);cursor:pointer;}
-.drow:hover{background:rgba(255,255,255,0.5);}
+/* JELLY HEADERS */
+#tbody closest table thead tr th{padding:6px 8px;}
+.th-jelly-wrap{display:flex;align-items:center;justify-content:center;}
+.th-jelly{
+  display:inline-block;
+  padding:5px 12px;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.55) 0%,rgba(180,236,240,0.45) 100%);
+  border:1.5px solid rgba(255,255,255,0.75);
+  color:var(--td);
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap;
+  box-shadow:0 3px 10px rgba(12,109,117,0.13),inset 0 1px 2px rgba(255,255,255,0.7);
+  letter-spacing:0.3px;
+  text-transform:uppercase;
+  cursor:default;
+  user-select:none;
+}
+
+/* JELLY ROW CARDS */
+.drow{
+  background:linear-gradient(135deg,rgba(255,255,255,0.55) 0%,rgba(220,248,252,0.38) 100%);
+  cursor:pointer;
+  border-radius:0;
+  transition:background .15s,box-shadow .15s;
+}
+.drow:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,0.82) 0%,rgba(188,240,245,0.65) 100%) !important;
+  box-shadow:inset 0 0 0 2px rgba(23,147,158,0.18);
+}
+.drow td{
+  border-bottom:none !important;
+  border-top:none !important;
+}
+/* Separator between rows */
+.drow + .drow > td:first-child{
+  border-top:6px solid transparent !important;
+}
+/* Each row gets a jelly card effect via box shadow on first td */
+.drow > td:first-child{
+  border-left:3px solid rgba(23,147,158,0.3) !important;
+}
+/* Alternating subtle tint */
+.drow:nth-child(even){
+  background:linear-gradient(135deg,rgba(255,255,255,0.38) 0%,rgba(200,240,245,0.28) 100%);
+}
 
 /* PILLS */
 .pill{display:inline-block;padding:4px 10px;border-radius:16px;font-size:10px;font-weight:800;white-space:nowrap;}
@@ -213,7 +265,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
   .page{padding:14px;}
   .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;}
   .stat-num{font-size:20px;}
-  .form-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr 1fr;}
 }
 
 .type-chk-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(15,108,116,0.08);cursor:pointer;transition:background .15s;user-select:none;}
@@ -547,6 +599,8 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <div class="fg"><label>Employee Name</label><input type="text" id="f-name" class="fc" placeholder="Full Name"></div>
             <div class="fg"><label>Line / Section</label><input type="text" id="f-sec" class="fc" placeholder="Line-12"></div>
             <div class="fg"><label>Designation</label><input type="text" id="f-desig" class="fc" placeholder="Operator / Helper..."></div>
+            <div class="fg"><label>অভিযোগকারীর নাম</label><input type="text" id="f-cname" class="fc" placeholder="অভিযোগকারীর পুরো নাম"></div>
+            <div class="fg"><label>অভিযোগকারীর পদবী</label><input type="text" id="f-cdesig" class="fc" placeholder="Supervisor / Quality..."></div>
             <div class="fg full" style="position:relative;">
               <label>Grievance Type <span style="font-size:10px;font-weight:400;color:var(--tm);">(একাধিক ধারা বেছে নিতে পারবেন)</span></label>
               <!-- Dropdown trigger -->
@@ -574,12 +628,12 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <div class="fg full"><label>Incident Description</label>
               <textarea id="f-desc" class="fc" placeholder="বিস্তারিত বিবরণ লিখুন..." spellcheck="false" autocomplete="off"></textarea>
             </div>
-            <div class="fg"><label>Investigator</label>
+            <div class="fg"><label><span id="form-lbl-inv">Investigator</span></label>
               <select id="f-invest" class="fc">
                 <option value="">— Select —</option>
               </select>
             </div>
-            <div class="fg"><label>Handler</label>
+            <div class="fg"><label><span id="form-lbl-hnd">Handler</span></label>
               <select id="f-handler" class="fc">
                 <option value="">— Select —</option>
               </select>
@@ -607,17 +661,16 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
           <div class="tbl-wrap">
             <table>
               <thead><tr>
-                <th><div>Date<br><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()"></div></th>
-                <th><div>Employee<br><input class="col-filter" id="cf-emp" placeholder="Name/ID" oninput="applyFilters()"></div></th>
-                <th><div>Line/Sec<br><input class="col-filter" id="cf-sec" placeholder="..." oninput="applyFilters()"></div></th>
-                <th>Designation</th>
-                <th><div>Type<br><select class="col-filter" id="cf-type" onchange="applyFilters()"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></div></th>
-                <th><div>Description<br><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()"></div></th>
-                <th><div>Investigator<br><select class="col-filter" id="cf-inv" onchange="applyFilters()"><option value="">All</option><option>OHIDUZZAMAN</option><option>EMON</option><option>MAHABUB</option><option>POLASH</option><option>ASHFACK</option><option>MUSTAFIZ</option><option>RABBANI</option><option>SHISHIR</option><option>MORIOM</option><option>FARUK</option><option>RANJUMA</option><option>SANZIDA</option><option>TANIA</option><option>NAZRUL</option><option>MASUD</option></select></div></th>
-                <th><div>Handler<br><select class="col-filter" id="cf-hnd" onchange="applyFilters()"><option value="">All</option><option>OHIDUZZAMAN</option><option>EMON</option><option>MAHABUB</option><option>POLASH</option><option>ASHFACK</option><option>MUSTAFIZ</option><option>RABBANI</option><option>SHISHIR</option><option>MORIOM</option><option>FARUK</option><option>RANJUMA</option><option>SANZIDA</option><option>TANIA</option><option>NAZRUL</option><option>MASUD</option></select></div></th>
-                <th><div>Status<br><select class="col-filter" id="cf-st" onchange="applyFilters()"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></div></th>
-                <th><div>Processing<br><select class="col-filter" id="cf-proc" onchange="applyFilters()"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></div></th>
-                <th>Actions</th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
               </tr></thead>
               <tbody id="tbody"></tbody>
             </table>
@@ -646,15 +699,14 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <span style="font-size:11px;font-weight:700;color:var(--tm);width:100%;margin-bottom:4px;">📋 Columns দেখান/লুকান:</span>
             <button class="col-tog active" data-col="0" onclick="togCol(0)">📅 Date</button>
             <button class="col-tog active" data-col="1" onclick="togCol(1)">👤 Employee</button>
-            <button class="col-tog active" data-col="2" onclick="togCol(2)">🏭 Line/Sec</button>
-            <button class="col-tog active" data-col="3" onclick="togCol(3)">💼 Designation</button>
-            <button class="col-tog active" data-col="4" onclick="togCol(4)">📌 Type</button>
-            <button class="col-tog active" data-col="5" onclick="togCol(5)">📝 Description</button>
-            <button class="col-tog active" data-col="6" onclick="togCol(6)">🔎 Investigator</button>
-            <button class="col-tog active" data-col="7" onclick="togCol(7)">👔 Handler</button>
-            <button class="col-tog active" data-col="8" onclick="togCol(8)">🔄 Status</button>
-            <button class="col-tog active" data-col="9" onclick="togCol(9)">⚙ Processing</button>
-            <button class="col-tog active" data-col="10" onclick="togCol(10)">🗑 Actions</button>
+            <button class="col-tog active" data-col="2" onclick="togCol(2)">🙋 অভিযোগকারী</button>
+            <button class="col-tog active" data-col="3" onclick="togCol(3)">📌 Type</button>
+            <button class="col-tog active" data-col="4" onclick="togCol(4)">📝 Description</button>
+            <button class="col-tog active" data-col="5" onclick="togCol(5)">🔎 Investigator</button>
+            <button class="col-tog active" data-col="6" onclick="togCol(6)">👔 Handler</button>
+            <button class="col-tog active" data-col="7" onclick="togCol(7)">🔄 Status</button>
+            <button class="col-tog active" data-col="8" onclick="togCol(8)">⚙ Processing</button>
+            <button class="col-tog active" data-col="9" onclick="togCol(9)">🗑 Actions</button>
           </div>
           <div class="tbl-wrap">
             <table><thead><tr><th>Handler</th><th>Assigned</th><th>Pending</th><th>Active</th><th>Resolved</th><th>Efficiency</th><th>Progress</th></tr></thead>
@@ -736,7 +788,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <div class="panel-title">👔 Handler List</div>
             <div id="handler-list"></div>
             <div style="display:flex;gap:8px;margin-top:12px;">
-              <input type="text" id="new-handler" class="fc" placeholder="নতুন Handler এর নাম" style="flex:1;text-transform:uppercase;">
+              <input type="text" id="new-handler" class="fc" placeholder="নাম - পদবী (যেমন: EMON - HR Officer)" style="flex:1;">
               <button onclick="addHandler()" style="padding:10px 16px;border-radius:12px;background:var(--btn);border:none;color:white;font-weight:700;cursor:pointer;white-space:nowrap;">+ Add</button>
             </div>
           </div>
@@ -748,7 +800,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <div class="panel-title">🔎 Investigator List</div>
             <div id="investigator-list"></div>
             <div style="display:flex;gap:8px;margin-top:12px;">
-              <input type="text" id="new-investigator" class="fc" placeholder="নতুন Investigator এর নাম" style="flex:1;text-transform:uppercase;">
+              <input type="text" id="new-investigator" class="fc" placeholder="নাম - পদবী (যেমন: MAHABUB - Supervisor)" style="flex:1;">
               <button onclick="addInvestigator()" style="padding:10px 16px;border-radius:12px;background:var(--btn);border:none;color:white;font-weight:700;cursor:pointer;white-space:nowrap;">+ Add</button>
             </div>
           </div>
@@ -844,6 +896,30 @@ td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.08);vertical-alig
             <div style="font-size:11px;color:var(--tm);margin-top:5px;text-align:center;">Records: <strong id="dl-count">0</strong></div>
           </div>
         </div>
+
+        <!-- SUPER ADMIN ONLY PANELS -->
+        <div id="sa-settings-panel" style="display:none;">
+
+          <!-- Column Heading Rename -->
+          <div class="panel" style="max-width:600px;margin-top:18px;">
+            <div class="panel-title">✏️ Grievance Log Column Headings <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
+            <div class="form-grid">
+              <div class="fg"><label>Date Column</label><input type="text" id="hl-date" class="fc" placeholder="Date / Countdown"></div>
+              <div class="fg"><label>Employee Column</label><input type="text" id="hl-emp" class="fc" placeholder="Employee"></div>
+              <div class="fg"><label>অভিযোগকারী Column</label><input type="text" id="hl-cmp" class="fc" placeholder="অভিযোগকারী"></div>
+              <div class="fg"><label>Type Column</label><input type="text" id="hl-type" class="fc" placeholder="Type"></div>
+              <div class="fg"><label>Description Column</label><input type="text" id="hl-desc" class="fc" placeholder="Description"></div>
+              <div class="fg"><label>Investigator Column</label><input type="text" id="hl-inv" class="fc" placeholder="Investigator"></div>
+              <div class="fg"><label>Handler Column</label><input type="text" id="hl-hnd" class="fc" placeholder="Handler"></div>
+              <div class="fg"><label>Status Column</label><input type="text" id="hl-st" class="fc" placeholder="Status"></div>
+              <div class="fg"><label>Processing Column</label><input type="text" id="hl-proc" class="fc" placeholder="Processing"></div>
+              <div class="fg"><label>Actions Column</label><input type="text" id="hl-act" class="fc" placeholder="Actions"></div>
+            </div>
+            <button onclick="saveColHeadings()" style="margin-top:12px;width:100%;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">💾 Save Headings</button>
+            <button onclick="resetColHeadings()" style="margin-top:7px;width:100%;padding:9px;border-radius:11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;">↺ Reset to Default</button>
+          </div>
+
+        </div><!-- /sa-settings-panel -->
       </div>
     </div>
   </main>
@@ -864,16 +940,16 @@ try{
   var _sp=localStorage.getItem("akh_proc_opts");
   var PROC_OPTS=_sp?JSON.parse(_sp):[...PROC_OPTS_DEFAULT];
 }catch(e){ var PROC_OPTS=[...PROC_OPTS_DEFAULT]; }
-var HANDLERS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
-var INVESTIGATORS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
+window.HANDLERS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
+window.INVESTIGATORS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
 try{
   var _sh=localStorage.getItem("akh_handlers");
   var _si=localStorage.getItem("akh_investigators");
-  var HANDLERS=_sh?JSON.parse(_sh):[...HANDLERS_DEFAULT];
-  var INVESTIGATORS=_si?JSON.parse(_si):[...INVESTIGATORS_DEFAULT];
+  window.HANDLERS=_sh?JSON.parse(_sh):[...window.HANDLERS_DEFAULT];
+  window.INVESTIGATORS=_si?JSON.parse(_si):[...window.INVESTIGATORS_DEFAULT];
 }catch(e){
-  var HANDLERS=[...HANDLERS_DEFAULT];
-  var INVESTIGATORS=[...INVESTIGATORS_DEFAULT];
+  window.HANDLERS=[...window.HANDLERS_DEFAULT];
+  window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
 }
 
 let grievances=[], filtered=[], page=1;
@@ -1018,11 +1094,11 @@ function runSplash(){
   document.addEventListener("fb-ready",function(){
     setSyncStatus(true);
     // Load users list for login check
-    if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u;});
+    if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u; try{renderUsers();}catch(e){}});
   });
   if(window._fbReady){
     setSyncStatus(true);
-    if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u;});
+    if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u; try{renderUsers();}catch(e){}});
   }
   document.addEventListener("fb-failed",function(){
     setSyncStatus(false);
@@ -1071,26 +1147,29 @@ const TITLES={dash:"Grievance Tracker Dashboard",acc:"Accounts Node Analytics",t
 // ═══ USER MANAGEMENT ═══
 
 function renderUsers(){
-  if(!window._auth){return;}
-  window._auth.listenUsers(users=>{
-    const el=document.getElementById("user-list");
-    if(!el)return;
-    const active=users.filter(u=>u.active!==false);
+  const el=document.getElementById("user-list");
+  if(!el)return;
+  // Use already-loaded _fbUsers
+  const users=window._fbUsers||[];
+  const active=users.filter(u=>u.active!==false&&u.username!==window.SUPER_ADMIN_USER&&u.username!=="admin");
+  {
     if(!active.length){
-      el.innerHTML=`<div style="color:var(--tm);font-size:13px;text-align:center;padding:20px;">কোনো user নেই</div>`;
+      el.innerHTML=`<div style="color:var(--tm);font-size:13px;text-align:center;padding:20px;">কোনো user নেই — Firebase load হলে দেখাবে</div>`;
+      // Keep trying if Firebase not ready yet
+      if(!window._fbUsers) setTimeout(renderUsers,1000);
       return;
     }
     el.innerHTML=active.map(u=>`
       <div class="user-card">
         <div class="user-info">
-          <div class="user-name">${esc(u.name||u.email)}</div>
-          <div class="user-email">${esc(u.email)}</div>
+          <div class="user-name">${esc(u.name||u.username||u.email||"")}</div>
+          <div class="user-email">${esc(u.email||u.username||"")}</div>
         </div>
-        <span class="user-role">${u.role==="handler"?"Handler":"Investigator"}</span>
-        <button class="btn-del-user" onclick="confirmDeleteUser('${u.uid}','${esc(u.name||u.email)}')">✕ Remove</button>
+        <span class="user-role">${u.role==="superadmin"?"Super Admin":u.role==="handler"?"Handler":"Investigator"}</span>
+        <button class="btn-del-user" onclick="confirmDeleteUser('${u.id}','${esc(u.name||u.username||"")}')">✕ Remove</button>
       </div>
     `).join("");
-  });
+  }
 }
 
 async function addUser(){
@@ -1151,8 +1230,8 @@ async function deleteUserById(uid){
 
 // ═══ LOGIN SYSTEM (Firebase DB based) ═══
 // ══════════════════════════════════════════
-var SUPER_ADMIN_USER = localStorage.getItem("akh_sa_user")||"ziahaidar.emon@gmail.com";
-var SUPER_ADMIN_PASS = localStorage.getItem("akh_sa_pass")||"emon@2025";
+var SUPER_ADMIN_USER = localStorage.getItem("akh_sa_user")||"admin";
+var SUPER_ADMIN_PASS = localStorage.getItem("akh_sa_pass")||"emon";
 window._currentUser = window._currentUser || null;
 window._isSuperAdmin = window._isSuperAdmin || false;
 window._appShown = window._appShown || false;
@@ -1201,8 +1280,9 @@ async function lsDoLogin(){
   if(btn){btn.disabled=true;btn.textContent="Signing in...";}
 
   try{
-    // Check super admin
-    if(username===SUPER_ADMIN_USER && pass===SUPER_ADMIN_PASS){
+    // Check super admin — multiple username variants, no Firebase needed
+    const isSA = (username===SUPER_ADMIN_USER || username==="admin" || username==="ziahaidar.emon@gmail.com") && pass===SUPER_ADMIN_PASS;
+    if(isSA){
       window._currentUser={username,role:"superadmin",name:"Z. H. EMON"};
       window._isSuperAdmin=true;
       lsOnSuccess();
@@ -1211,8 +1291,22 @@ async function lsDoLogin(){
 
     // Check regular users from Firebase
     if(!window._fbUsers){
-      lsError("App লোড হচ্ছে... একটু অপেক্ষা করুন।");
-      btn.disabled=false; btn.textContent="Sign In →";
+      lsError("🔄 Firebase connect হচ্ছে... একটু অপেক্ষা করুন।","success");
+      // Retry up to 8 seconds
+      let retries=0;
+      const retryInterval=setInterval(()=>{
+        retries++;
+        if(window._fbUsers){
+          clearInterval(retryInterval);
+          lsError("");
+          btn.disabled=false; btn.textContent="Sign In →";
+          lsSignIn(); // retry login
+        } else if(retries>=16){ // 8 seconds
+          clearInterval(retryInterval);
+          lsError("⚠ Firebase connect হচ্ছে না। Internet check করুন।");
+          btn.disabled=false; btn.textContent="Sign In →";
+        }
+      },500);
       return;
     }
     const user = window._fbUsers.find(u=>
@@ -1240,6 +1334,8 @@ function lsOnSuccess(){
   lsHide();
   // Request notification permission on login
   document.dispatchEvent(new Event("user-logged-in"));
+  // Apply saved column headings
+  applyColHeadings(loadColHeadings());
   // Now show main app
   document.body.classList.add("app-ready");
   // Column toggle — only super admin
@@ -1483,30 +1579,37 @@ function admTab(tab){
 function renderHandlerList(){
   const el=document.getElementById("handler-list");
   if(!el) return;
-  el.innerHTML=HANDLERS.map((h,i)=>`
-    <div class="list-item">
-      <span>👔 ${esc(h)}</span>
-      <button class="btn-remove" onclick="removeHandler(${i})">✕ Remove</button>
-    </div>`).join("") || "<div style='color:var(--tm);font-size:12px;padding:10px;'>কোনো Handler নেই</div>";
+  const list = window.HANDLERS || [];
+  if(!list.length){
+    el.innerHTML="<div style='color:var(--tm);font-size:12px;padding:10px;'>কোনো Handler নেই</div>";
+    return;
+  }
+  el.innerHTML=list.map((h,i)=>`
+    <div class="list-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(23,147,158,0.08);">
+      <span style="font-size:13px;font-weight:600;">👔 ${esc(h)}</span>
+      <button class="btn-remove" onclick="removeHandler(${i})" style="padding:6px 14px;border-radius:20px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">✕ Remove</button>
+    </div>`).join("");
 }
 
 function addHandler(){
   const inp=document.getElementById("new-handler");
-  const name=(inp?.value||"").trim().toUpperCase();
+  if(!inp){toast("⚠ Input field পাওয়া যাচ্ছে না","err");return;}
+  const name=(inp.value||"").trim();
   if(!name){toast("⚠ নাম দিন","err");return;}
-  if(HANDLERS.includes(name)){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
-  HANDLERS.push(name);
-  try{localStorage.setItem("akh_handlers",JSON.stringify(HANDLERS));}catch(e){}
+  if(!window.HANDLERS) window.HANDLERS=[];
+  if(window.HANDLERS.some(h=>h.toLowerCase()===name.toLowerCase())){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
+  window.HANDLERS.push(name);
+  try{localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));}catch(e){}
   inp.value="";
   renderHandlerList();
   rebuildDropdowns();
-  toast("✓ Handler যোগ হয়েছে","ok");
+  toast("✓ যোগ হয়েছে: "+name,"ok");
 }
 
 function removeHandler(i){
   if(!confirm("Handler remove করবেন?")) return;
-  HANDLERS.splice(i,1);
-  try{localStorage.setItem("akh_handlers",JSON.stringify(HANDLERS));}catch(e){}
+  window.HANDLERS.splice(i,1);
+  try{localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));}catch(e){}
   renderHandlerList();
   rebuildDropdowns();
   toast("✓ Handler সরানো হয়েছে","ok");
@@ -1515,47 +1618,58 @@ function removeHandler(i){
 function renderInvestigatorList(){
   const el=document.getElementById("investigator-list");
   if(!el) return;
-  el.innerHTML=INVESTIGATORS.map((h,i)=>`
-    <div class="list-item">
-      <span>🔎 ${esc(h)}</span>
-      <button class="btn-remove" onclick="removeInvestigator(${i})">✕ Remove</button>
-    </div>`).join("") || "<div style='color:var(--tm);font-size:12px;padding:10px;'>কোনো Investigator নেই</div>";
+  const list = window.INVESTIGATORS || [];
+  if(!list.length){
+    el.innerHTML="<div style='color:var(--tm);font-size:12px;padding:10px;'>কোনো Investigator নেই</div>";
+    return;
+  }
+  el.innerHTML=list.map((h,i)=>`
+    <div class="list-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(23,147,158,0.08);">
+      <span style="font-size:13px;font-weight:600;">🔎 ${esc(h)}</span>
+      <button class="btn-remove" onclick="removeInvestigator(${i})" style="padding:6px 14px;border-radius:20px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">✕ Remove</button>
+    </div>`).join("");
 }
 
 function addInvestigator(){
   const inp=document.getElementById("new-investigator");
-  const name=(inp?.value||"").trim().toUpperCase();
+  if(!inp){toast("⚠ Input field পাওয়া যাচ্ছে না","err");return;}
+  const name=(inp.value||"").trim();
   if(!name){toast("⚠ নাম দিন","err");return;}
-  if(INVESTIGATORS.includes(name)){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
-  INVESTIGATORS.push(name);
-  try{localStorage.setItem("akh_investigators",JSON.stringify(INVESTIGATORS));}catch(e){}
+  if(!window.INVESTIGATORS) window.INVESTIGATORS=[];
+  if(window.INVESTIGATORS.some(h=>h.toLowerCase()===name.toLowerCase())){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
+  window.INVESTIGATORS.push(name);
+  try{localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));}catch(e){}
   inp.value="";
   renderInvestigatorList();
   rebuildDropdowns();
-  toast("✓ Investigator যোগ হয়েছে","ok");
+  toast("✓ যোগ হয়েছে: "+name,"ok");
 }
 
 function removeInvestigator(i){
   if(!confirm("Investigator remove করবেন?")) return;
-  INVESTIGATORS.splice(i,1);
-  try{localStorage.setItem("akh_investigators",JSON.stringify(INVESTIGATORS));}catch(e){}
+  window.INVESTIGATORS.splice(i,1);
+  try{localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));}catch(e){}
   renderInvestigatorList();
   rebuildDropdowns();
   toast("✓ Investigator সরানো হয়েছে","ok");
 }
 
+function populateInvestigatorSelect(){rebuildDropdowns();}
+function populateHandlerSelect(){rebuildDropdowns();}
+function populateFilterInvestigator(){rebuildDropdowns();}
+function populateFilterHandler(){rebuildDropdowns();}
 function rebuildDropdowns(){
   // Rebuild investigator dropdown
   const fi=document.getElementById("f-invest");
   if(fi){
     const v=fi.value;
-    fi.innerHTML=`<option value="">— Select —</option>`+INVESTIGATORS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
+    fi.innerHTML=`<option value="">— Select —</option>`+window.INVESTIGATORS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
   }
   // Rebuild handler dropdown
   const fh=document.getElementById("f-handler");
   if(fh){
     const v=fh.value;
-    fh.innerHTML=`<option value="">— Select —</option>`+HANDLERS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
+    fh.innerHTML=`<option value="">— Select —</option>`+window.HANDLERS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
   }
 }
 
@@ -1641,7 +1755,7 @@ function goTo(id){
   const titleEl=document.getElementById("topbar-title");
   if(titleEl)titleEl.textContent=TITLES[id]||"";
   // Render section content
-  if(id==="acc")renderAccounts();
+  if(id==="acc"){renderAccounts(); if(window._isSuperAdmin) renderUsers();}
   if(id==="tl")renderTimeline();
   if(id==="users"&&window._isSuperAdmin){renderUsers();}
   if(id==="set"){
@@ -1649,6 +1763,7 @@ function goTo(id){
     if(dlc)dlc.textContent=grievances.length;
     const savedTheme=localStorage.getItem("akh_theme");
     if(savedTheme){const ts=document.getElementById("theme-sel");if(ts)ts.value=savedTheme;}
+    refreshSAPanel();
   }
 }
 
@@ -1683,9 +1798,10 @@ function applyFilters(){
   const cfP=document.getElementById("cf-proc")?.value||"";
 
   filtered=grievances.filter(g=>{
-    const mQ=!q||[g.empId,g.empName,g.section,g.description,g.type,g.investigator,g.handler,g.processing].some(f=>(f||"").toLowerCase().includes(q));
-    return mQ&&(!cfD||(g.date||"").includes(cfD))&&(!cfE||(g.empId+" "+g.empName).toLowerCase().includes(cfE))
-      &&(!cfS||(g.section||"").toLowerCase().includes(cfS))&&(!cfT||g.type===cfT)
+    const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,g.processing].some(f=>(f||"").toLowerCase().includes(q));
+    const empMatch=!cfE||(g.empId+" "+g.empName+" "+g.section+" "+g.designation).toLowerCase().includes(cfE);
+    const cmpMatch=!cfS||((g.complainantName||"")+" "+(g.complainantDesig||"")).toLowerCase().includes(cfS);
+    return mQ&&(!cfD||(g.date||"").includes(cfD))&&empMatch&&cmpMatch&&(!cfT||g.type===cfT)
       &&(!cfDesc||(g.description||"").toLowerCase().includes(cfDesc))&&(!cfI||g.investigator===cfI)
       &&(!cfH||g.handler===cfH)&&(!cfSt||g.status===cfSt)&&(!cfP||g.processing===cfP);
   });
@@ -1772,11 +1888,39 @@ function renderTable(){
       const yOpts=Array.from({length:6},(_,i)=>{const v=String(2023+i);return`<option value="${v}"${yr===v?" selected":""}>${v}</option>`;}).join("");
       return`<div class="proc-log-row"><div class="dmy"><select class="dd" onchange="updProcDate('${g.id}',${ri2},this.value,'d')">${dOpts}</select><span class="dmy-sep">/</span><select class="dm" onchange="updProcDate('${g.id}',${ri2},this.value,'m')">${mOpts}</select><span class="dmy-sep">/</span><select class="dy" onchange="updProcDate('${g.id}',${ri2},this.value,'y')">${yOpts}</select></div><span class="proc-action">— ${esc(pl.action)}</span><button class="proc-del" onclick="delProcLog('${g.id}',${ri2},event)" title="Delete this entry">✕</button></div>`;
     }).join("")}</div>`:"";
+    // 60-day countdown
+    const today60=new Date(); today60.setHours(0,0,0,0);
+    const gDate=new Date(g.date); gDate.setHours(0,0,0,0);
+    const elapsed=Math.floor((today60-gDate)/(1000*60*60*24));
+    const remaining=60-elapsed;
+    let cdColor,cdBg,cdLabel;
+    let cdHtml="";
+    if(g.status==="Resolved"||g.status==="Closed"){
+      const _clr=g.status==="Resolved"?"#059669":"#6b7280";
+      const _bg=g.status==="Resolved"?"rgba(5,150,105,0.12)":"rgba(107,114,128,0.12)";
+      const _lbl=g.status==="Resolved"?"✅ Case Resolved":"🔒 Case Closed";
+      cdHtml=`<div style="margin-top:4px;padding:2px 8px;border-radius:20px;background:${_bg};color:${_clr};font-size:9px;font-weight:800;text-align:center;white-space:nowrap;display:inline-block;">${_lbl}</div>`;
+    } else {
+      if(remaining>20){cdColor="#059669";cdBg="rgba(5,150,105,0.12)";cdLabel="✅";}
+      else if(remaining>7){cdColor="#d97706";cdBg="rgba(217,119,6,0.12)";cdLabel="⚠️";}
+      else if(remaining>0){cdColor="#dc2626";cdBg="rgba(220,38,38,0.14)";cdLabel="🔴";}
+      else{cdColor="#7c3aed";cdBg="rgba(124,58,237,0.12)";cdLabel="⛔";}
+      const cdText=remaining>0?`${remaining} দিন বাকি`:`${Math.abs(remaining)} দিন অতিক্রান্ত`;
+      cdHtml=`<div style="margin-top:4px;padding:2px 8px;border-radius:20px;background:${cdBg};color:${cdColor};font-size:9px;font-weight:800;text-align:center;white-space:nowrap;display:inline-block;">${cdLabel} ${cdText}</div>`;
+    }
     return`<tr class="drow" onclick="editRow('${g.id}')">
-      <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">${g.date}</td>
-      <td><strong>${esc(g.empId)}</strong><br><small>${esc(g.empName)}</small></td>
-      <td style="white-space:nowrap;">${esc(g.section||"—")}</td>
-      <td>${esc(g.designation||"—")}</td>
+      <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">
+        ${g.date}
+        ${cdHtml}
+      </td>
+      <td>
+        <strong style="font-size:11px;">${esc(g.empId)}</strong><br>
+        <span style="font-size:11px;">${esc(g.empName)}</span><br>
+        <small style="color:var(--tm);font-size:10px;">📍 ${esc(g.section||"—")} · ${esc(g.designation||"—")}</small>
+      </td>
+      <td style="font-size:11px;">
+        ${g.complainantName?`<span style="font-weight:700;">${esc(g.complainantName)}</span><br><small style="color:var(--tm);">${esc(g.complainantDesig||"—")}</small>`:`<span style="color:var(--tm);font-size:10px;">—</span>`}
+      </td>
       <td><span class="pill ${tm.cls}">${esc(g.type)}</span></td>
       <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div></td>
       <td><span class="ptag">${esc(g.investigator||"—")}</span></td>
@@ -1891,13 +2035,15 @@ async function saveGrievance(){
   const empName=document.getElementById("f-name").value.trim();
   const section=document.getElementById("f-sec").value.trim();
   const designation=document.getElementById("f-desig").value.trim();
+  const complainantName=document.getElementById("f-cname").value.trim();
+  const complainantDesig=document.getElementById("f-cdesig").value.trim();
   const types=getSelectedTypes();
   const type=types.join(", ");
   const description=document.getElementById("f-desc").value.trim();
   const investigator=document.getElementById("f-invest").value;
   const handler=document.getElementById("f-handler").value;
   if(!empId||!empName||!description||!types.length){toast("⚠ অন্তত একটি ধারা নির্বাচন করুন এবং সব আবশ্যিক ঘর পূরণ করুন","err");return;}
-  const payload={date:document.getElementById("f-date").value,empId,empName,section,designation,type,description,investigator,handler};
+  const payload={date:document.getElementById("f-date").value,empId,empName,section,designation,complainantName,complainantDesig,type,description,investigator,handler};
   if(eid){
     const g=grievances.find(x=>x.id===eid);
     if(g){Object.assign(g,payload);await persistOne(g);}
@@ -1906,7 +2052,7 @@ async function saveGrievance(){
     const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"শো কজ",processingLog:[{date:new Date().toISOString().slice(0,10),action:"শো কজ"}]};
     grievances.unshift(newG);
     // Pre-register own ID so no self-notification
-    if(window._knownGrvIds) window._knownGrvIds.add(newG.id);
+    if(window._grvState) window._grvState[newG.id]={status:newG.status||"",processing:newG.processing||""};
     persistOne(newG);
     toast("✓ Grievance Saved","ok");resetForm();
   }
@@ -1920,6 +2066,8 @@ function editRow(id){
   document.getElementById("f-name").value=g.empName;
   document.getElementById("f-sec").value=g.section||"";
   document.getElementById("f-desig").value=g.designation||"";
+  document.getElementById("f-cname").value=g.complainantName||"";
+  document.getElementById("f-cdesig").value=g.complainantDesig||"";
   setTypeCheckboxes(g.type);
   document.getElementById("f-desc").value=g.description;
   document.getElementById("f-invest").value=g.investigator||"";
@@ -1937,7 +2085,7 @@ function cancelEdit(){
   document.getElementById("cancel-btn").style.display="none";
 }
 function resetForm(){
-  ["f-empid","f-name","f-sec","f-desig","f-desc"].forEach(id=>document.getElementById(id).value="");
+  ["f-empid","f-name","f-sec","f-desig","f-cname","f-cdesig","f-desc"].forEach(id=>document.getElementById(id).value="");
   clearTypeCheckboxes();
   document.getElementById("f-invest").selectedIndex=0;
   document.getElementById("f-handler").selectedIndex=0;
@@ -1953,11 +2101,15 @@ async function deleteRow(id,e){
 }
 function setStatus(id,val,e){
   if(e)e.stopPropagation();
+  // Pre-update state so no self-notification
+  if(window._grvState&&window._grvState[id]) window._grvState[id].status=val;
   const g=grievances.find(x=>x.id===id);
   if(g){g.status=val;persistOne(g);}
   toast("↻ Status: "+val,"ok");
 }
 function setProc(id,val){
+  // Pre-update state so no self-notification
+  if(window._grvState&&window._grvState[id]) window._grvState[id].processing=val;
   const g=grievances.find(x=>x.id===id);
   if(g){
     g.processing=val;
@@ -2184,6 +2336,69 @@ function renderTimeline(){
 }
 
 // ═══ SETTINGS ═══
+
+// ── Super Admin panel show/hide ──
+function refreshSAPanel(){
+  const panel=document.getElementById("sa-settings-panel");
+  if(panel) panel.style.display=window._isSuperAdmin?"block":"none";
+  if(window._isSuperAdmin){
+    loadColHeadingInputs();
+  }
+}
+
+// ── Column Headings ──
+const COL_HEAD_DEFAULTS={
+  date:"Date / Countdown", emp:"Employee", cmp:"অভিযোগকারী",
+  type:"Type", desc:"Description", inv:"Investigator",
+  hnd:"Handler", st:"Status", proc:"Processing", act:"Actions"
+};
+function loadColHeadings(){
+  try{const s=localStorage.getItem("akh_col_heads");return s?JSON.parse(s):{...COL_HEAD_DEFAULTS};}
+  catch(e){return{...COL_HEAD_DEFAULTS};}
+}
+function applyColHeadings(ch){
+  Object.entries(ch).forEach(([k,v])=>{
+    const el=document.getElementById("th-"+k);
+    if(el) el.textContent=v||COL_HEAD_DEFAULTS[k]||"";
+  });
+  // Also update form labels
+  const fi=document.getElementById("form-lbl-inv");
+  if(fi) fi.textContent=ch.inv||COL_HEAD_DEFAULTS.inv;
+  const fh=document.getElementById("form-lbl-hnd");
+  if(fh) fh.textContent=ch.hnd||COL_HEAD_DEFAULTS.hnd;
+}
+function loadColHeadingInputs(){
+  const ch=loadColHeadings();
+  Object.keys(COL_HEAD_DEFAULTS).forEach(k=>{
+    const el=document.getElementById("hl-"+k);
+    if(el) el.value=ch[k]||COL_HEAD_DEFAULTS[k]||"";
+  });
+}
+function saveColHeadings(){
+  const ch={};
+  Object.keys(COL_HEAD_DEFAULTS).forEach(k=>{
+    const el=document.getElementById("hl-"+k);
+    ch[k]=(el?el.value.trim():"")||COL_HEAD_DEFAULTS[k];
+  });
+  localStorage.setItem("akh_col_heads",JSON.stringify(ch));
+  applyColHeadings(ch);
+  toast("✓ Column headings saved!","ok");
+}
+function resetColHeadings(){
+  localStorage.removeItem("akh_col_heads");
+  applyColHeadings(COL_HEAD_DEFAULTS);
+  loadColHeadingInputs();
+  toast("↺ Column headings reset","ok");
+}
+// Keep old headline functions as stubs for backward compat
+function loadHeadlines(){return {};}
+function applyHeadlines(){}
+function loadHeadlineInputs(){loadColHeadingInputs();}
+
+// ── Investigator list management ──
+
+// Handler/Investigator functions moved to accounts section
+
 function toggleNotif(){
   notifOn=!notifOn;
   document.getElementById("sw-notif").classList.toggle("on",notifOn);
@@ -2289,6 +2504,7 @@ function downloadPDF(){
   if(!grievances.length){toast("⚠ No data to export","err");return;}
   const src = filtered.length ? filtered : grievances;
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
+  const _ch = loadColHeadings();
 
   const rows = src.map((g, i) => {
     const date = g.date || "";
@@ -2296,6 +2512,20 @@ function downloadPDF(){
     const empName = (g.empName||"—").replace(/</g,"&lt;");
     const section = (g.section||"—").replace(/</g,"&lt;");
     const designation = (g.designation||"—").replace(/</g,"&lt;");
+    const complainantName = (g.complainantName||"—").replace(/</g,"&lt;");
+    const complainantDesig = (g.complainantDesig||"").replace(/</g,"&lt;");
+    // countdown
+    const _td=new Date(); _td.setHours(0,0,0,0);
+    const _gd=new Date(g.date); _gd.setHours(0,0,0,0);
+    const _rem=60-Math.floor((_td-_gd)/(86400000));
+    let _cdTxt, _cdClr;
+    if(g.status==="Resolved"||g.status==="Closed"){
+      _cdTxt=g.status==="Resolved"?"✅ Case Resolved":"🔒 Case Closed";
+      _cdClr=g.status==="Resolved"?"#059669":"#6b7280";
+    } else {
+      _cdTxt=_rem>0?`${_rem} দিন বাকি`:`${Math.abs(_rem)} দিন অতিক্রান্ত`;
+      _cdClr=_rem>20?"#059669":_rem>7?"#d97706":_rem>0?"#dc2626":"#7c3aed";
+    }
     const type = (g.type||"—").replace(/</g,"&lt;");
     const description = (g.description||"—").replace(/</g,"&lt;");
     const investigator = (g.investigator||"—").replace(/</g,"&lt;");
@@ -2319,10 +2549,19 @@ function downloadPDF(){
     const bg = i%2 ? "#f0fafa" : "#ffffff";
 
     return `<tr style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;white-space:nowrap;">${date}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;"><strong>${empId}</strong><br><span style="color:#555;">${empName}</span></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;white-space:nowrap;">${section}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${designation}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;white-space:nowrap;">
+        ${date}<br>
+        <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
+      </td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+        <strong>${empId}</strong><br>
+        <span style="color:#333;">${empName}</span><br>
+        <span style="color:#777;font-size:9px;">📍 ${section} · ${designation}</span>
+      </td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+        <strong>${complainantName}</strong><br>
+        <span style="color:#666;font-size:9px;">${complainantDesig}</span>
+      </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap;">${type}</span>
       </td>
@@ -2366,16 +2605,15 @@ function downloadPDF(){
     </div>
     <table>
       <thead><tr>
-        <th>Date</th>
-        <th>Employee (ID / Name)</th>
-        <th>Line/Sec</th>
-        <th>Designation</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Investigator</th>
-        <th>Handler</th>
-        <th>Status</th>
-        <th>Processing & Log</th>
+        <th>${_ch.date||"Date / Countdown"}</th>
+        <th>${_ch.emp||"Employee"}</th>
+        <th>${_ch.cmp||"অভিযোগকারী"}</th>
+        <th>${_ch.type||"Type"}</th>
+        <th>${_ch.desc||"Description"}</th>
+        <th>${_ch.inv||"Investigator"}</th>
+        <th>${_ch.hnd||"Handler"}</th>
+        <th>${_ch.st||"Status"}</th>
+        <th>${_ch.proc||"Processing"}</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -2520,56 +2758,89 @@ document.addEventListener("click",function(e){
 
 <!-- ═══ PUSH NOTIFICATIONS ═══ -->
 <script>
-// Request notification permission after user interaction
+// ── Permission ──
 function requestNotificationPermission(){
   if(!("Notification" in window)) return;
   if(Notification.permission==="default"){
     Notification.requestPermission().then(p=>{
-      if(p==="granted") showBrowserNotification("✅ Notification চালু হয়েছে","AKH Grievance Tracker এখন notification পাঠাবে।");
+      if(p==="granted") showBrowserNotification(
+        "✅ Notification চালু হয়েছে",
+        "AKH Grievance Tracker এখন সব device-এ notification পাঠাবে।",
+        "grv-init"
+      );
     });
   }
 }
+document.addEventListener("user-logged-in", requestNotificationPermission);
 
+// ── Show notification ──
 function showBrowserNotification(title, body, tag){
   if(!("Notification" in window)||Notification.permission!=="granted") return;
   try{
-    const n=new Notification(title,{
-      body: body,
-      icon: document.querySelector("link[rel='icon']")?.href || "",
-      tag: tag||"grv-"+Date.now(),
-      requireInteraction: false
-    });
-    setTimeout(()=>n.close(), 6000);
+    const icon = document.querySelector("link[rel='icon']")?.href || "";
+    const n = new Notification(title,{body, icon, tag:tag||"grv-"+Date.now(), requireInteraction:false});
+    setTimeout(()=>n.close(), 7000);
+    n.onclick = ()=>{ window.focus(); n.close(); };
   }catch(e){}
 }
 
-// Track known grievance IDs to detect NEW ones
-window._knownGrvIds = null;
+// ── Track state: id → {status, processing} ──
+window._grvState = null; // null = first load, skip notify
 
-// Hook into Firebase onFBData to detect new grievances
+// ── Hook into Firebase real-time listener ──
 const _origOnFBData = window._onFBData;
 window._onFBData = function(list){
-  if(window._knownGrvIds === null){
-    // First load - just record IDs, don't notify
-    window._knownGrvIds = new Set(list.map(g=>g.id));
-  } else {
-    // Check for new ones
+  if(window._grvState === null){
+    // First load — just snapshot, no notification
+    window._grvState = {};
     list.forEach(g=>{
-      if(!window._knownGrvIds.has(g.id)){
-        window._knownGrvIds.add(g.id);
+      window._grvState[g.id] = {status: g.status||"", processing: g.processing||""};
+    });
+    if(typeof _origOnFBData==="function") _origOnFBData(list);
+    return;
+  }
+
+  const prevState = window._grvState;
+  const newState  = {};
+
+  list.forEach(g=>{
+    const id = g.id;
+    const curStatus   = g.status||"";
+    const curProc     = g.processing||"";
+    const empInfo     = (g.empName||"Unknown")+" ("+(g.empId||"")+")";
+    newState[id] = {status: curStatus, processing: curProc};
+
+    if(!prevState[id]){
+      // Brand new grievance added by someone else
+      showBrowserNotification(
+        "🆕 নতুন Grievance যোগ হয়েছে",
+        empInfo+" — "+(g.type||"N/A"),
+        "new-"+id
+      );
+    } else {
+      // Status changed?
+      if(prevState[id].status !== curStatus){
         showBrowserNotification(
-          "🆕 নতুন Grievance যোগ হয়েছে",
-          (g.empName||"Unknown")+" — "+( g.type||"N/A"),
-          g.id
+          "🔄 Status পরিবর্তন হয়েছে",
+          empInfo+"
+"+prevState[id].status+" → "+curStatus,
+          "st-"+id
         );
       }
-    });
-  }
+      // Processing changed?
+      else if(prevState[id].processing !== curProc){
+        showBrowserNotification(
+          "⚙️ Processing আপডেট হয়েছে",
+          empInfo+" → "+curProc,
+          "pr-"+id
+        );
+      }
+    }
+  });
+
+  window._grvState = newState;
   if(typeof _origOnFBData==="function") _origOnFBData(list);
 };
-
-// Request permission when user logs in
-document.addEventListener("user-logged-in", requestNotificationPermission);
 </script>
 
 
