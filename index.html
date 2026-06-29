@@ -1095,10 +1095,13 @@ function runSplash(){
     setSyncStatus(true);
     // Load users list for login check
     if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u; try{renderUsers();}catch(e){}});
+    // Load app settings from Firebase (col_heads, handlers, investigators)
+    if(window._fb) window._fb.loadSettings(s=>{ try{loadAllSettings(s);}catch(e){} });
   });
   if(window._fbReady){
     setSyncStatus(true);
     if(window._fb) window._fb.listenUsers(u=>{window._fbUsers=u; try{renderUsers();}catch(e){}});
+    if(window._fb) window._fb.loadSettings(s=>{ try{loadAllSettings(s);}catch(e){} });
   }
   document.addEventListener("fb-failed",function(){
     setSyncStatus(false);
@@ -1600,6 +1603,7 @@ function addHandler(){
   if(window.HANDLERS.some(h=>h.toLowerCase()===name.toLowerCase())){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
   window.HANDLERS.push(name);
   try{localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("handlers",window.HANDLERS).catch(()=>{});
   inp.value="";
   renderHandlerList();
   rebuildDropdowns();
@@ -1610,6 +1614,7 @@ function removeHandler(i){
   if(!confirm("Handler remove করবেন?")) return;
   window.HANDLERS.splice(i,1);
   try{localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("handlers",window.HANDLERS).catch(()=>{});
   renderHandlerList();
   rebuildDropdowns();
   toast("✓ Handler সরানো হয়েছে","ok");
@@ -1639,6 +1644,7 @@ function addInvestigator(){
   if(window.INVESTIGATORS.some(h=>h.toLowerCase()===name.toLowerCase())){toast("⚠ এই নাম আগে থেকে আছে","err");return;}
   window.INVESTIGATORS.push(name);
   try{localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("investigators",window.INVESTIGATORS).catch(()=>{});
   inp.value="";
   renderInvestigatorList();
   rebuildDropdowns();
@@ -1649,6 +1655,7 @@ function removeInvestigator(i){
   if(!confirm("Investigator remove করবেন?")) return;
   window.INVESTIGATORS.splice(i,1);
   try{localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("investigators",window.INVESTIGATORS).catch(()=>{});
   renderInvestigatorList();
   rebuildDropdowns();
   toast("✓ Investigator সরানো হয়েছে","ok");
@@ -2352,20 +2359,22 @@ const COL_HEAD_DEFAULTS={
   type:"Type", desc:"Description", inv:"Investigator",
   hnd:"Handler", st:"Status", proc:"Processing", act:"Actions"
 };
-function loadColHeadings(){
-  try{const s=localStorage.getItem("akh_col_heads");return s?JSON.parse(s):{...COL_HEAD_DEFAULTS};}
-  catch(e){return{...COL_HEAD_DEFAULTS};}
-}
+// In-memory cache (also backed by Firebase)
+window._appSettings = {};
+
 function applyColHeadings(ch){
   Object.entries(ch).forEach(([k,v])=>{
     const el=document.getElementById("th-"+k);
     if(el) el.textContent=v||COL_HEAD_DEFAULTS[k]||"";
   });
-  // Also update form labels
   const fi=document.getElementById("form-lbl-inv");
   if(fi) fi.textContent=ch.inv||COL_HEAD_DEFAULTS.inv;
   const fh=document.getElementById("form-lbl-hnd");
   if(fh) fh.textContent=ch.hnd||COL_HEAD_DEFAULTS.hnd;
+}
+function loadColHeadings(){
+  const ch=window._appSettings.col_heads;
+  return ch?{...COL_HEAD_DEFAULTS,...ch}:{...COL_HEAD_DEFAULTS};
 }
 function loadColHeadingInputs(){
   const ch=loadColHeadings();
@@ -2380,20 +2389,46 @@ function saveColHeadings(){
     const el=document.getElementById("hl-"+k);
     ch[k]=(el?el.value.trim():"")||COL_HEAD_DEFAULTS[k];
   });
-  localStorage.setItem("akh_col_heads",JSON.stringify(ch));
+  window._appSettings.col_heads=ch;
   applyColHeadings(ch);
+  if(window._fb) window._fb.saveSettings("col_heads",ch).catch(()=>{});
+  try{localStorage.setItem("akh_col_heads",JSON.stringify(ch));}catch(e){}
   toast("✓ Column headings saved!","ok");
 }
 function resetColHeadings(){
-  localStorage.removeItem("akh_col_heads");
+  window._appSettings.col_heads={...COL_HEAD_DEFAULTS};
   applyColHeadings(COL_HEAD_DEFAULTS);
   loadColHeadingInputs();
+  if(window._fb) window._fb.saveSettings("col_heads",COL_HEAD_DEFAULTS).catch(()=>{});
+  try{localStorage.removeItem("akh_col_heads");}catch(e){}
   toast("↺ Column headings reset","ok");
 }
-// Keep old headline functions as stubs for backward compat
 function loadHeadlines(){return {};}
 function applyHeadlines(){}
 function loadHeadlineInputs(){loadColHeadingInputs();}
+
+// Load all settings from Firebase
+function loadAllSettings(s){
+  if(!s) return;
+  // Column headings
+  if(s.col_heads){
+    window._appSettings.col_heads=s.col_heads;
+    applyColHeadings(s.col_heads);
+    loadColHeadingInputs();
+  }
+  // Investigators
+  if(s.investigators && Array.isArray(s.investigators)){
+    window.INVESTIGATORS=s.investigators;
+    try{rebuildDropdowns();}catch(e){}
+    try{renderInvestigatorList();}catch(e){}
+  }
+  // Handlers
+  if(s.handlers && Array.isArray(s.handlers)){
+    window.HANDLERS=s.handlers;
+    try{rebuildDropdowns();}catch(e){}
+    try{renderHandlerList();}catch(e){}
+  }
+}
 
 // ── Investigator list management ──
 
@@ -2688,12 +2723,21 @@ document.addEventListener("click",function(e){
 
     let _unsubscribe = null;
     const USERS_NODE = "app_users";
+    const SETTINGS_NODE = "app_settings";
     window._fb = {
       async save(g) {
         await set(ref(db, NODE + "/" + g.id), g);
       },
       async remove(id) {
         await remove(ref(db, NODE + "/" + id));
+      },
+      async saveSettings(key, val) {
+        await set(ref(db, SETTINGS_NODE + "/" + key), val);
+      },
+      async loadSettings(cb) {
+        onValue(ref(db, SETTINGS_NODE), snap => {
+          cb(snap.val() || {});
+        });
       },
       listen() {
         if(_unsubscribe) { try{_unsubscribe();}catch(e){} }
