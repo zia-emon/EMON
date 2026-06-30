@@ -32,7 +32,8 @@
   --pm: linear-gradient(180deg,#ffe9ad 0%,#ffca43 100%);
   --pl: linear-gradient(180deg,#dcfae1 0%,#7ee68f 100%);
   --td: #0d4045; --tm: #3a686d;
-  --sans: 'Inter',system-ui,sans-serif; --mono: 'JetBrains Mono',monospace;
+  --sans: 'Inter','Vrinda',system-ui,sans-serif; --mono: 'JetBrains Mono',monospace;
+  --bn: 'Vrinda',system-ui,sans-serif;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-weight:700;}
@@ -122,6 +123,40 @@ body.app-ready>.app-wrap{display:flex;}
 .fc{padding:9px 12px;border-radius:11px;background:var(--input-bg);border:1px solid rgba(255,255,255,0.7);box-shadow:inset 1px 2px 4px rgba(12,70,77,0.08),0 2px 3px rgba(255,255,255,0.8);color:var(--td);font-size:13px;font-weight:700;font-family:var(--sans);outline:none;width:100%;transition:border-color .2s;}
 .fc:focus{border-color:var(--aqua2);}
 textarea.fc{resize:vertical;min-height:80px;}
+
+/* ═══ BENGALI UNICODE FONT ═══ */
+/* Bengali input fields — Add New Grievance form */
+#f-cname,
+#f-cdesig,
+#f-desc,
+#f-name,
+#f-empid,
+#f-sec,
+#f-desig {
+  font-family: var(--bn) !important;
+}
+
+/* Bengali text in table cells, pills, summary */
+.pill,
+td,
+.type-chk-item label,
+#type-selected-tags,
+#acc-type-bars,
+#acc-proc-bars,
+.tl-wrap,
+#new-investigator,
+#new-handler,
+#new-proc-opt {
+  font-family: var(--bn) !important;
+}
+
+/* Grievance summary & timeline Bengali content */
+#tbody td,
+#tl-wrap,
+#acc-type-bars *,
+#acc-proc-bars * {
+  font-family: var(--bn) !important;
+}
 .btn-save{width:100%;padding:11px;border-radius:13px;background:var(--btn);border:1px solid rgba(255,255,255,0.4);color:white;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 8px 20px rgba(12,109,117,0.3);}
 .btn-save:hover{background:var(--btn-h);transform:translateY(-2px);}
 .btn-cancel{display:none;width:100%;padding:9px;border-radius:13px;margin-top:8px;background:rgba(255,80,100,0.15);border:1px solid rgba(255,80,100,0.3);color:#c41230;font-size:13px;font-weight:700;cursor:pointer;}
@@ -671,6 +706,7 @@ tbody .drow:not(:last-child) td{
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
+                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span class="th-jelly">📎 Files</span></div></th>
               </tr></thead>
               <tbody id="tbody"></tbody>
             </table>
@@ -709,7 +745,7 @@ tbody .drow:not(:last-child) td{
             <button class="col-tog active" data-col="9" onclick="togCol(9)">🗑 Actions</button>
           </div>
           <div class="tbl-wrap">
-            <table><thead><tr><th>Handler</th><th>Assigned</th><th>Pending</th><th>Active</th><th>Resolved</th><th>Efficiency</th><th>Progress</th></tr></thead>
+            <table style="table-layout:fixed;width:100%;"><thead><tr><th style="width:30%">Handler</th><th style="width:12%">Assigned</th><th style="width:12%">Pending</th><th style="width:12%">Active</th><th style="width:12%">Resolved</th><th style="width:22%">Efficiency</th></tr></thead>
             <tbody id="acc-tbody"></tbody></table>
           </div>
         </div>
@@ -718,7 +754,7 @@ tbody .drow:not(:last-child) td{
         <div class="panel" style="margin-top:16px;">
           <div class="panel-title">🔎 Investigator Performance Metrics</div>
           <div class="tbl-wrap">
-            <table><thead><tr><th>Investigator</th><th>Assigned</th><th>Pending</th><th>Active</th><th>Resolved</th><th>Efficiency</th><th>Progress</th></tr></thead>
+            <table style="table-layout:fixed;width:100%;"><thead><tr><th style="width:30%">Investigator</th><th style="width:12%">Assigned</th><th style="width:12%">Pending</th><th style="width:12%">Active</th><th style="width:12%">Resolved</th><th style="width:22%">Efficiency</th></tr></thead>
             <tbody id="acc-inv-tbody"></tbody></table>
           </div>
         </div>
@@ -1945,6 +1981,15 @@ function renderTable(){
         ${logHtml}
       </td>
       <td onclick="event.stopPropagation()"><button class="del-btn" onclick="deleteRow('${g.id}',event)">Delete</button></td>
+      <td onclick="event.stopPropagation()" style="min-width:120px;">
+        <div id="att-${g.id}" style="display:flex;flex-direction:column;gap:4px;">
+          ${(g.attachments||[]).map((a,ai)=>`<a href="${a.url}" target="_blank" style="font-size:10px;color:var(--aqua);text-decoration:none;display:flex;align-items:center;gap:3px;" title="${esc(a.name)}">📎 <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span></a>`).join("")}
+        </div>
+        <label style="cursor:pointer;display:inline-block;margin-top:4px;" onclick="event.stopPropagation()">
+          <input type="file" accept="image/*,.pdf,.doc,.docx" style="display:none;" onchange="uploadAttachment('${g.id}',this)">
+          <span style="font-size:10px;background:rgba(23,147,158,0.12);color:var(--aqua);padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;">📎 Add File</span>
+        </label>
+      </td>
     </tr>`;
   }).join("");
 
@@ -2160,18 +2205,24 @@ function buildPerfTable(list, map, tbodyId, icon){
     if(d.assigned===0)return"";
     const eff=Math.round((d.resolved/d.assigned)*100);
     const barColor=eff>=80?"#2aeeb5":eff>=50?"#fbbf24":"#f87171";
-    const bar=`<div style="display:flex;align-items:center;gap:6px;"><div style="flex:1;height:7px;border-radius:20px;background:rgba(0,0,0,0.08);overflow:hidden;"><div style="height:100%;width:${eff}%;background:${barColor};border-radius:20px;transition:width .5s;"></div></div><span style="font-size:10px;font-weight:700;color:${barColor};min-width:28px;">${eff}%</span></div>`;
-    return`<tr class="drow"><td><span class="ptag ptag-b">${icon} ${name}</span></td><td style="text-align:center;">${d.assigned}</td><td style="text-align:center;"><span class="pill ph">${d.pending}</span></td><td style="text-align:center;"><span class="pill pm">${d.active}</span></td><td style="text-align:center;"><span class="pill pl">${d.resolved}</span></td><td style="text-align:center;min-width:60px;"><span style="font-weight:800;color:${barColor};">${eff}%</span></td><td style="min-width:120px;">${bar}</td></tr>`;
-  }).join("");
+    const bar=`<div style="display:flex;align-items:center;gap:4px;"><div style="flex:1;height:7px;border-radius:20px;background:rgba(0,0,0,0.08);overflow:hidden;"><div style="height:100%;width:${eff}%;background:${barColor};border-radius:20px;transition:width .5s;"></div></div><span style="font-size:10px;font-weight:700;color:${barColor};white-space:nowrap;">${eff}%</span></div>`;
+    return`<tr class="drow"><td style="word-break:break-word;max-width:90px;"><span class="ptag ptag-b">${icon} ${name}</span></td><td style="text-align:center;">${d.assigned}</td><td style="text-align:center;"><span class="pill ph">${d.pending}</span></td><td style="text-align:center;"><span class="pill pm">${d.active}</span></td><td style="text-align:center;"><span class="pill pl">${d.resolved}</span></td><td style="min-width:80px;">${bar}</td></tr>`;
+  }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--tm);padding:16px;font-size:12px;">No data</td></tr>`;
 }
 
 function renderAccounts(){
   // Handler map
   const hmap={};
   HANDLERS.forEach(h=>{hmap[h]={assigned:0,pending:0,active:0,resolved:0};});
-  // Investigator map (same list)
+  // Investigator map — collect from actual grievance data
   const imap={};
-  HANDLERS.forEach(h=>{imap[h]={assigned:0,pending:0,active:0,resolved:0};});
+  const invList=[];
+  grievances.forEach(g=>{
+    if(g.investigator&&g.investigator.trim()){
+      const inv=g.investigator.trim();
+      if(!imap[inv]){imap[inv]={assigned:0,pending:0,active:0,resolved:0};invList.push(inv);}
+    }
+  });
 
   const total=grievances.length;
   let totalPend=0,totalAct=0,totalRes=0;
@@ -2187,11 +2238,12 @@ function renderAccounts(){
       if(g.status==="Under Investigation")hmap[g.handler].active++;
       if(g.status==="Resolved"||g.status==="Closed")hmap[g.handler].resolved++;
     }
-    if(g.investigator&&imap[g.investigator]){
-      imap[g.investigator].assigned++;
-      if(g.status==="Pending")imap[g.investigator].pending++;
-      if(g.status==="Under Investigation")imap[g.investigator].active++;
-      if(g.status==="Resolved"||g.status==="Closed")imap[g.investigator].resolved++;
+    if(g.investigator&&imap[g.investigator.trim()]){
+      const inv=g.investigator.trim();
+      imap[inv].assigned++;
+      if(g.status==="Pending")imap[inv].pending++;
+      if(g.status==="Under Investigation")imap[inv].active++;
+      if(g.status==="Resolved"||g.status==="Closed")imap[inv].resolved++;
     }
   });
 
@@ -2205,7 +2257,7 @@ function renderAccounts(){
   `;
 
   buildPerfTable(HANDLERS, hmap, "acc-tbody", "👔");
-  buildPerfTable(HANDLERS, imap, "acc-inv-tbody", "🔎");
+  buildPerfTable(invList, imap, "acc-inv-tbody", "🔎");
 
   // Type breakdown
   const typeCount={};
@@ -2240,6 +2292,62 @@ function renderAccounts(){
 }
 
 // ═══ TIMELINE ═══
+
+// ═══ ATTACHMENT UPLOAD ═══
+async function uploadAttachment(grievanceId, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  const maxMB = 10;
+  if(file.size > maxMB*1024*1024){ toast(`⚠ ফাইল ${maxMB}MB এর বেশি হওয়া যাবে না`,"err"); return; }
+
+  const btn = inputEl.closest("label").querySelector("span");
+  btn.textContent = "⏳ Uploading...";
+
+  try{
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getStorage, ref: sRef, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js");
+    const { getDatabase, ref: dbRef, set, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+
+    const app = getApps().length ? getApps()[0] : initializeApp(window._fbCfg);
+    const storage = getStorage(app);
+    const db = getDatabase(app);
+
+    // Upload file
+    const filePath = `grievance_attachments/${grievanceId}/${Date.now()}_${file.name}`;
+    const storageRef = sRef(storage, filePath);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+
+    // Save URL to Realtime DB under grievance
+    const attDbRef = dbRef(db, `grievances/${grievanceId}/attachments`);
+    const snap = await get(attDbRef);
+    const existing = snap.exists() ? Object.values(snap.val()) : [];
+    existing.push({ name: file.name, url, path: filePath, ts: Date.now() });
+    // Save as array-like object
+    const obj = {};
+    existing.forEach((a,i)=>{ obj[i]=a; });
+    await set(attDbRef, obj);
+
+    // Update local grievance object
+    const g = grievances.find(x=>x.id===grievanceId);
+    if(g){ g.attachments = existing; }
+
+    // Refresh attachment cell UI
+    const cell = document.getElementById(`att-${grievanceId}`);
+    if(cell){
+      cell.innerHTML = existing.map(a=>`<a href="${a.url}" target="_blank" style="font-size:10px;color:var(--aqua);text-decoration:none;display:flex;align-items:center;gap:3px;" title="${esc(a.name)}">📎 <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span></a>`).join("");
+    }
+
+    toast(`✅ ${file.name} আপলোড হয়েছে`,"ok");
+    btn.textContent = "📎 Add File";
+    inputEl.value = "";
+  } catch(err){
+    console.error(err);
+    toast("❌ Upload failed: "+err.message,"err");
+    btn.textContent = "📎 Add File";
+  }
+}
+
 
 // ═══ RENDER ACCESS REQUESTS (Admin) ═══
 async function renderAccessRequests(){
@@ -2584,7 +2692,7 @@ function downloadPDF(){
     const bg = i%2 ? "#f0fafa" : "#ffffff";
 
     return `<tr style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;white-space:nowrap;">
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
       </td>
@@ -2597,8 +2705,8 @@ function downloadPDF(){
         <strong>${complainantName}</strong><br>
         <span style="color:#666;font-size:9px;">${complainantDesig}</span>
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
-        <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap;">${type}</span>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;vertical-align:top;">
+        <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;text-align:center;"><span style="background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:10px;font-size:9px;">${investigator}</span></td>
@@ -2607,6 +2715,9 @@ function downloadPDF(){
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:9px;">
+        ${(g.attachments&&g.attachments.length)?g.attachments.map(a=>`<a href="${a.url}" style="color:#0369a1;display:block;margin-bottom:2px;word-break:break-all;">📎 ${a.name}</a>`).join(""):'<span style="color:#aaa;">—</span>'}
+      </td>
     </tr>`;
   }).join("");
 
@@ -2619,8 +2730,9 @@ function downloadPDF(){
     .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
     .header-left p{margin:2px 0;color:#555;font-size:10px}
     .header-right{text-align:right;font-size:10px;color:#666}
-    table{width:100%;border-collapse:collapse;font-size:10px}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;white-space:nowrap}
+    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;word-break:break-word;}
+    td{word-break:break-word;overflow-wrap:break-word}
     tr:hover{background:#e6f7f9!important}
     .footer{margin-top:14px;font-size:9px;color:#999;text-align:right;border-top:1px solid #ddd;padding-top:6px}
     @media print{body{padding:0} .footer{position:fixed;bottom:5mm;right:8mm}}
@@ -2639,6 +2751,18 @@ function downloadPDF(){
       </div>
     </div>
     <table>
+      <colgroup>
+        <col style="width:9%">
+        <col style="width:12%">
+        <col style="width:10%">
+        <col style="width:9%">
+        <col style="width:16%">
+        <col style="width:9%">
+        <col style="width:9%">
+        <col style="width:8%">
+        <col style="width:16%">
+        <col style="width:12%">
+      </colgroup>
       <thead><tr>
         <th>${_ch.date||"Date / Countdown"}</th>
         <th>${_ch.emp||"Employee"}</th>
@@ -2649,6 +2773,7 @@ function downloadPDF(){
         <th>${_ch.hnd||"Handler"}</th>
         <th>${_ch.st||"Status"}</th>
         <th>${_ch.proc||"Processing"}</th>
+        <th>📎 Files</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -2715,6 +2840,7 @@ document.addEventListener("click",function(e){
     messagingSenderId: "957573660800",
     appId:             "1:957573660800:web:37147405ffd093a9966665"
   };
+  window._fbCfg = cfg;
 
   try {
     const app = initializeApp(cfg);
@@ -2745,7 +2871,13 @@ document.addEventListener("click",function(e){
           const list = [];
           snap.forEach(c => {
             const v = c.val();
-            if(v && v.id) list.push(v);
+            if(v && v.id){
+              // normalize attachments: Firebase stores as object {0:{},1:{}} → convert to array
+              if(v.attachments && !Array.isArray(v.attachments)){
+                v.attachments = Object.values(v.attachments);
+              }
+              list.push(v);
+            }
           });
           list.sort((a,b) => (b.date||"").localeCompare(a.date||""));
           if (typeof window._onFBData === "function") window._onFBData(list);
