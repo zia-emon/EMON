@@ -705,7 +705,7 @@ tbody .drow:not(:last-child) td{
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span class="th-jelly">📎 Files</span></div></th>
+                
                 <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
               </tr></thead>
               <tbody id="tbody"></tbody>
@@ -1987,35 +1987,12 @@ function renderTable(){
         <select class="proc-sel" onchange="setProc('${g.id}',this.value)">${procOpts}</select>
         ${logHtml}
       </td>
-      <td onclick="event.stopPropagation()" style="min-width:130px;">
-        <div id="att-${g.id}" style="display:flex;flex-direction:column;gap:4px;">
-          ${(g.attachments||[]).map(a=>`<a href="${a.url}" target="_blank" style="font-size:10px;color:var(--aqua);text-decoration:none;display:flex;align-items:center;gap:3px;" title="${esc(a.name)}">📄 <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span></a>`).join("")}
-        </div>
-        <div id="att-prog-${g.id}" style="display:none;margin-top:4px;">
-          <div style="height:6px;border-radius:4px;background:rgba(0,0,0,0.08);overflow:hidden;width:100%;margin-bottom:2px;">
-            <div id="att-bar-${g.id}" style="height:100%;width:0%;background:linear-gradient(90deg,#2aeeb5,#059669);border-radius:4px;transition:width 0.3s;"></div>
-          </div>
-          <span id="att-pct-${g.id}" style="font-size:9px;color:var(--tm);">Uploading...</span>
-        </div>
-        <label style="cursor:pointer;display:inline-block;margin-top:6px;" onclick="event.stopPropagation()">
-          <input type="file" accept="image/*,.pdf,.doc,.docx" style="display:none;" multiple onchange="uploadAttachment('${g.id}',this)">
-          <span id="att-btn-${g.id}" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
-            <img src="" data-icon="upload" style="width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">
-            <span style="font-size:9px;font-weight:700;color:var(--aqua);white-space:nowrap;">Upload File</span>
-          </span>
-        </label>
-      </td>
+
       <td onclick="event.stopPropagation()"><button class="del-btn" onclick="deleteRow('${g.id}',event)">Delete</button></td>
     </tr>`;
   }).join("");
 
   document.getElementById("page-info").textContent=`Page ${page}/${pages} · ${total} records · Showing ${start+1}–${Math.min(start+PER,total)}`;
-  // Set upload icons after render
-  setTimeout(()=>{
-    document.querySelectorAll('img[data-icon="upload"]').forEach(img=>{
-      if(window._uploadIconB64) img.src = window._uploadIconB64;
-    });
-  },0);
   // Smart pagination — max 5 page buttons + prev/next + ellipsis
   const btns=[];
   const delta=2;
@@ -2316,127 +2293,9 @@ function renderAccounts(){
 // ═══ TIMELINE ═══
 
 // ═══ ATTACHMENT UPLOAD ═══
-async function compressImage(file, maxSizeKB=500){
-  // Only compress images
-  if(!file.type.startsWith('image/')) return file;
-  return new Promise(resolve=>{
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = ()=>{
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement('canvas');
-      let {width, height} = img;
-      // Scale down if large
-      const maxDim = 1200;
-      if(width > maxDim || height > maxDim){
-        if(width > height){ height = Math.round(height * maxDim/width); width = maxDim; }
-        else { width = Math.round(width * maxDim/height); height = maxDim; }
-      }
-      canvas.width = width; canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      // Try quality 0.7 first, reduce if still large
-      let quality = 0.7;
-      const tryCompress = ()=>{
-        canvas.toBlob(blob=>{
-          if(blob && blob.size > maxSizeKB*1024 && quality > 0.3){
-            quality -= 0.1;
-            tryCompress();
-          } else {
-            resolve(blob ? new File([blob], file.name, {type:'image/jpeg'}) : file);
-          }
-        }, 'image/jpeg', quality);
-      };
-      tryCompress();
-    };
-    img.onerror = ()=>{ URL.revokeObjectURL(url); resolve(file); };
-    img.src = url;
-  });
-}
 
-async function uploadAttachment(grievanceId, inputEl){
-  const files = Array.from(inputEl.files);
-  if(!files.length) return;
 
-  const maxMB = 10;
-  const maxPages = 30;
 
-  const g = grievances.find(x=>x.id===grievanceId);
-  const existing = (g&&g.attachments) ? [...g.attachments] : [];
-  if(existing.length + files.length > maxPages){
-    toast(`⚠ সর্বোচ্চ ${maxPages}টি ফাইল আপলোড করা যাবে (বর্তমানে: ${existing.length})`, "err");
-    inputEl.value=""; return;
-  }
-  for(const f of files){
-    if(f.size > maxMB*1024*1024){ toast(`⚠ "${f.name}" — ${maxMB}MB এর বেশি হওয়া যাবে না`,"err"); inputEl.value=""; return; }
-  }
-
-  const progWrap = document.getElementById(`att-prog-${grievanceId}`);
-  const progBar  = document.getElementById(`att-bar-${grievanceId}`);
-  const progPct  = document.getElementById(`att-pct-${grievanceId}`);
-  if(progWrap) progWrap.style.display="block";
-
-  const setProgress = (pct) => {
-    if(progBar) progBar.style.width = pct+"%";
-    if(progPct) progPct.textContent = Math.round(pct)+"%";
-  };
-  const hideProgress = () => {
-    if(progWrap) progWrap.style.display="none";
-    if(progBar) progBar.style.width="0%";
-    if(progPct) progPct.textContent="";
-  };
-
-  try{
-    // Use pre-loaded Firebase instances — no dynamic import delay
-    const { storage, sRef, uploadBytes, getDownloadURL } = window._fbStorage;
-    const { db, ref: dbRef, set } = window._fbDb;
-
-    for(let fi=0; fi<files.length; fi++){
-      const file = files[fi];
-      const filePath = `grievance_attachments/${grievanceId}/${Date.now()}_${file.name}`;
-      const storageRef = sRef(storage, filePath);
-
-      const baseProgress = (fi / files.length) * 100;
-      const nextProgress = ((fi + 1) / files.length) * 100;
-      let animPct = baseProgress;
-      const animInterval = setInterval(()=>{
-        // Slow down as it approaches 95% — never actually stops
-        const remaining = (nextProgress * 0.95) - animPct;
-        if(remaining > 0.2) animPct += remaining * 0.06;
-        setProgress(animPct);
-      }, 150);
-
-      if(progPct) progPct.textContent = `Uploading ${fi+1}/${files.length}...`;
-      const compressed = await compressImage(file);
-      const snapshot = await uploadBytes(storageRef, compressed);
-      clearInterval(animInterval);
-      setProgress(nextProgress);
-      const url = await getDownloadURL(snapshot.ref);
-      existing.push({ name: file.name, url, path: filePath, ts: Date.now() });
-    }
-
-    setProgress(100);
-
-    const attDbRef = dbRef(db, `grievances/${grievanceId}/attachments`);
-    const obj = {};
-    existing.forEach((a,i)=>{ obj[i]=a; });
-    await set(attDbRef, obj);
-
-    if(g) g.attachments = existing;
-
-    const cell = document.getElementById(`att-${grievanceId}`);
-    if(cell){
-      cell.innerHTML = existing.map(a=>`<a href="${a.url}" target="_blank" style="font-size:10px;color:var(--aqua);text-decoration:none;display:flex;align-items:center;gap:3px;" title="${esc(a.name)}">📄 <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span></a>`).join("");
-    }
-
-    toast(`✅ ${files.length} টি ফাইল আপলোড হয়েছে`,"ok");
-    setTimeout(()=>{ hideProgress(); }, 1500);
-    inputEl.value="";
-  } catch(err){
-    console.error(err);
-    toast("❌ Upload failed: "+err.message,"err");
-    hideProgress();
-  }
-}
 
 
 // ═══ RENDER ACCESS REQUESTS (Admin) ═══
@@ -2805,9 +2664,7 @@ function downloadPDF(){
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:9px;">
-        ${(g.attachments&&g.attachments.length)?g.attachments.map(a=>`<a href="${a.url}" style="color:#0369a1;display:block;margin-bottom:2px;word-break:break-all;">📎 ${a.name}</a>`).join(""):'<span style="color:#aaa;">—</span>'}
-      </td>
+
     </tr>`;
   }).join("");
 
@@ -2851,7 +2708,6 @@ function downloadPDF(){
         <col style="width:9%">
         <col style="width:8%">
         <col style="width:16%">
-        <col style="width:12%">
       </colgroup>
       <thead><tr>
         <th>${_ch.date||"Date / Countdown"}</th>
@@ -2863,7 +2719,7 @@ function downloadPDF(){
         <th>${_ch.hnd||"Handler"}</th>
         <th>${_ch.st||"Status"}</th>
         <th>${_ch.proc||"Processing"}</th>
-        <th>📎 Files</th>
+        
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -2881,7 +2737,6 @@ function downloadPDF(){
 <script type="module">
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const cfg = {
     apiKey:            "AIzaSyAloqcTSfE1QFayJvqmDGO8bZFP-xR-rLU",
@@ -2897,10 +2752,6 @@ function downloadPDF(){
   try {
     const app = initializeApp(cfg);
     const db  = getDatabase(app);
-    const storage = getStorage(app);
-    // Expose storage helpers so uploadAttachment can use them without re-importing
-    window._fbStorage = { storage, sRef, uploadBytes, getDownloadURL };
-    window._fbDb = { db, ref, set, get };
     const NODE = "grievances";
 
     let _unsubscribe = null;
@@ -3107,6 +2958,5 @@ function doUpdate(){
   }
 }
 </script>
-<script>window._uploadIconB64="data:image/png;base64,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";</script>
 </body>
 </html>
