@@ -167,7 +167,12 @@ td,
 .btn-clear{background:linear-gradient(180deg,#fda4af,#e11d48,#9f1239);box-shadow:0 5px 14px rgba(225,29,72,0.3);}
 
 /* TABLE */
-.tbl-wrap{overflow-x:auto;border-radius:16px;background:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.6);} .tbl-wrap thead tr{background:linear-gradient(90deg,rgba(23,147,158,0.08),rgba(180,236,240,0.12));border-bottom:2px solid rgba(255,255,255,0.5);}
+.tbl-wrap{border-radius:16px;background:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.6);}
+.tbl-wrap thead tr{background:linear-gradient(90deg,rgba(23,147,158,0.08),rgba(180,236,240,0.12));border-bottom:2px solid rgba(255,255,255,0.5);}
+#log-tbl-container{overflow-x:auto;overflow-y:auto;max-height:65vh;border-radius:16px;position:relative;}
+#log-tbl-container .tbl-wrap{overflow-x:visible;border-radius:0;border:none;}
+#log-tbl-container thead th{position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97)) !important;backdrop-filter:blur(8px);}
+#top-scroll-sticky{position:sticky;top:0;z-index:9;background:rgba(240,253,252,0.97);}
 table{width:100%;border-collapse:collapse;font-size:12px;font-weight:700;}
 th{background:linear-gradient(135deg,rgba(23,147,158,0.15),rgba(180,236,240,0.2));color:var(--td);padding:8px 12px;text-align:left;font-size:10px;font-weight:800;word-break:break-word;white-space:normal;border-bottom:2px solid rgba(255,255,255,0.6);}
 td{padding:10px 12px;border-bottom:1px solid rgba(15,108,116,0.06);vertical-align:middle;}
@@ -227,7 +232,18 @@ tbody .drow:not(:last-child) td{
   background:linear-gradient(135deg,rgba(255,255,255,0.38) 0%,rgba(200,240,245,0.28) 100%);
 }
 
-/* PILLS */
+#top-scroll-bar{scrollbar-width:none;}
+#top-scroll-bar::-webkit-scrollbar{display:none;}
+
+/* Custom thick scrollbar track */
+#top-scroll-track{height:16px;background:rgba(23,147,158,0.1);border-radius:8px;position:relative;cursor:pointer;overflow:hidden;margin:4px 0;}
+#top-scroll-thumb{height:100%;background:linear-gradient(90deg,#0d7982,#17939e);border-radius:8px;position:absolute;top:0;left:0;cursor:grab;min-width:50px;transition:background 0.2s;}
+#top-scroll-thumb:active{cursor:grabbing;background:linear-gradient(90deg,#0a5f6a,#0d7982);}
+#top-scroll-thumb:hover{background:linear-gradient(90deg,#0a5f6a,#17939e);}
+
+/* Sticky thead bg */
+.tbl-wrap thead tr th{background:linear-gradient(90deg,rgba(180,236,240,0.95),rgba(210,245,248,0.95));backdrop-filter:blur(8px);}
+
 .pill{display:inline-block;padding:4px 10px;border-radius:16px;font-size:10px;font-weight:800;white-space:nowrap;}
 .pc{background:var(--pc);color:#7f1d1d;}
 .ph{background:var(--ph);color:#7c2d12;}
@@ -693,27 +709,40 @@ tbody .drow:not(:last-child) td{
               <option value="Closed">Closed</option>
             </select>
           </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()" style="display:none;"></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()" style="display:none;"></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()" style="display:none;"></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()" style="display:none;"></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
-                
-                <th style="padding:6px 8px;background:transparent;border:none;"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
+
+          <div id="log-outer" style="overflow-x:auto;">
+            <!-- TOP SCROLLBAR -->
+            <div id="top-scroll-sticky" style="position:sticky;left:0;top:0;z-index:9;background:rgba(240,253,252,0.97);padding:4px 0;">
+              <div id="top-scroll-track">
+                <div id="top-scroll-thumb"></div>
+              </div>
+              <!-- hidden div to measure scroll width -->
+              <div id="top-scroll-bar" style="overflow-x:auto;overflow-y:hidden;height:0;visibility:hidden;">
+                <div id="top-scroll-inner" style="height:1px;"></div>
+              </div>
+            </div>
+
+            <div id="log-tbl-container" style="overflow-y:auto;max-height:65vh;">
+              <table style="min-width:900px;">
+                <thead><tr>
+                <th style="padding:6px 8px;background:transparent;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()" style="display:none;"></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
+                <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
               </tr></thead>
               <tbody id="tbody"></tbody>
             </table>
-          </div>
-          <div class="pager">
+            </div><!-- /log-tbl-container -->
+          </div><!-- /log-outer -->
+          <div class="pager" style="position:sticky;bottom:0;background:rgba(240,253,252,0.95);backdrop-filter:blur(8px);border-top:1px solid rgba(23,147,158,0.15);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-radius:0 0 16px 16px;z-index:9;">
             <span id="page-info" style="font-size:11px;color:var(--tm);">No records</span>
-            <div id="pager-btns" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+            <div id="pager-btns" style="display:flex;gap:5px;flex-wrap:nowrap;align-items:center;"></div>
           </div>
         </div>
       </div>
@@ -989,7 +1018,7 @@ try{
 }
 
 let grievances=[], filtered=[], page=1;
-const PER=25;
+const PER=5;
 let notifOn=true, lang="en", fbOnline=false;
 
 // ═══ SYNC INDICATOR ═══
@@ -1993,12 +2022,18 @@ function renderTable(){
   }).join("");
 
   document.getElementById("page-info").textContent=`Page ${page}/${pages} · ${total} records · Showing ${start+1}–${Math.min(start+PER,total)}`;
+
+  // Sync top scrollbar with container horizontal scroll
+  requestAnimationFrame(()=>{
+    initCustomScrollbar();
+    updateThumb();
+  });
   // Smart pagination — max 5 page buttons + prev/next + ellipsis
   const btns=[];
   const delta=2;
   const range=[];
   for(let i=Math.max(2,page-delta);i<=Math.min(pages-1,page+delta);i++) range.push(i);
-  btns.push(`<button class="btn-pg" onclick="changePage(${page-1})" ${page===1?"disabled":""}>‹</button>`);
+  btns.push(`<button class="btn-pg" onclick="changePage(${page-1})" ${page===1?"disabled":""} style="font-size:16px;padding:4px 12px;">‹</button>`);
   if(pages>0){
     btns.push(`<button class="btn-pg${page===1?" act":""}" onclick="changePage(1)">1</button>`);
     if(pages>1){
@@ -2008,12 +2043,12 @@ function renderTable(){
       btns.push(`<button class="btn-pg${page===pages?" act":""}" onclick="changePage(${pages})">${pages}</button>`);
     }
   }
-  btns.push(`<button class="btn-pg" onclick="changePage(${page+1})" ${page>=pages?"disabled":""}>›</button>`);
+  btns.push(`<button class="btn-pg" onclick="changePage(${page+1})" ${page>=pages?"disabled":""} style="font-size:16px;padding:4px 12px;">›</button>`);
   document.getElementById("pager-btns").innerHTML=btns.join("");
   // Apply column visibility after render
   setTimeout(applyColVisibility, 0);
 }
-function changePage(p){if(p<1||p>Math.ceil(filtered.length/PER))return;page=p;renderTable();window.scrollTo({top:0,behavior:"smooth"});}
+function changePage(p){if(p<1||p>Math.ceil(filtered.length/PER))return;page=p;renderTable();}
 
 // ═══ CRUD ═══
 
@@ -2290,7 +2325,67 @@ function renderAccounts(){
   }).join("") || "<div style='color:var(--tm);font-size:12px;'>No data yet</div>";
 }
 
-// ═══ TIMELINE ═══
+// ═══ CUSTOM SCROLLBAR ═══
+function updateThumb(){
+  const outer = document.getElementById("log-outer");
+  const track = document.getElementById("top-scroll-track");
+  const thumb = document.getElementById("top-scroll-thumb");
+  const table = outer ? outer.querySelector("table") : null;
+  if(!outer||!track||!thumb||!table) return;
+  const scrollable = table.scrollWidth - outer.clientWidth;
+  if(scrollable <= 0){ thumb.style.width="100%"; thumb.style.left="0px"; return; }
+  const ratio = outer.clientWidth / table.scrollWidth;
+  const thumbW = Math.max(60, track.offsetWidth * ratio);
+  const thumbLeft = (outer.scrollLeft / scrollable) * (track.offsetWidth - thumbW);
+  thumb.style.width = thumbW+"px";
+  thumb.style.left = Math.max(0, thumbLeft)+"px";
+}
+
+function initCustomScrollbar(){
+  const outer = document.getElementById("log-outer");
+  const track = document.getElementById("top-scroll-track");
+  const thumb = document.getElementById("top-scroll-thumb");
+  if(!outer||!track||!thumb) return;
+  if(outer._sbInited) return; // only init once
+  outer._sbInited = true;
+
+  let dragging=false, startX=0, startScrollLeft=0;
+
+  thumb.addEventListener("pointerdown", e=>{
+    dragging=true;
+    startX=e.clientX;
+    startScrollLeft=outer.scrollLeft;
+    thumb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  document.addEventListener("pointermove", e=>{
+    if(!dragging) return;
+    const table=outer.querySelector("table");
+    if(!table) return;
+    const scrollable=table.scrollWidth-outer.clientWidth;
+    const trackW=track.offsetWidth;
+    const thumbW=thumb.offsetWidth;
+    const dx=e.clientX-startX;
+    const ratio=scrollable/(trackW-thumbW);
+    outer.scrollLeft=Math.max(0,Math.min(scrollable, startScrollLeft+dx*ratio));
+  });
+  document.addEventListener("pointerup", ()=>{ dragging=false; });
+
+  track.addEventListener("click", e=>{
+    if(e.target===thumb) return;
+    const rect=track.getBoundingClientRect();
+    const table=outer.querySelector("table");
+    if(!table) return;
+    const scrollable=table.scrollWidth-outer.clientWidth;
+    const ratio=(e.clientX-rect.left)/track.offsetWidth;
+    outer.scrollLeft=ratio*scrollable;
+  });
+
+  outer.addEventListener("scroll", updateThumb, {passive:true});
+  window.addEventListener("resize", updateThumb);
+  updateThumb();
+}
+
 
 // ═══ ATTACHMENT UPLOAD ═══
 
