@@ -1,0 +1,17 @@
+name: Update Firebase Version
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push version to Firebase
+        run: |
+          VERSION=$(date +%s)
+          curl -X PUT \
+            "https://grievance-tracker-23bcb-default-rtdb.firebaseio.com/app_version.json" \
+            -H "Content-Type: application/json" \
+            -d "\"$VERSION\""
