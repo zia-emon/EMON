@@ -720,10 +720,22 @@ tbody .drow:not(:last-child) td{
 
             <!-- Investigator | Handler -->
             <div class="fg"><label><span id="form-lbl-inv">Pre-Investigator</span></label>
-              <select id="f-invest" class="fc"><option value="">— Select —</option></select>
+              <input type="hidden" id="f-invest">
+              <div style="position:relative;">
+                <div id="invest-dropdown-btn" class="fc" onclick="toggleStaffDropdown('invest')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:42px;">
+                  <span id="invest-dropdown-label" style="color:var(--tm);">— Select —</span><span style="font-size:10px;color:var(--tm);">▾</span>
+                </div>
+                <div id="invest-dropdown-panel" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;border:1px solid rgba(15,108,116,0.25);border-radius:12px;overflow-y:auto;max-height:260px;background:white;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
+              </div>
             </div>
             <div class="fg"><label><span id="form-lbl-hnd">Case Handler</span></label>
-              <select id="f-handler" class="fc"><option value="">— Select —</option></select>
+              <input type="hidden" id="f-handler">
+              <div style="position:relative;">
+                <div id="handler-dropdown-btn" class="fc" onclick="toggleStaffDropdown('handler')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:42px;">
+                  <span id="handler-dropdown-label" style="color:var(--tm);">— Select —</span><span style="font-size:10px;color:var(--tm);">▾</span>
+                </div>
+                <div id="handler-dropdown-panel" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;border:1px solid rgba(15,108,116,0.25);border-radius:12px;overflow-y:auto;max-height:260px;background:white;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
+              </div>
             </div>
           </div>
           <button class="btn-save" id="submit-btn" onclick="saveGrievance()">Submit Grievance</button>
@@ -1079,8 +1091,8 @@ try{
   var _sp=localStorage.getItem("akh_proc_opts");
   var PROC_OPTS=_sp?JSON.parse(_sp):[...PROC_OPTS_DEFAULT];
 }catch(e){ var PROC_OPTS=[...PROC_OPTS_DEFAULT]; }
-window.HANDLERS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
-window.INVESTIGATORS_DEFAULT = ["OHIDUZZAMAN","EMON","MAHABUB","POLASH","ASHFACK","MUSTAFIZ","RABBANI","SHISHIR","MORIOM","FARUK","RANJUMA","SANZIDA","TANIA","NAZRUL","MASUD"];
+window.HANDLERS_DEFAULT = ["92","130","169","333","07-A-14271","07-A-14899","07-A-16220","15035","15047","15154","07-A-5071","09-A-28067","09-A-29723","09-A-31055","09-A-31282","4651"];
+window.INVESTIGATORS_DEFAULT = ["92","130","169","333","07-A-14271","07-A-14899","07-A-16220","15035","15047","15154","07-A-5071","09-A-28067","09-A-29723","09-A-31055","09-A-31282","4651"];
 window.SOURCES_DEFAULT = ["H&M","ZARA","Primark","C&A","Lidl","Aldi","Next","M&S","Gap","Uniqlo"];
 try{ const _ss=localStorage.getItem("akh_sources"); window.SOURCES=_ss?JSON.parse(_ss):[...window.SOURCES_DEFAULT]; }
 catch(e){ window.SOURCES=[...window.SOURCES_DEFAULT]; }
@@ -1712,7 +1724,7 @@ function renderHandlerList(){
   }
   el.innerHTML=list.map((h,i)=>`
     <div class="list-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(23,147,158,0.08);">
-      <span style="font-size:13px;font-weight:600;">👔 ${esc(h)}</span>
+      <span style="font-size:13px;font-weight:600;">👔 ${esc(staffDisplayInfo(h).name)}</span>
       <button class="btn-remove" onclick="removeHandler(${i})" style="padding:6px 14px;border-radius:20px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">✕ Remove</button>
     </div>`).join("");
 }
@@ -1753,7 +1765,7 @@ function renderInvestigatorList(){
   }
   el.innerHTML=list.map((h,i)=>`
     <div class="list-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid rgba(23,147,158,0.08);">
-      <span style="font-size:13px;font-weight:600;">🔎 ${esc(h)}</span>
+      <span style="font-size:13px;font-weight:600;">🔎 ${esc(staffDisplayInfo(h).name)}</span>
       <button class="btn-remove" onclick="removeInvestigator(${i})" style="padding:6px 14px;border-radius:20px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">✕ Remove</button>
     </div>`).join("");
 }
@@ -1789,19 +1801,73 @@ function populateHandlerSelect(){rebuildDropdowns();}
 function populateFilterInvestigator(){rebuildDropdowns();}
 function populateFilterHandler(){rebuildDropdowns();}
 function rebuildDropdowns(){
-  // Rebuild investigator dropdown
-  const fi=document.getElementById("f-invest");
-  if(fi){
-    const v=fi.value;
-    fi.innerHTML=`<option value="">— Select —</option>`+window.INVESTIGATORS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
-  }
-  // Rebuild handler dropdown
-  const fh=document.getElementById("f-handler");
-  if(fh){
-    const v=fh.value;
-    fh.innerHTML=`<option value="">— Select —</option>`+window.HANDLERS.map(h=>`<option value="${h}"${h===v?" selected":""}>${h}</option>`).join("");
-  }
+  setStaffLabel('invest');
+  setStaffLabel('handler');
 }
+
+function staffDisplayInfo(idOrName){
+  const db = window.EMP_DB||EMP_DB;
+  const e = db[idOrName];
+  return e ? {name:e.name, designation:e.designation||"", section:e.section||"", id:idOrName, known:true}
+           : {name:idOrName, designation:"", section:"", id:"", known:false};
+}
+
+function renderStaffDropdown(kind){
+  const panel = document.getElementById(kind+"-dropdown-panel");
+  if(!panel) return;
+  const list = (kind==='invest' ? window.INVESTIGATORS : window.HANDLERS) || [];
+  const currentVal = document.getElementById(kind==='invest'?'f-invest':'f-handler').value;
+  if(!list.length){ panel.innerHTML = `<div style="padding:10px 12px;color:var(--tm);font-size:11px;">কোনো নাম নেই</div>`; return; }
+  panel.innerHTML = list.map(idOrName=>{
+    const info = staffDisplayInfo(idOrName);
+    return `<div onclick="selectStaff('${kind}','${esc(idOrName)}')" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid rgba(15,108,116,0.08);${idOrName===currentVal?"background:rgba(23,147,158,0.1);":""}" onmouseover="this.style.background='rgba(23,147,158,0.07)'" onmouseout="this.style.background='${idOrName===currentVal?"rgba(23,147,158,0.1)":""}'">
+      <div style="font-weight:700;font-size:12px;color:var(--td);">${esc(info.name)}</div>
+      ${info.designation?`<div style="font-size:10px;color:var(--tm);">${esc(info.designation)}</div>`:""}
+      ${info.known?`<div style="font-size:10px;color:var(--aqua);">ID: ${esc(info.id)}</div>`:""}
+      ${info.section?`<div style="font-size:10px;color:var(--tm);">📍 ${esc(info.section)}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function toggleStaffDropdown(kind){
+  closeTypeDropdown();
+  const otherKind = kind==='invest' ? 'handler' : 'invest';
+  const otherPanel = document.getElementById(otherKind+"-dropdown-panel");
+  if(otherPanel) otherPanel.style.display='none';
+  const panel = document.getElementById(kind+"-dropdown-panel");
+  if(!panel) return;
+  if(panel.style.display==='block'){ panel.style.display='none'; return; }
+  renderStaffDropdown(kind);
+  panel.style.display='block';
+}
+
+function selectStaff(kind, idOrName){
+  const hidden = document.getElementById(kind==='invest'?'f-invest':'f-handler');
+  if(hidden) hidden.value = idOrName;
+  setStaffLabel(kind);
+  const panel = document.getElementById(kind+"-dropdown-panel");
+  if(panel) panel.style.display='none';
+}
+
+function setStaffLabel(kind){
+  const hidden = document.getElementById(kind==='invest'?'f-invest':'f-handler');
+  const label = document.getElementById(kind+"-dropdown-label");
+  if(!hidden || !label) return;
+  const val = hidden.value;
+  if(!val){ label.style.color='var(--tm)'; label.textContent='— Select —'; return; }
+  const info = staffDisplayInfo(val);
+  label.style.color='var(--td)';
+  label.textContent = info.name;
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#invest-dropdown-btn') && !e.target.closest('#invest-dropdown-panel')){
+    const p=document.getElementById('invest-dropdown-panel'); if(p) p.style.display='none';
+  }
+  if(!e.target.closest('#handler-dropdown-btn') && !e.target.closest('#handler-dropdown-panel')){
+    const p=document.getElementById('handler-dropdown-panel'); if(p) p.style.display='none';
+  }
+});
 
 function renderUsers(){
   const el=document.getElementById("user-list");
@@ -2078,8 +2144,8 @@ function renderTable(){
       </td>
       <td>${esc(g.type).split(",").map(t=>`<span class="pill ${tm.cls}" style="display:block;margin-bottom:2px;">${t.trim()}</span>`).join("")}</td>
       <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div></td>
-      <td><span class="ptag">${esc(g.investigator||"—")}</span></td>
-      <td><span class="ptag ptag-b">${esc(g.handler||"—")}</span></td>
+      <td><span class="ptag">${esc(g.investigator?staffDisplayInfo(g.investigator).name:"—")}</span></td>
+      <td><span class="ptag ptag-b">${esc(g.handler?staffDisplayInfo(g.handler).name:"—")}</span></td>
       <td style="min-width:110px;" onclick="event.stopPropagation()">
         <div class="st-btns">
           <button class="stb stb-p" style="opacity:${opa[0]};" onclick="event.stopPropagation();setStatus('${g.id}','Pending',event)">⏳ Pending</button>
@@ -2242,6 +2308,8 @@ function editRow(id){
   document.getElementById("f-desc").value=g.description;
   document.getElementById("f-invest").value=g.investigator||"";
   document.getElementById("f-handler").value=g.handler||"";
+  setStaffLabel('invest');
+  setStaffLabel('handler');
   document.getElementById("form-title").textContent="📝 Edit Grievance";
   document.getElementById("submit-btn").textContent="Update Record";
   document.getElementById("cancel-btn").style.display="block";
@@ -2257,7 +2325,10 @@ function cancelEdit(){
 function resetForm(){
   document.getElementById("edit-id").value="";
   ["f-empid","f-name","f-sec","f-desig","f-cname","f-cdesig","f-cid","f-csec","f-desc"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  ["f-source","f-invest","f-handler"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ["f-source"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ["f-invest","f-handler"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  setStaffLabel('invest');
+  setStaffLabel('handler');
   ["f-doj","f-cdoj"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
   clearTypeCheckboxes();
   document.getElementById("f-date").valueAsDate=new Date();
@@ -2888,8 +2959,8 @@ function renderTimeline(){
         <div style="font-size:10px;color:var(--tm);margin-bottom:4px;">${esc(g.type)}</div>
         ${g.description?`<div style="font-size:11px;color:var(--tm);margin-bottom:4px;font-style:italic;">${esc(g.description).substring(0,100)}${g.description.length>100?"…":""}</div>`:""}
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;">
-          ${g.investigator?`<span style="font-size:10px;background:rgba(15,108,116,0.1);padding:2px 7px;border-radius:10px;color:var(--aqua);">🔎 ${esc(g.investigator)}</span>`:""}
-          ${g.handler?`<span style="font-size:10px;background:rgba(15,108,116,0.1);padding:2px 7px;border-radius:10px;color:var(--aqua);">👔 ${esc(g.handler)}</span>`:""}
+          ${g.investigator?`<span style="font-size:10px;background:rgba(15,108,116,0.1);padding:2px 7px;border-radius:10px;color:var(--aqua);">🔎 ${esc(staffDisplayInfo(g.investigator).name)}</span>`:""}
+          ${g.handler?`<span style="font-size:10px;background:rgba(15,108,116,0.1);padding:2px 7px;border-radius:10px;color:var(--aqua);">👔 ${esc(staffDisplayInfo(g.handler).name)}</span>`:""}
           ${g.processing?`<span style="font-size:10px;background:rgba(251,191,36,0.12);padding:2px 7px;border-radius:10px;color:#b45309;">⚙ ${esc(g.processing)}</span>`:""}
         </div>
         ${logs?`<div style="margin-top:6px;padding-top:5px;border-top:1px dashed rgba(0,0,0,0.08);">${logs}</div>`:""}
@@ -3122,8 +3193,8 @@ function downloadPDF(){
     }
     const type = (g.type||"—").replace(/</g,"&lt;");
     const description = (g.description||"—").replace(/</g,"&lt;");
-    const investigator = (g.investigator||"—").replace(/</g,"&lt;");
-    const handler = (g.handler||"—").replace(/</g,"&lt;");
+    const investigator = (g.investigator?staffDisplayInfo(g.investigator).name:"—").replace(/</g,"&lt;");
+    const handler = (g.handler?staffDisplayInfo(g.handler).name:"—").replace(/</g,"&lt;");
     const status = g.status||"—";
     const processing = (g.processing||"—").replace(/</g,"&lt;");
     // Processing log
