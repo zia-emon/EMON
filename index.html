@@ -73,6 +73,8 @@ body.app-ready>.app-wrap{display:flex;}
 .mob-nav{display:flex;background:rgba(255,255,255,0.6);padding:10px 16px;border:1px solid var(--border);border-radius:18px;justify-content:space-between;align-items:center;box-shadow:0 8px 20px rgba(12,70,77,0.08);}
 .mob-brand{display:flex;align-items:center;gap:8px;color:var(--aqua);}
 .mob-sync{display:flex;align-items:center;gap:5px;background:rgba(15,108,116,0.12);padding:5px 10px;border-radius:12px;border:1px solid rgba(15,108,116,0.2);}
+@keyframes akh-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.akh-spinning{display:inline-block;animation:akh-spin 0.7s linear infinite;}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#fbbf24;box-shadow:0 0 6px #fbbf24;animation:pulse 1.5s infinite;flex-shrink:0;}
 @keyframes pulse{0%,100%{opacity:.5;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}}
 .sync-txt{font-size:10px;font-weight:800;color:var(--aqua);}
@@ -493,7 +495,7 @@ tbody .drow:not(:last-child) td{
           <div class="sync-dot" id="mob-dot"></div>
           <span class="sync-txt" id="mob-txt">Connecting</span>
         </div>
-        <button onclick="refreshData()" style="background:var(--btn);border:1px solid rgba(255,255,255,0.4);color:white;padding:8px 10px;border-radius:10px;font-size:15px;cursor:pointer;line-height:1;">🔄</button>
+        <button id="mob-refresh-btn" onclick="refreshData()" style="background:var(--btn);border:1px solid rgba(255,255,255,0.4);color:white;padding:8px 10px;border-radius:10px;font-size:15px;cursor:pointer;line-height:1;">🔄</button>
         <button class="mob-menu-btn" onclick="toggleMenu()">☰ Menu</button>
         <button id="mob-logout-btn" onclick="lsLogout()" style="display:none;background:linear-gradient(180deg,#1a7a83,#0f5f66);border:1px solid rgba(255,255,255,0.15);color:white;border-radius:14px;padding:9px 13px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(15,95,102,0.4),inset 0 1px 0 rgba(255,255,255,0.15);">🚪</button>
       </div>
@@ -605,7 +607,7 @@ tbody .drow:not(:last-child) td{
         <span class="tb-autosave" id="autosave-lbl"></span>
       </div>
       <div class="topbar-right" style="display:flex;align-items:center;gap:8px;">
-        <button class="btn-top" onclick="refreshData()" title="Refresh Data" style="padding:7px 12px;font-size:16px;">🔄</button>
+        <button class="btn-top" id="tb-refresh-btn" onclick="refreshData()" title="Refresh Data" style="padding:7px 12px;font-size:16px;">🔄</button>
         <button class="btn-top" onclick="exportCSV()">⬇ Export CSV</button>
         <button class="btn-top" onclick="downloadPDF()" style="background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-weight:700;">📄 Download PDF</button>
         <button id="topbar-logout-btn" onclick="lsLogout()" style="display:none;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚪 Logout</button>
@@ -1134,6 +1136,28 @@ try{
   window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
 }
 
+// One-time migration: force-replace any previously saved (old nickname-style)
+// handler/investigator list with the new staff list, since old cached/Firebase
+// data would otherwise keep overriding the new default list.
+function migrateStaffListsIfNeeded(){
+  try{ if(localStorage.getItem("akh_staff_migrated_v2")) return; }catch(e){}
+  window.HANDLERS=[...window.HANDLERS_DEFAULT];
+  window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
+  try{
+    localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));
+    localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));
+    localStorage.setItem("akh_staff_migrated_v2","1");
+  }catch(e){}
+  if(window._fb){
+    window._fb.saveSettings("handlers",window.HANDLERS).catch(()=>{});
+    window._fb.saveSettings("investigators",window.INVESTIGATORS).catch(()=>{});
+  }
+  try{rebuildDropdowns();}catch(e){}
+  try{renderHandlerList();}catch(e){}
+  try{renderInvestigatorList();}catch(e){}
+}
+migrateStaffListsIfNeeded();
+
 let grievances=[], filtered=[], page=1;
 const PER=5;
 let notifOn=(localStorage.getItem("akh_notif_on")??"true")==="true", lang="en", fbOnline=false;
@@ -1159,6 +1183,28 @@ function setSyncSaved(){
   ["tb-txt","mob-txt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="Synced "+t;});
   // Revert to "Online" after 3s
   setTimeout(()=>setSyncStatus(true), 3000);
+}
+
+// ═══ REFRESH BUTTON ═══
+function refreshData(){
+  // Spin the refresh icons while refreshing
+  ["tb-refresh-btn","mob-refresh-btn"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.add("akh-spinning");
+  });
+  ["tb-txt","mob-txt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="Refreshing...";});
+  ["tb-dot","mob-dot"].forEach(id=>{const el=document.getElementById(id);if(el){el.style.background="#fbbf24";el.style.boxShadow="0 0 8px #fbbf24";}});
+
+  applyFilters();
+  try{ if(typeof renderChart==="function") renderChart(); }catch(e){}
+
+  setTimeout(()=>{
+    ["tb-refresh-btn","mob-refresh-btn"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.classList.remove("akh-spinning");
+    });
+    setSyncSaved();
+  }, 600);
 }
 
 // ═══ FIREBASE CALLBACK ═══
@@ -3039,6 +3085,7 @@ function loadHeadlineInputs(){loadColHeadingInputs();}
 // Load all settings from Firebase
 function loadAllSettings(s){
   if(!s) return;
+  migrateStaffListsIfNeeded();
   // Column headings
   if(s.col_heads){
     window._appSettings.col_heads=s.col_heads;
