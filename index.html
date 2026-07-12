@@ -1676,8 +1676,10 @@ function addProcOpt(){
   if(PROC_OPTS.includes(name)){toast("⚠ এটি আগে থেকে আছে","err");return;}
   PROC_OPTS.push(name);
   try{localStorage.setItem("akh_proc_opts",JSON.stringify(PROC_OPTS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("proc_opts",PROC_OPTS).catch(()=>{});
   inp.value="";
   renderProcOptsList();
+  try{applyFilters();}catch(e){} // refresh any open per-row processing dropdowns
   toast("✓ Processing option যোগ হয়েছে","ok");
 }
 
@@ -1685,7 +1687,9 @@ function removeProcOpt(i){
   if(!confirm("Processing option remove করবেন?")) return;
   PROC_OPTS.splice(i,1);
   try{localStorage.setItem("akh_proc_opts",JSON.stringify(PROC_OPTS));}catch(e){}
+  if(window._fb) window._fb.saveSettings("proc_opts",PROC_OPTS).catch(()=>{});
   renderProcOptsList();
+  try{applyFilters();}catch(e){}
   toast("✓ Removed","ok");
 }
 
@@ -2696,20 +2700,21 @@ function findEmployee(rawId){
 function autoFillEmployee(val, side){
   val = val.trim();
   const emp = findEmployee(val);
+  const fields = side==='def'
+    ? {name:'f-name', sec:'f-sec', desig:'f-desig', doj:'f-doj'}
+    : {name:'f-cname', sec:'f-csec', desig:'f-cdesig', doj:'f-cdoj'};
   if(emp){
-    if(side==='def'){
-      document.getElementById('f-name').value   = emp.name;
-      document.getElementById('f-sec').value    = emp.section;
-      document.getElementById('f-desig').value  = emp.designation;
-      if(emp.doj) document.getElementById('f-doj').value = emp.doj;
-    } else {
-      document.getElementById('f-cname').value  = emp.name;
-      document.getElementById('f-csec').value   = emp.section;
-      document.getElementById('f-cdesig').value = emp.designation;
-      if(emp.doj) document.getElementById('f-cdoj').value = emp.doj;
-    }
+    document.getElementById(fields.name).value  = emp.name;
+    document.getElementById(fields.sec).value   = emp.section;
+    document.getElementById(fields.desig).value = emp.designation;
+    if(emp.doj) document.getElementById(fields.doj).value = emp.doj;
     hideSuggest(side);
     return;
+  }
+  // No match (including an emptied ID field) — clear the dependent fields
+  // instead of leaving stale data from a previously-selected employee.
+  if(!val){
+    Object.values(fields).forEach(id=>{const el=document.getElementById(id); if(el) el.value="";});
   }
   if(val.length>=2){
     const db = window.EMP_DB||EMP_DB;
@@ -3116,6 +3121,18 @@ function loadAllSettings(s){
     window.HANDLERS=s.handlers;
     try{rebuildDropdowns();}catch(e){}
     try{renderHandlerList();}catch(e){}
+  }
+  // Processing options (custom statuses like শো কজ, সাসপেন্ড etc.)
+  if(s.proc_opts && Array.isArray(s.proc_opts)){
+    PROC_OPTS.length=0;
+    s.proc_opts.forEach(p=>PROC_OPTS.push(p));
+    try{localStorage.setItem("akh_proc_opts",JSON.stringify(PROC_OPTS));}catch(e){}
+    try{renderProcOptsList();}catch(e){}
+    try{applyFilters();}catch(e){}
+  } else if(window._fb){
+    // Firebase has no shared copy yet — push whatever this device already has
+    // (covers custom options added locally before syncing existed)
+    window._fb.saveSettings("proc_opts",PROC_OPTS).catch(()=>{});
   }
 }
 
