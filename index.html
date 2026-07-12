@@ -2160,7 +2160,7 @@ function renderTable(){
   tbody.innerHTML=slice.map(g=>{
     const tm=TYPE_MAP[g.type]||{cls:"pl"};
     const opa={Pending:["1","0.3","0.3","0.3"],"Under Investigation":["0.3","1","0.3","0.3"],Resolved:["0.3","0.3","1","0.3"],Closed:["0.3","0.3","0.3","1"]}[g.status]||["0.3","0.3","0.3","0.3"];
-    const procOpts=PROC_OPTS.map(o=>`<option${g.processing===o?" selected":""}>${o}</option>`).join("");
+    const procOpts=`<option value=""${g.processing?"":" selected"}>— নির্বাচন করুন —</option>`+PROC_OPTS.map(o=>`<option${g.processing===o?" selected":""}>${o}</option>`).join("");
     const logHtml=g.processingLog&&g.processingLog.length?`<div class="proc-log">${g.processingLog.slice().reverse().map((pl,ri)=>{
       const ri2=g.processingLog.length-1-ri;
       const p=pl.date?pl.date.split("-"):["","",""];
@@ -2345,7 +2345,7 @@ async function saveGrievance(){
     if(g){Object.assign(g,payload);await persistOne(g);}
     toast("✓ Record Updated","ok");cancelEdit();
   } else {
-    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"শো কজ",processingLog:[{date:new Date().toISOString().slice(0,10),action:"শো কজ"}]};
+    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"",processingLog:[]};
     grievances.unshift(newG);
     // Pre-register own ID so no self-notification
     if(window._grvState) window._grvState[newG.id]={status:newG.status||"",processing:newG.processing||""};
@@ -2415,6 +2415,7 @@ function setStatus(id,val,e){
   toast("↻ Status: "+val,"ok");
 }
 function setProc(id,val){
+  if(!val) return; // placeholder "— নির্বাচন করুন —" — nothing to do
   // Pre-update state so no self-notification
   if(window._grvState&&window._grvState[id]) window._grvState[id].processing=val;
   const g=grievances.find(x=>x.id===id);
