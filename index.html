@@ -3237,12 +3237,15 @@ function downloadPDF(){
     const empName = (g.empName||"—").replace(/</g,"&lt;");
     const section = (g.section||"—").replace(/</g,"&lt;");
     const designation = (g.designation||"—").replace(/</g,"&lt;");
-    const complainantName = (g.complainantName||"—").replace(/</g,"&lt;");
-    const complainantDesig = (g.complainantDesig||"").replace(/</g,"&lt;");
-    // countdown
+    const complainantName = (g.complainantName||"").replace(/</g,"&lt;");
+    const complainantDesig = (g.complainantDesig||"—").replace(/</g,"&lt;");
+    const complainantId = (g.complainantId||"").replace(/</g,"&lt;");
+    const complainantSec = (g.complainantSec||"").replace(/</g,"&lt;");
+    const source = (g.source||"").replace(/</g,"&lt;");
+    // countdown — same fix as the log: creation day shows 59 days left, not 60
     const _td=new Date(); _td.setHours(0,0,0,0);
     const _gd=new Date(g.date); _gd.setHours(0,0,0,0);
-    const _rem=60-Math.floor((_td-_gd)/(86400000));
+    const _rem=59-Math.floor((_td-_gd)/(86400000));
     let _cdTxt, _cdClr;
     if(g.status==="Resolved"||g.status==="Closed"){
       _cdTxt=g.status==="Resolved"?"✅ Case Resolved":"🔒 Case Closed";
@@ -3253,8 +3256,8 @@ function downloadPDF(){
     }
     const type = (g.type||"—").replace(/</g,"&lt;");
     const description = (g.description||"—").replace(/</g,"&lt;");
-    const investigator = (g.investigator?staffDisplayInfo(g.investigator).name:"—").replace(/</g,"&lt;");
-    const handler = (g.handler?staffDisplayInfo(g.handler).name:"—").replace(/</g,"&lt;");
+    const invInfo = g.investigator ? staffDisplayInfo(g.investigator) : null;
+    const hndInfo = g.handler ? staffDisplayInfo(g.handler) : null;
     const status = g.status||"—";
     const processing = (g.processing||"—").replace(/</g,"&lt;");
     // Processing log
@@ -3273,28 +3276,53 @@ function downloadPDF(){
     const typeClr = typeColors[g.type]||"#0a5f6a";
     const bg = i%2 ? "#f0fafa" : "#ffffff";
 
+    // Complainant cell — mirrors the log: full stacked info when a name exists,
+    // otherwise just the source badge, otherwise a dash.
+    let complainantCell;
+    if(complainantName){
+      complainantCell = `<strong>${complainantName}</strong>`
+        + `<br><span style="color:#666;font-size:9px;">${complainantDesig}</span>`
+        + (complainantId?`<br><span style="color:#0369a1;font-size:9px;">ID: ${complainantId}</span>`:"")
+        + (complainantSec?`<br><span style="color:#777;font-size:9px;">📍 ${complainantSec}</span>`:"")
+        + (source?`<br><span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">${source}</span>`:"");
+    } else if(source){
+      complainantCell = `<span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">${source}</span>`;
+    } else {
+      complainantCell = `<span style="color:#999;">—</span>`;
+    }
+
+    // Investigator / Handler cells — mirror the log: Name / Designation / ID stacked
+    const invCell = invInfo
+      ? `<strong>${(invInfo.name||"").replace(/</g,"&lt;")}</strong>`
+        + (invInfo.designation?`<br><span style="color:#666;font-size:9px;">${(invInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (invInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(invInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
+      : `<span style="color:#999;">—</span>`;
+    const hndCell = hndInfo
+      ? `<strong>${(hndInfo.name||"").replace(/</g,"&lt;")}</strong>`
+        + (hndInfo.designation?`<br><span style="color:#666;font-size:9px;">${(hndInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (hndInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(hndInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
+      : `<span style="color:#999;">—</span>`;
+
     return `<tr style="background:${bg};vertical-align:top;">
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
-        <strong>${empId}</strong><br>
-        <span style="color:#333;">${empName}</span><br>
-        <span style="color:#777;font-size:9px;">📍 ${section} · ${designation}</span>
+        <strong>${empName}</strong><br>
+        <span style="color:#666;font-size:9px;">${designation}</span><br>
+        <span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>
+        <span style="color:#777;font-size:9px;">📍 ${section}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
-        <strong>${complainantName}</strong><br>
-        <span style="color:#666;font-size:9px;">${complainantDesig}</span>
-        ${g.complainantId?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(g.complainantId||"").replace(/</g,"&lt;")}</span>`:""}
-        ${g.source?`<br><span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">${(g.source||"").replace(/</g,"&lt;")}</span>`:""}
+        ${complainantCell}
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;vertical-align:top;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;text-align:center;"><span style="background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:10px;font-size:9px;">${investigator}</span></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;text-align:center;"><span style="background:#f0fdf4;color:#166534;padding:2px 6px;border-radius:10px;font-size:9px;">${handler}</span></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${invCell}</td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${hndCell}</td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
