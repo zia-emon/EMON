@@ -1140,23 +1140,35 @@ try{
 // handler/investigator list with the new staff list, since old cached/Firebase
 // data would otherwise keep overriding the new default list.
 function migrateStaffListsIfNeeded(){
-  try{ if(localStorage.getItem("akh_staff_migrated_v2")) return; }catch(e){}
-  window.HANDLERS=[...window.HANDLERS_DEFAULT];
-  window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
-  try{
-    localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));
-    localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));
-    localStorage.setItem("akh_staff_migrated_v2","1");
-  }catch(e){}
-  if(window._fb){
-    window._fb.saveSettings("handlers",window.HANDLERS).catch(()=>{});
-    window._fb.saveSettings("investigators",window.INVESTIGATORS).catch(()=>{});
+  const done=(()=>{try{return !!localStorage.getItem("akh_staff_migrated_v3");}catch(e){return false;}})();
+
+  // Always correct the local copy immediately (cheap, safe, instant UI fix)
+  if(!done){
+    window.HANDLERS=[...window.HANDLERS_DEFAULT];
+    window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
+    try{
+      localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));
+      localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));
+    }catch(e){}
+    try{rebuildDropdowns();}catch(e){}
+    try{renderHandlerList();}catch(e){}
+    try{renderInvestigatorList();}catch(e){}
   }
-  try{rebuildDropdowns();}catch(e){}
-  try{renderHandlerList();}catch(e){}
-  try{renderInvestigatorList();}catch(e){}
+
+  // Only mark migration complete once Firebase actually confirms the save —
+  // otherwise the shared/synced copy stays stale and keeps overwriting us
+  // on every future load via loadAllSettings().
+  if(!done && window._fb){
+    Promise.all([
+      window._fb.saveSettings("handlers",window.HANDLERS),
+      window._fb.saveSettings("investigators",window.INVESTIGATORS)
+    ]).then(()=>{
+      try{localStorage.setItem("akh_staff_migrated_v3","1");}catch(e){}
+    }).catch(()=>{ /* not confirmed — will retry on next load / fb-ready */ });
+  }
 }
 migrateStaffListsIfNeeded();
+document.addEventListener("fb-ready", migrateStaffListsIfNeeded);
 
 let grievances=[], filtered=[], page=1;
 const PER=5;
@@ -2190,8 +2202,8 @@ function renderTable(){
       </td>
       <td>${esc(g.type).split(",").map(t=>`<span class="pill ${tm.cls}" style="display:block;margin-bottom:2px;">${t.trim()}</span>`).join("")}</td>
       <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div></td>
-      <td><span class="ptag">${esc(g.investigator?staffDisplayInfo(g.investigator).name:"—")}</span></td>
-      <td><span class="ptag ptag-b">${esc(g.handler?staffDisplayInfo(g.handler).name:"—")}</span></td>
+      <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.investigator) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.investigator); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
+      <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.handler) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.handler); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
       <td style="min-width:110px;" onclick="event.stopPropagation()">
         <div class="st-btns">
           <button class="stb stb-p" style="opacity:${opa[0]};" onclick="event.stopPropagation();setStatus('${g.id}','Pending',event)">⏳ Pending</button>
@@ -3086,20 +3098,21 @@ function loadHeadlineInputs(){loadColHeadingInputs();}
 function loadAllSettings(s){
   if(!s) return;
   migrateStaffListsIfNeeded();
+  const _staffMigrated=(()=>{try{return !!localStorage.getItem("akh_staff_migrated_v3");}catch(e){return false;}})();
   // Column headings
   if(s.col_heads){
     window._appSettings.col_heads=s.col_heads;
     applyColHeadings(s.col_heads);
     loadColHeadingInputs();
   }
-  // Investigators
-  if(s.investigators && Array.isArray(s.investigators)){
+  // Investigators (ignore stale Firebase copy until our migration is confirmed saved)
+  if(_staffMigrated && s.investigators && Array.isArray(s.investigators)){
     window.INVESTIGATORS=s.investigators;
     try{rebuildDropdowns();}catch(e){}
     try{renderInvestigatorList();}catch(e){}
   }
-  // Handlers
-  if(s.handlers && Array.isArray(s.handlers)){
+  // Handlers (ignore stale Firebase copy until our migration is confirmed saved)
+  if(_staffMigrated && s.handlers && Array.isArray(s.handlers)){
     window.HANDLERS=s.handlers;
     try{rebuildDropdowns();}catch(e){}
     try{renderHandlerList();}catch(e){}
