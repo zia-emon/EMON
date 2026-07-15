@@ -749,9 +749,12 @@ tbody .drow:not(:last-child) td{
           <div class="panel-title" id="lbl-log">Grievance Log</div>
           <div class="filter-bar">
             <input type="text" id="search" class="fc" style="flex:1;min-width:160px;" placeholder="🔍 Search...">
-            <select id="cf-person" class="fc" style="min-width:180px;" onchange="applyFilters()">
-              <option value="">👤 সবার Grievance (All)</option>
-            </select>
+            <div style="position:relative;">
+              <div id="cf-person-btn" class="fc" onclick="togglePersonFilterDropdown()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-width:190px;gap:8px;">
+                <span id="cf-person-label">👤 সবার Grievance (All)</span><span style="font-size:10px;color:var(--tm);">▾</span>
+              </div>
+              <div id="cf-person-panel" style="display:none;position:absolute;top:100%;left:0;z-index:999;min-width:240px;max-height:260px;overflow-y:auto;background:white;border:1px solid rgba(15,108,116,0.25);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
+            </div>
             <button class="btn-jelly" onclick="applyFilters()">🔍 Search</button>
             <button class="btn-jelly btn-clear" onclick="clearFilters()">✕ Clear</button>
             <select id="cf-status" style="display:none;" onchange="applyFilters()">
@@ -1874,18 +1877,58 @@ function rebuildDropdowns(){
   populateColumnFilters();
 }
 
-function populateColumnFilters(){
-  const perSel=document.getElementById("cf-person");
-  if(perSel){
-    const cur=perSel.value;
-    const seen=new Map();
-    (window.grievances||grievances||[]).forEach(g=>{
-      if(g.empId && !seen.has(g.empId)) seen.set(g.empId, g.empName||g.empId);
-    });
-    const opts=[...seen.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
-    perSel.innerHTML=`<option value="">👤 সবার Grievance (All)</option>`+
-      opts.map(([id,name])=>`<option value="${esc(id)}"${id===cur?" selected":""}>${esc(name)} (${esc(id)})</option>`).join("");
+window._cfPersonSelected = new Set(); // multi-select employee filter — empIds
+
+function populatePersonFilterOptions(){
+  const panel=document.getElementById("cf-person-panel");
+  if(!panel) return;
+  const seen=new Map();
+  (window.grievances||grievances||[]).forEach(g=>{
+    if(g.empId && !seen.has(g.empId)) seen.set(g.empId, g.empName||g.empId);
+  });
+  const opts=[...seen.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  panel.innerHTML = opts.length ? opts.map(([id,name])=>`
+    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid rgba(15,108,116,0.06);">
+      <input type="checkbox" value="${esc(id)}" ${window._cfPersonSelected.has(id)?"checked":""} onchange="togglePersonFilterItem('${esc(id)}',this.checked)">
+      <span>${esc(name)} <span style="color:var(--tm);font-size:10px;">(${esc(id)})</span></span>
+    </label>
+  `).join("") : `<div style="padding:10px;color:var(--tm);font-size:11px;">কোনো data নেই</div>`;
+  updatePersonFilterLabel();
+}
+
+function togglePersonFilterItem(id, checked){
+  if(checked) window._cfPersonSelected.add(id);
+  else window._cfPersonSelected.delete(id);
+  updatePersonFilterLabel();
+  applyFilters();
+}
+
+function updatePersonFilterLabel(){
+  const lbl=document.getElementById("cf-person-label");
+  if(!lbl) return;
+  const n=window._cfPersonSelected.size;
+  lbl.textContent = n===0 ? "👤 সবার Grievance (All)" : `👤 ${n} জন নির্বাচিত`;
+}
+
+function togglePersonFilterDropdown(){
+  closeTypeDropdown();
+  const invP=document.getElementById("invest-dropdown-panel"); if(invP) invP.style.display="none";
+  const hndP=document.getElementById("handler-dropdown-panel"); if(hndP) hndP.style.display="none";
+  const panel=document.getElementById("cf-person-panel");
+  if(!panel) return;
+  if(panel.style.display==="block"){ panel.style.display="none"; return; }
+  populatePersonFilterOptions();
+  panel.style.display="block";
+}
+
+document.addEventListener("click", e=>{
+  if(!e.target.closest("#cf-person-btn") && !e.target.closest("#cf-person-panel")){
+    const p=document.getElementById("cf-person-panel"); if(p) p.style.display="none";
   }
+});
+
+function populateColumnFilters(){
+  populatePersonFilterOptions();
   const invSel=document.getElementById("cf-inv");
   if(invSel){
     const cur=invSel.value;
@@ -2108,7 +2151,7 @@ function applyFilters(){
   const cfH=document.getElementById("cf-hnd")?.value||"";
   const cfSt=document.getElementById("cf-st")?.value||document.getElementById("cf-status")?.value||"";
   const cfP=document.getElementById("cf-proc")?.value||"";
-  const cfPerson=document.getElementById("cf-person")?.value||"";
+  const cfPersonSet=window._cfPersonSelected||new Set();
 
   filtered=grievances.filter(g=>{
     const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,g.processing].some(f=>(f||"").toLowerCase().includes(q));
@@ -2117,7 +2160,7 @@ function applyFilters(){
     return mQ&&(!cfD||(g.date||"").includes(cfD))&&empMatch&&cmpMatch&&(!cfT||g.type===cfT)
       &&(!cfDesc||(g.description||"").toLowerCase().includes(cfDesc))&&(!cfI||g.investigator===cfI)
       &&(!cfH||g.handler===cfH)&&(!cfSt||g.status===cfSt)&&(!cfP||g.processing===cfP)
-      &&(!cfPerson||g.empId===cfPerson);
+      &&(cfPersonSet.size===0||cfPersonSet.has(g.empId));
   }).sort((a,b)=>(b.id||"").localeCompare(a.id||"")); // newest-added grievance first
 
   document.getElementById("cnt-total").textContent=grievances.length;
@@ -2131,7 +2174,10 @@ function applyFilters(){
 
 function clearFilters(){
   ["search","cf-date","cf-emp","cf-sec","cf-desc"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  ["cf-type","cf-inv","cf-hnd","cf-st","cf-proc","cf-status","cf-person"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ["cf-type","cf-inv","cf-hnd","cf-st","cf-proc","cf-status"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  window._cfPersonSelected.clear();
+  updatePersonFilterLabel();
+  try{populatePersonFilterOptions();}catch(e){}
   document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("af"));
   document.querySelectorAll(".stat-card")[0].classList.add("af");
   applyFilters();
