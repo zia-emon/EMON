@@ -186,7 +186,7 @@ tbody .drow:not(:last-child) td{
   border-bottom:6px solid transparent !important;
   box-shadow:0 4px 0 -2px rgba(23,147,158,0.07);
 }
-.col-filter{width:100%;margin-top:4px;padding:3px 5px;border-radius:7px;font-size:9px;font-weight:700;background:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.9);color:var(--td);outline:none;}
+.col-filter{width:100%;margin-top:4px;padding:3px 5px;border-radius:7px;font-size:9px;font-weight:700;background:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.9);color:var(--td);outline:none;display:none;}
 /* JELLY HEADERS */
 #tbody closest table thead tr th{padding:6px 8px;}
 .th-jelly-wrap{display:flex;align-items:center;justify-content:center;}
@@ -749,6 +749,9 @@ tbody .drow:not(:last-child) td{
           <div class="panel-title" id="lbl-log">Grievance Log</div>
           <div class="filter-bar">
             <input type="text" id="search" class="fc" style="flex:1;min-width:160px;" placeholder="🔍 Search...">
+            <select id="cf-person" class="fc" style="min-width:180px;" onchange="applyFilters()">
+              <option value="">👤 সবার Grievance (All)</option>
+            </select>
             <button class="btn-jelly" onclick="applyFilters()">🔍 Search</button>
             <button class="btn-jelly btn-clear" onclick="clearFilters()">✕ Clear</button>
             <select id="cf-status" style="display:none;" onchange="applyFilters()">
@@ -769,15 +772,15 @@ tbody .drow:not(:last-child) td{
           <div id="log-tbl-container" style="overflow-x:auto;overflow-y:auto;max-height:65vh;">
             <table id="main-table" style="min-width:900px;">
               <thead><tr>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()" style="display:none;"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()" style="display:none;"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()" style="display:none;"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()" style="display:none;"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()" style="display:none;"><option value="">All</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()" style="display:none;"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()" style="display:none;"><option value="">All</option><option>শো কজ</option><option>সাসপেন্ড</option><option>কাজে যোগদান</option><option>প্রতিনিধির নাম</option><option>প্রতিনিধির নাম সহ কাজে যোগদান</option><option>শুনানির দিন ধার্য</option><option>ডিসমিস</option><option>সতর্কীকরণ সহ কাজে যোগদান</option><option>চূড়ান্ত সতর্কীকরণ সহ কাজে যোগদান</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()"><option value="">All</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()"><option value="">All</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()"><option value="">All</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
             </tr></thead>
             <tbody id="tbody"></tbody>
@@ -1236,6 +1239,7 @@ window._onFBData=function(data){
     if(json.length<4000000) localStorage.setItem("akh_grv",json);
   }catch(e){}
   setSyncStatus(true);
+  try{populateColumnFilters();}catch(e){}
   applyFilters();
   const dlc=document.getElementById("dl-count");
   if(dlc)dlc.textContent=grievances.length;
@@ -1679,6 +1683,7 @@ function addProcOpt(){
   if(window._fb) window._fb.saveSettings("proc_opts",PROC_OPTS).catch(()=>{});
   inp.value="";
   renderProcOptsList();
+  try{populateColumnFilters();}catch(e){}
   try{applyFilters();}catch(e){} // refresh any open per-row processing dropdowns
   toast("✓ Processing option যোগ হয়েছে","ok");
 }
@@ -1689,6 +1694,7 @@ function removeProcOpt(i){
   try{localStorage.setItem("akh_proc_opts",JSON.stringify(PROC_OPTS));}catch(e){}
   if(window._fb) window._fb.saveSettings("proc_opts",PROC_OPTS).catch(()=>{});
   renderProcOptsList();
+  try{populateColumnFilters();}catch(e){}
   try{applyFilters();}catch(e){}
   toast("✓ Removed","ok");
 }
@@ -1865,6 +1871,42 @@ function populateFilterHandler(){rebuildDropdowns();}
 function rebuildDropdowns(){
   setStaffLabel('invest');
   setStaffLabel('handler');
+  populateColumnFilters();
+}
+
+function populateColumnFilters(){
+  const perSel=document.getElementById("cf-person");
+  if(perSel){
+    const cur=perSel.value;
+    const seen=new Map();
+    (window.grievances||grievances||[]).forEach(g=>{
+      if(g.empId && !seen.has(g.empId)) seen.set(g.empId, g.empName||g.empId);
+    });
+    const opts=[...seen.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+    perSel.innerHTML=`<option value="">👤 সবার Grievance (All)</option>`+
+      opts.map(([id,name])=>`<option value="${esc(id)}"${id===cur?" selected":""}>${esc(name)} (${esc(id)})</option>`).join("");
+  }
+  const invSel=document.getElementById("cf-inv");
+  if(invSel){
+    const cur=invSel.value;
+    invSel.innerHTML=`<option value="">All</option>`+(window.INVESTIGATORS||[]).map(idOrName=>{
+      const info=staffDisplayInfo(idOrName);
+      return `<option value="${esc(idOrName)}"${idOrName===cur?" selected":""}>${esc(info.name)}</option>`;
+    }).join("");
+  }
+  const hndSel=document.getElementById("cf-hnd");
+  if(hndSel){
+    const cur=hndSel.value;
+    hndSel.innerHTML=`<option value="">All</option>`+(window.HANDLERS||[]).map(idOrName=>{
+      const info=staffDisplayInfo(idOrName);
+      return `<option value="${esc(idOrName)}"${idOrName===cur?" selected":""}>${esc(info.name)}</option>`;
+    }).join("");
+  }
+  const procSel=document.getElementById("cf-proc");
+  if(procSel){
+    const cur=procSel.value;
+    procSel.innerHTML=`<option value="">All</option>`+(window.PROC_OPTS||[]).map(p=>`<option${p===cur?" selected":""}>${esc(p)}</option>`).join("");
+  }
 }
 
 function staffDisplayInfo(idOrName){
@@ -2066,6 +2108,7 @@ function applyFilters(){
   const cfH=document.getElementById("cf-hnd")?.value||"";
   const cfSt=document.getElementById("cf-st")?.value||document.getElementById("cf-status")?.value||"";
   const cfP=document.getElementById("cf-proc")?.value||"";
+  const cfPerson=document.getElementById("cf-person")?.value||"";
 
   filtered=grievances.filter(g=>{
     const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,g.processing].some(f=>(f||"").toLowerCase().includes(q));
@@ -2073,8 +2116,9 @@ function applyFilters(){
     const cmpMatch=!cfS||((g.complainantName||"")+" "+(g.complainantDesig||"")).toLowerCase().includes(cfS);
     return mQ&&(!cfD||(g.date||"").includes(cfD))&&empMatch&&cmpMatch&&(!cfT||g.type===cfT)
       &&(!cfDesc||(g.description||"").toLowerCase().includes(cfDesc))&&(!cfI||g.investigator===cfI)
-      &&(!cfH||g.handler===cfH)&&(!cfSt||g.status===cfSt)&&(!cfP||g.processing===cfP);
-  });
+      &&(!cfH||g.handler===cfH)&&(!cfSt||g.status===cfSt)&&(!cfP||g.processing===cfP)
+      &&(!cfPerson||g.empId===cfPerson);
+  }).sort((a,b)=>(b.id||"").localeCompare(a.id||"")); // newest-added grievance first
 
   document.getElementById("cnt-total").textContent=grievances.length;
   document.getElementById("cnt-pending").textContent=grievances.filter(x=>x.status==="Pending").length;
@@ -2087,7 +2131,7 @@ function applyFilters(){
 
 function clearFilters(){
   ["search","cf-date","cf-emp","cf-sec","cf-desc"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  ["cf-type","cf-inv","cf-hnd","cf-st","cf-proc","cf-status"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ["cf-type","cf-inv","cf-hnd","cf-st","cf-proc","cf-status","cf-person"].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
   document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("af"));
   document.querySelectorAll(".stat-card")[0].classList.add("af");
   applyFilters();
@@ -3245,7 +3289,7 @@ function downloadJSON(){
 }
 function downloadPDF(){
   if(!grievances.length){toast("⚠ No data to export","err");return;}
-  const src = filtered.length ? filtered : grievances;
+  const src = filtered;
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
   const _ch = loadColHeadings();
 
