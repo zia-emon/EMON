@@ -755,9 +755,9 @@ tbody .drow:not(:last-child) td{
               </div>
               <div id="cf-person-panel" style="display:none;position:absolute;top:100%;left:0;z-index:999;min-width:240px;max-height:260px;overflow-y:auto;background:white;border:1px solid rgba(15,108,116,0.25);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
             </div>
-            <button class="btn-jelly" onclick="applyFilters()">🔍 Search</button>
+            <button class="btn-jelly" onclick="applyFilters(true)">🔍 Search</button>
             <button class="btn-jelly btn-clear" onclick="clearFilters()">✕ Clear</button>
-            <select id="cf-status" style="display:none;" onchange="applyFilters()">
+            <select id="cf-status" style="display:none;" onchange="applyFilters(true)">
               <option value=""></option>
               <option value="Pending">Pending</option>
               <option value="Under Investigation">Under Investigation</option>
@@ -775,15 +775,15 @@ tbody .drow:not(:last-child) td{
           <div id="log-tbl-container" style="overflow-x:auto;overflow-y:auto;max-height:65vh;">
             <table id="main-table" style="min-width:900px;">
               <thead><tr>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters()"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters()"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters()"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters()"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters()"></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters()"><option value="">All</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters()"><option value="">All</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters()"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters()"><option value="">All</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-date" class="th-jelly">Date / Countdown</span></div><input class="col-filter" id="cf-date" placeholder="yyyy-mm-dd" oninput="applyFilters(true)"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-emp" class="th-jelly">Employee</span></div><input class="col-filter" id="cf-emp" placeholder="Name/ID/Line" oninput="applyFilters(true)"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-cmp" class="th-jelly">অভিযোগকারী</span></div><input class="col-filter" id="cf-sec" placeholder="নাম/পদবী" oninput="applyFilters(true)"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-type" class="th-jelly">Type</span></div><select class="col-filter" id="cf-type" onchange="applyFilters(true)"><option value="">All</option><option value="ধারা ২৩/৪ (ক)">২৩/৪(ক)</option><option value="ধারা ২৩/৪ (খ)">২৩/৪(খ)</option><option value="ধারা ২৩/৪ (গ)">২৩/৪(গ)</option><option value="ধারা ২৩/৪ (ঘ)">২৩/৪(ঘ)</option><option value="ধারা ২৩/৪ (ঙ)">২৩/৪(ঙ)</option><option value="ধারা ২৩/৪ (চ)">২৩/৪(চ)</option><option value="ধারা ২৩/৪ (ছ)">২৩/৪(ছ)</option><option value="ধারা ২৩/৪ (জ)">২৩/৪(জ)</option><option value="ধারা ২৩/৪ (ঝ)">২৩/৪(ঝ)</option><option value="ধারা ২৩/৪ (ঞ)">২৩/৪(ঞ)</option><option value="ধারা ৫২(ক)">৫২(ক)</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-desc" class="th-jelly">Description</span></div><input class="col-filter" id="cf-desc" placeholder="keyword" oninput="applyFilters(true)"></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-inv" class="th-jelly">Investigator</span></div><select class="col-filter" id="cf-inv" onchange="applyFilters(true)"><option value="">All</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters(true)"><option value="">All</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters(true)"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
+              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters(true)"><option value="">All</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
             </tr></thead>
             <tbody id="tbody"></tbody>
@@ -1213,7 +1213,7 @@ function refreshData(){
   ["tb-txt","mob-txt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="Refreshing...";});
   ["tb-dot","mob-dot"].forEach(id=>{const el=document.getElementById(id);if(el){el.style.background="#fbbf24";el.style.boxShadow="0 0 8px #fbbf24";}});
 
-  applyFilters();
+  applyFilters(true);
   try{ if(typeof renderChart==="function") renderChart(); }catch(e){}
 
   setTimeout(()=>{
@@ -1900,7 +1900,7 @@ function togglePersonFilterItem(id, checked){
   if(checked) window._cfPersonSelected.add(id);
   else window._cfPersonSelected.delete(id);
   updatePersonFilterLabel();
-  applyFilters();
+  applyFilters(true);
 }
 
 function updatePersonFilterLabel(){
@@ -2119,7 +2119,7 @@ function filterStat(status){
     const idx=["Pending","Under Investigation","Resolved","Closed"].indexOf(status);
     if(idx>=0)document.querySelectorAll(".stat-card")[idx+1].classList.add("af");
   }
-  applyFilters();
+  applyFilters(true);
   // Scroll to grievance log panel
   setTimeout(()=>{
     const panels=document.querySelectorAll(".panel");
@@ -2132,7 +2132,7 @@ function filterStat(status){
 function filterByType(catLabel){
   const searchEl=document.getElementById("search");
   if(searchEl) searchEl.value=catLabel;
-  applyFilters();
+  applyFilters(true);
   setTimeout(()=>{
     const panels=document.querySelectorAll(".panel");
     if(panels.length>=2) panels[1].scrollIntoView({behavior:"smooth",block:"start"});
@@ -2140,7 +2140,7 @@ function filterByType(catLabel){
 }
 
 // ═══ FILTERS ═══
-function applyFilters(){
+function applyFilters(resetPage){
   const q=(document.getElementById("search")?.value||"").toLowerCase();
   const cfD=(document.getElementById("cf-date")?.value||"").toLowerCase();
   const cfE=(document.getElementById("cf-emp")?.value||"").toLowerCase();
@@ -2168,7 +2168,7 @@ function applyFilters(){
   document.getElementById("cnt-invest").textContent=grievances.filter(x=>x.status==="Under Investigation").length;
   document.getElementById("cnt-resolved").textContent=grievances.filter(x=>x.status==="Resolved").length;
   document.getElementById("cnt-closed").textContent=grievances.filter(x=>x.status==="Closed").length;
-  page=1;
+  if(resetPage) page=1;
   renderTable();
 }
 
@@ -2180,7 +2180,7 @@ function clearFilters(){
   try{populatePersonFilterOptions();}catch(e){}
   document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("af"));
   document.querySelectorAll(".stat-card")[0].classList.add("af");
-  applyFilters();
+  applyFilters(true);
   toast("✕ Filters cleared","ok");
 }
 
@@ -3335,7 +3335,7 @@ function downloadJSON(){
 }
 function downloadPDF(){
   if(!grievances.length){toast("⚠ No data to export","err");return;}
-  const src = filtered;
+  const src = [...filtered].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
   const _ch = loadColHeadings();
 
@@ -3452,8 +3452,8 @@ function downloadPDF(){
     th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;word-break:break-word;}
     td{word-break:break-word;overflow-wrap:break-word}
     tr:hover{background:#e6f7f9!important}
-    .footer{margin-top:14px;font-size:9px;color:#999;text-align:right;border-top:1px solid #ddd;padding-top:6px}
-    @media print{body{padding:0} .footer{position:fixed;bottom:5mm;right:8mm}}
+    .footer{margin-top:16px;font-size:9px;color:#999;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
+    @media print{body{padding:0}}
   </style></head>
   <body>
     <div class="header">
@@ -3494,7 +3494,7 @@ function downloadPDF(){
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Page <span id="pg"></span></div>
+    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Generated: ${today}</div>
     <script>window.onload=()=>{window.print()}<\/script>
   </body></html>`;
   const win=window.open("","_blank");
