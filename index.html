@@ -1101,7 +1101,7 @@ try{
 }catch(e){ var PROC_OPTS=[...PROC_OPTS_DEFAULT]; }
 window.HANDLERS_DEFAULT = ["92","130","169","333","07-A-14271","07-A-14899","07-A-16220","15035","15047","15154","07-A-5071","09-A-28067","09-A-29723","09-A-31055","09-A-31282","4651"];
 window.INVESTIGATORS_DEFAULT = ["92","130","169","333","07-A-14271","07-A-14899","07-A-16220","15035","15047","15154","07-A-5071","09-A-28067","09-A-29723","09-A-31055","09-A-31282","4651"];
-window.SOURCES_DEFAULT = ["H&M","ZARA","Primark","C&A","Lidl","Aldi","Next","M&S","Gap","Uniqlo"];
+window.SOURCES_DEFAULT = ["VERBAL GRIEVANCE","WRITTEN GRIEVANCE","INTERNAL HOTLINE","RSC","DIFE","AMADER KOTHA HELPLINE","BGMEA","FEDERATION/ ASSOCIATION"];
 try{ const _ss=localStorage.getItem("akh_sources"); window.SOURCES=_ss?JSON.parse(_ss):[...window.SOURCES_DEFAULT]; }
 catch(e){ window.SOURCES=[...window.SOURCES_DEFAULT]; }
 
@@ -1119,11 +1119,17 @@ function addSource(){
   const val=inp?.value.trim(); if(!val) return;
   if(!window.SOURCES.includes(val)) window.SOURCES.push(val);
   inp.value=""; renderSourceList();
+  saveSources();
 }
-function removeSource(i){ window.SOURCES.splice(i,1); renderSourceList(); }
+function removeSource(i){
+  window.SOURCES.splice(i,1);
+  renderSourceList();
+  saveSources();
+}
 function saveSources(){
   localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));
   populateSourceDropdown();
+  if(window._fb) window._fb.saveSettings("sources",window.SOURCES).catch(()=>{});
   toast("✅ Sources saved","ok");
 }
 function populateSourceDropdown(){
@@ -1132,6 +1138,26 @@ function populateSourceDropdown(){
   sel.innerHTML=`<option value="">— Select Source —</option>`+
     (window.SOURCES||[]).map(s=>`<option value="${s}"${cur===s?" selected":""}>${s}</option>`).join("");
 }
+
+// One-time migration: force-replace any previously saved (old brand-name style)
+// source list with the new list requested, and confirm it's actually synced
+// to Firebase (same safe pattern used for the staff/handler migration).
+function migrateSourcesIfNeeded(){
+  const done=(()=>{try{return !!localStorage.getItem("akh_sources_migrated_v1");}catch(e){return false;}})();
+  if(!done){
+    window.SOURCES=[...window.SOURCES_DEFAULT];
+    try{localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));}catch(e){}
+    try{populateSourceDropdown();}catch(e){}
+    try{renderSourceList();}catch(e){}
+  }
+  if(!done && window._fb){
+    window._fb.saveSettings("sources",window.SOURCES).then(()=>{
+      try{localStorage.setItem("akh_sources_migrated_v1","1");}catch(e){}
+    }).catch(()=>{ /* not confirmed — will retry next load / fb-ready */ });
+  }
+}
+migrateSourcesIfNeeded();
+document.addEventListener("fb-ready", migrateSourcesIfNeeded);
 try{
   var _sh=localStorage.getItem("akh_handlers");
   var _si=localStorage.getItem("akh_investigators");
@@ -3194,12 +3220,21 @@ function loadHeadlineInputs(){loadColHeadingInputs();}
 function loadAllSettings(s){
   if(!s) return;
   migrateStaffListsIfNeeded();
+  migrateSourcesIfNeeded();
   const _staffMigrated=(()=>{try{return !!localStorage.getItem("akh_staff_migrated_v3");}catch(e){return false;}})();
+  const _sourcesMigrated=(()=>{try{return !!localStorage.getItem("akh_sources_migrated_v1");}catch(e){return false;}})();
   // Column headings
   if(s.col_heads){
     window._appSettings.col_heads=s.col_heads;
     applyColHeadings(s.col_heads);
     loadColHeadingInputs();
+  }
+  // Grievance sources (ignore stale Firebase copy until our migration is confirmed saved)
+  if(_sourcesMigrated && s.sources && Array.isArray(s.sources)){
+    window.SOURCES=s.sources;
+    try{localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));}catch(e){}
+    try{populateSourceDropdown();}catch(e){}
+    try{renderSourceList();}catch(e){}
   }
   // Investigators (ignore stale Firebase copy until our migration is confirmed saved)
   if(_staffMigrated && s.investigators && Array.isArray(s.investigators)){
