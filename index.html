@@ -1143,21 +1143,18 @@ function populateSourceDropdown(){
 // source list with the new list requested, and confirm it's actually synced
 // to Firebase (same safe pattern used for the staff/handler migration).
 function migrateSourcesIfNeeded(){
-  const done=(()=>{try{return !!localStorage.getItem("akh_sources_migrated_v1");}catch(e){return false;}})();
-  if(!done){
-    window.SOURCES=[...window.SOURCES_DEFAULT];
-    try{localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));}catch(e){}
-    try{populateSourceDropdown();}catch(e){}
-    try{renderSourceList();}catch(e){}
-  }
-  if(!done && window._fb){
-    window._fb.saveSettings("sources",window.SOURCES).then(()=>{
-      try{localStorage.setItem("akh_sources_migrated_v1","1");}catch(e){}
-    }).catch(()=>{ /* not confirmed — will retry next load / fb-ready */ });
-  }
+  // Local instant-correct fallback for the very first paint (before Firebase settings arrive)
+  try{
+    if(!localStorage.getItem("akh_sources_seen_v1")){
+      window.SOURCES=[...window.SOURCES_DEFAULT];
+      localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));
+      localStorage.setItem("akh_sources_seen_v1","1");
+      try{populateSourceDropdown();}catch(e){}
+      try{renderSourceList();}catch(e){}
+    }
+  }catch(e){}
 }
 migrateSourcesIfNeeded();
-document.addEventListener("fb-ready", migrateSourcesIfNeeded);
 try{
   var _sh=localStorage.getItem("akh_handlers");
   var _si=localStorage.getItem("akh_investigators");
@@ -1168,36 +1165,25 @@ try{
   window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
 }
 
-// One-time migration: force-replace any previously saved (old nickname-style)
-// handler/investigator list with the new staff list, since old cached/Firebase
-// data would otherwise keep overriding the new default list.
+// Instant local paint fallback (before Firebase settings arrive on this device).
+// The actual one-time correction is driven from Firebase (loadAllSettings),
+// via a SHARED flag stored in the database — not a per-device localStorage
+// flag — so once any device completes the migration, every device trusts
+// Firebase normally afterward instead of getting permanently stuck ignoring
+// real updates from other devices.
 function migrateStaffListsIfNeeded(){
-  const done=(()=>{try{return !!localStorage.getItem("akh_staff_migrated_v3");}catch(e){return false;}})();
-
-  // Always correct the local copy immediately (cheap, safe, instant UI fix)
-  if(!done){
-    window.HANDLERS=[...window.HANDLERS_DEFAULT];
-    window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
-    try{
+  try{
+    if(!localStorage.getItem("akh_staff_seen_v3")){
+      window.HANDLERS=[...window.HANDLERS_DEFAULT];
+      window.INVESTIGATORS=[...window.INVESTIGATORS_DEFAULT];
       localStorage.setItem("akh_handlers",JSON.stringify(window.HANDLERS));
       localStorage.setItem("akh_investigators",JSON.stringify(window.INVESTIGATORS));
-    }catch(e){}
-    try{rebuildDropdowns();}catch(e){}
-    try{renderHandlerList();}catch(e){}
-    try{renderInvestigatorList();}catch(e){}
-  }
-
-  // Only mark migration complete once Firebase actually confirms the save —
-  // otherwise the shared/synced copy stays stale and keeps overwriting us
-  // on every future load via loadAllSettings().
-  if(!done && window._fb){
-    Promise.all([
-      window._fb.saveSettings("handlers",window.HANDLERS),
-      window._fb.saveSettings("investigators",window.INVESTIGATORS)
-    ]).then(()=>{
-      try{localStorage.setItem("akh_staff_migrated_v3","1");}catch(e){}
-    }).catch(()=>{ /* not confirmed — will retry on next load / fb-ready */ });
-  }
+      localStorage.setItem("akh_staff_seen_v3","1");
+      try{rebuildDropdowns();}catch(e){}
+      try{renderHandlerList();}catch(e){}
+      try{renderInvestigatorList();}catch(e){}
+    }
+  }catch(e){}
 }
 migrateStaffListsIfNeeded();
 document.addEventListener("fb-ready", migrateStaffListsIfNeeded);
@@ -3219,36 +3205,52 @@ function loadHeadlineInputs(){loadColHeadingInputs();}
 // Load all settings from Firebase
 function loadAllSettings(s){
   if(!s) return;
-  migrateStaffListsIfNeeded();
-  migrateSourcesIfNeeded();
-  const _staffMigrated=(()=>{try{return !!localStorage.getItem("akh_staff_migrated_v3");}catch(e){return false;}})();
-  const _sourcesMigrated=(()=>{try{return !!localStorage.getItem("akh_sources_migrated_v1");}catch(e){return false;}})();
   // Column headings
   if(s.col_heads){
     window._appSettings.col_heads=s.col_heads;
     applyColHeadings(s.col_heads);
     loadColHeadingInputs();
   }
-  // Grievance sources (ignore stale Firebase copy until our migration is confirmed saved)
-  if(_sourcesMigrated && s.sources && Array.isArray(s.sources)){
-    window.SOURCES=s.sources;
-    try{localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));}catch(e){}
-    try{populateSourceDropdown();}catch(e){}
-    try{renderSourceList();}catch(e){}
+
+  // ── Grievance sources ──
+  // s.sources_migrated_v1 is a SHARED flag stored in Firebase (not per-device
+  // localStorage). Once ANY device has pushed the corrected default list and
+  // set this flag, every device trusts whatever is in Firebase from then on —
+  // exactly like normal realtime sync. Before that, we push our local default
+  // once (whoever gets there first) so the whole team converges on one list.
+  if(s.sources_migrated_v1){
+    if(s.sources && Array.isArray(s.sources)){
+      window.SOURCES=s.sources;
+      try{localStorage.setItem("akh_sources",JSON.stringify(window.SOURCES));}catch(e){}
+      try{populateSourceDropdown();}catch(e){}
+      try{renderSourceList();}catch(e){}
+    }
+  } else if(window._fb){
+    window._fb.saveSettings("sources",window.SOURCES).catch(()=>{});
+    window._fb.saveSettings("sources_migrated_v1",true).catch(()=>{});
   }
-  // Investigators (ignore stale Firebase copy until our migration is confirmed saved)
-  if(_staffMigrated && s.investigators && Array.isArray(s.investigators)){
-    window.INVESTIGATORS=s.investigators;
-    try{rebuildDropdowns();}catch(e){}
-    try{renderInvestigatorList();}catch(e){}
+
+  // ── Investigators / Handlers ──
+  // Same shared-flag pattern as sources above.
+  if(s.staff_migrated_v3){
+    if(s.investigators && Array.isArray(s.investigators)){
+      window.INVESTIGATORS=s.investigators;
+      try{rebuildDropdowns();}catch(e){}
+      try{renderInvestigatorList();}catch(e){}
+    }
+    if(s.handlers && Array.isArray(s.handlers)){
+      window.HANDLERS=s.handlers;
+      try{rebuildDropdowns();}catch(e){}
+      try{renderHandlerList();}catch(e){}
+    }
+  } else if(window._fb){
+    window._fb.saveSettings("handlers",window.HANDLERS).catch(()=>{});
+    window._fb.saveSettings("investigators",window.INVESTIGATORS).catch(()=>{});
+    window._fb.saveSettings("staff_migrated_v3",true).catch(()=>{});
   }
-  // Handlers (ignore stale Firebase copy until our migration is confirmed saved)
-  if(_staffMigrated && s.handlers && Array.isArray(s.handlers)){
-    window.HANDLERS=s.handlers;
-    try{rebuildDropdowns();}catch(e){}
-    try{renderHandlerList();}catch(e){}
-  }
-  // Processing options (custom statuses like শো কজ, সাসপেন্ড etc.)
+
+  // Processing options (custom statuses like শো কজ, সাসপেন্ড etc.) — always
+  // trusted directly from Firebase, no migration/gating needed here.
   if(s.proc_opts && Array.isArray(s.proc_opts)){
     PROC_OPTS.length=0;
     s.proc_opts.forEach(p=>PROC_OPTS.push(p));
