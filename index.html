@@ -2319,7 +2319,16 @@ function renderTable(){
         </div>
       </td>
       <td onclick="event.stopPropagation()" style="min-width:190px;">
-        <select class="proc-sel" onchange="setProc('${g.id}',this.value)">${procOpts}</select>
+        ${(()=>{
+          const isAdmin=!!window._isSuperAdmin;
+          const hasValue=!!g.processing;
+          const unlocked=window._procUnlocked&&window._procUnlocked.has(g.id);
+          if(isAdmin||!hasValue||unlocked){
+            return `<select class="proc-sel" onchange="setProc('${g.id}',this.value)">${procOpts}</select>`;
+          }
+          return `<select class="proc-sel" disabled style="opacity:0.65;cursor:not-allowed;">${procOpts}</select>
+            <button onclick="event.stopPropagation();unlockNextProc('${g.id}')" style="margin-top:4px;width:100%;background:rgba(23,147,158,0.1);border:1px solid rgba(23,147,158,0.3);color:var(--aqua);border-radius:8px;padding:4px 6px;font-size:10px;font-weight:700;cursor:pointer;">🔓 পরবর্তী আপডেট দিন</button>`;
+        })()}
         ${logHtml}
       </td>
 
@@ -2529,7 +2538,15 @@ function setProc(id,val){
     if(!last||last.action!==val||last.date!==today)g.processingLog.push({date:today,action:val});
     persistOne(g); // fire and forget
   }
+  // Non-admins get exactly one unlocked update, then it re-locks
+  if(!window._isSuperAdmin && window._procUnlocked) window._procUnlocked.delete(id);
   toast("↻ "+val,"ok");
+}
+window._procUnlocked = new Set(); // grievance IDs currently unlocked for one more processing update (non-admins)
+function unlockNextProc(id){
+  window._procUnlocked.add(id);
+  applyFilters();
+  toast("🔓 এবার পরবর্তী আপডেট দিন","ok");
 }
 function updProcDate(id,idx,val,part){
   const g=grievances.find(x=>x.id===id);
