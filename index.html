@@ -1037,6 +1037,13 @@ tbody .drow:not(:last-child) td{
             <button onclick="resetColHeadings()" style="margin-top:7px;width:100%;padding:9px;border-radius:11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;">↺ Reset to Default</button>
           </div>
 
+          <!-- Deleted Grievances Log (audit trail + restore) -->
+          <div class="panel" style="max-width:600px;margin-top:18px;">
+            <div class="panel-title">🗑️ Deleted Grievances Log <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
+            <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">কে, কখন কোন case delete করেছে তার তালিকা। প্রয়োজনে Restore করে Grievance Log-এ ফিরিয়ে আনা যাবে।</div>
+            <div id="deleted-log-list"></div>
+          </div>
+
           <!-- Employee Database Upload -->
           <div class="panel" style="max-width:600px;margin-top:18px;">
             <div class="panel-title">👥 Employee Database <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
@@ -1572,6 +1579,8 @@ function lsLogout(){
   window._isSuperAdmin=false;
   document.body.classList.remove("app-ready");
   lsShow();
+  const uInp=document.getElementById("ls-user"); if(uInp) uInp.value="";
+  const pInp=document.getElementById("ls-pass"); if(pInp) pInp.value="";
   const uname=document.getElementById("current-user-name");
   if(uname) uname.textContent="—";
   const lb=document.getElementById("logout-btn");
@@ -2267,6 +2276,10 @@ function renderTable(){
       const ri2=g.processingLog.length-1-ri;
       const p=pl.date?pl.date.split("-"):["","",""];
       const yr=p[0],mo=p[1],dy=p[2];
+      if(!window._isSuperAdmin){
+        // Regular users: read-only entry, no date edit, no delete (✕) button
+        return `<div class="proc-log-row"><span style="font-size:10px;color:var(--tm);">${esc(pl.date||"")}</span><span class="proc-action">— ${esc(pl.action)}</span></div>`;
+      }
       const dOpts=Array.from({length:31},(_,i)=>{const v=String(i+1).padStart(2,"0");return`<option value="${v}"${dy===v?" selected":""}>${v}</option>`;}).join("");
       const mOpts=[["01","Jan"],["02","Feb"],["03","Mar"],["04","Apr"],["05","May"],["06","Jun"],["07","Jul"],["08","Aug"],["09","Sep"],["10","Oct"],["11","Nov"],["12","Dec"]].map(([v,l])=>`<option value="${v}"${mo===v?" selected":""}>${l}</option>`).join("");
       const yOpts=Array.from({length:6},(_,i)=>{const v=String(2023+i);return`<option value="${v}"${yr===v?" selected":""}>${v}</option>`;}).join("");
@@ -2319,16 +2332,7 @@ function renderTable(){
         </div>
       </td>
       <td onclick="event.stopPropagation()" style="min-width:190px;">
-        ${(()=>{
-          const isAdmin=!!window._isSuperAdmin;
-          const hasValue=!!g.processing;
-          const unlocked=window._procUnlocked&&window._procUnlocked.has(g.id);
-          if(isAdmin||!hasValue||unlocked){
-            return `<select class="proc-sel" onchange="setProc('${g.id}',this.value)">${procOpts}</select>`;
-          }
-          return `<select class="proc-sel" disabled style="opacity:0.65;cursor:not-allowed;">${procOpts}</select>
-            <button onclick="event.stopPropagation();unlockNextProc('${g.id}')" style="margin-top:4px;width:100%;background:rgba(23,147,158,0.1);border:1px solid rgba(23,147,158,0.3);color:var(--aqua);border-radius:8px;padding:4px 6px;font-size:10px;font-weight:700;cursor:pointer;">🔓 পরবর্তী আপডেট দিন</button>`;
-        })()}
+        <select class="proc-sel" onchange="setProc('${g.id}',this.value)">${procOpts}</select>
         ${logHtml}
       </td>
 
@@ -2512,6 +2516,18 @@ function resetForm(){
 async function deleteRow(id,e){
   if(e)e.stopPropagation();
   if(!confirm("রেকর্ডটি ডিলেট করতে চান?"))return;
+  const g = grievances.find(x=>x.id===id);
+  if(g && window._fb){
+    const who = window._currentUser || {};
+    const logEntry = {
+      id: g.id,
+      deletedAt: new Date().toISOString(),
+      deletedBy: who.name || who.username || "Unknown",
+      deletedByUsername: who.username || "",
+      data: g
+    };
+    try{ await window._fb.saveDeletedLog(logEntry); }catch(err){}
+  }
   grievances=grievances.filter(g=>g.id!==id);
   await removeOne(id);
   if(!fbOnline)applyFilters();
@@ -2538,17 +2554,10 @@ function setProc(id,val){
     if(!last||last.action!==val||last.date!==today)g.processingLog.push({date:today,action:val});
     persistOne(g); // fire and forget
   }
-  // Non-admins get exactly one unlocked update, then it re-locks
-  if(!window._isSuperAdmin && window._procUnlocked) window._procUnlocked.delete(id);
   toast("↻ "+val,"ok");
 }
-window._procUnlocked = new Set(); // grievance IDs currently unlocked for one more processing update (non-admins)
-function unlockNextProc(id){
-  window._procUnlocked.add(id);
-  applyFilters();
-  toast("🔓 এবার পরবর্তী আপডেট দিন","ok");
-}
 function updProcDate(id,idx,val,part){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin এটি পরিবর্তন করতে পারবেন","err");return;}
   const g=grievances.find(x=>x.id===id);
   if(g&&g.processingLog&&g.processingLog[idx]){
     const p=g.processingLog[idx].date?g.processingLog[idx].date.split("-"):["2026","06","01"];
@@ -2562,6 +2571,7 @@ function updProcDate(id,idx,val,part){
 
 function delProcLog(id, idx, e){
   if(e) e.stopPropagation();
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin এন্ট্রি মুছতে পারবেন","err");return;}
   const g = grievances.find(x => x.id === id);
   if(!g || !g.processingLog) return;
   if(!confirm("এই প্রসেসিং এন্ট্রিটি মুছে ফেলবেন?")) return;
@@ -3162,6 +3172,46 @@ function refreshSAPanel(){
     loadColHeadingInputs();
     renderSourceList();
     updateEmpCount();
+    if(window._fb && !window._deletedLogBound){
+      window._deletedLogBound=true;
+      window._fb.listenDeletedLog(list=>{
+        window._deletedLog=list;
+        renderDeletedLog(list);
+      });
+    }
+  }
+}
+
+function renderDeletedLog(list){
+  const el=document.getElementById("deleted-log-list");
+  if(!el) return;
+  if(!list || !list.length){
+    el.innerHTML=`<div style="color:var(--tm);font-size:12px;text-align:center;padding:14px;">কোনো delete করা case নেই</div>`;
+    return;
+  }
+  const sorted=[...list].sort((a,b)=>(b.deletedAt||"").localeCompare(a.deletedAt||""));
+  el.innerHTML=sorted.map(entry=>{
+    const g=entry.data||{};
+    const when=entry.deletedAt?new Date(entry.deletedAt).toLocaleString():"—";
+    return `<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:700;color:var(--td);">${esc(g.empName||"—")} <span style="font-weight:400;color:var(--tm);">— ${esc(g.type||"")}</span></div>
+      <div style="font-size:10px;color:var(--tm);margin:3px 0;">🗑️ Deleted by <b>${esc(entry.deletedBy||"Unknown")}</b> (${esc(entry.deletedByUsername||"")}) — ${when}</div>
+      <div style="font-size:10px;color:var(--tm);margin-bottom:8px;">Incident Date: ${esc(g.date||"—")}</div>
+      <button onclick="restoreDeletedGrievance('${esc(entry.id)}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">↺ Restore</button>
+    </div>`;
+  }).join("");
+}
+
+async function restoreDeletedGrievance(id){
+  const entry=(window._deletedLog||[]).find(e=>e.id===id);
+  if(!entry || !entry.data){ toast("⚠ Restore করা যায়নি","err"); return; }
+  if(!confirm("এই case টি Grievance Log-এ ফিরিয়ে আনবেন?")) return;
+  try{
+    await window._fb.save(entry.data);      // put it back in the main grievances node
+    await window._fb.removeDeletedLog(id);  // remove from the deleted-log
+    toast("✓ Case restore করা হয়েছে","ok");
+  }catch(err){
+    toast("⚠ Restore ব্যর্থ হয়েছে","err");
   }
 }
 
@@ -3595,6 +3645,19 @@ function downloadPDF(){
       async loadSettings(cb) {
         onValue(ref(db, SETTINGS_NODE), snap => {
           cb(snap.val() || {});
+        });
+      },
+      async saveDeletedLog(entry) {
+        await set(ref(db, "deleted_grievances/" + entry.id), entry);
+      },
+      async removeDeletedLog(id) {
+        await remove(ref(db, "deleted_grievances/" + id));
+      },
+      listenDeletedLog(cb) {
+        onValue(ref(db, "deleted_grievances"), snap => {
+          const list = [];
+          snap.forEach(c => { const v = c.val(); if(v) list.push(v); });
+          cb(list);
         });
       },
       listen() {
