@@ -1551,6 +1551,7 @@ function lsOnSuccess(){
   applyColHeadings(loadColHeadings());
   // Now show main app
   document.body.classList.add("app-ready");
+  try{ _resetIdleTimer(); }catch(e){}
   // Column toggle — only super admin
   const ctb=document.getElementById("col-toggle-bar");
   if(ctb) ctb.style.display=window._isSuperAdmin?"flex":"none";
@@ -1573,8 +1574,7 @@ function lsOnSuccess(){
   goTo("dash");
 }
 
-function lsLogout(){
-  if(!confirm("Logout করবেন?")) return;
+function _doLogoutNow(){
   window._currentUser=null;
   window._isSuperAdmin=false;
   document.body.classList.remove("app-ready");
@@ -1590,6 +1590,28 @@ function lsLogout(){
   const tlb2=document.getElementById("topbar-logout-btn");
   if(tlb2) tlb2.style.display="none";
 }
+function lsLogout(){
+  if(!confirm("Logout করবেন?")) return;
+  _doLogoutNow();
+}
+
+// ═══ AUTO-LOGOUT AFTER 10 MINUTES OF INACTIVITY ═══
+const AUTO_LOGOUT_MS = 10*60*1000;
+let _idleTimer=null;
+function _resetIdleTimer(){
+  if(!document.body.classList.contains("app-ready")) return; // not logged in — nothing to time out
+  clearTimeout(_idleTimer);
+  _idleTimer=setTimeout(()=>{
+    if(document.body.classList.contains("app-ready")){
+      _doLogoutNow();
+      toast("⏱ ১০ মিনিট কোনো কাজ হয়নি — নিরাপত্তার জন্য Auto Logout হয়েছে","err");
+    }
+  }, AUTO_LOGOUT_MS);
+}
+["mousemove","mousedown","keydown","touchstart","scroll","click"].forEach(evt=>{
+  document.addEventListener(evt, _resetIdleTimer, {passive:true});
+});
+_resetIdleTimer();
 
 // Enter key login
 document.addEventListener("keydown",function(e){
