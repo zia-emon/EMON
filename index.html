@@ -460,7 +460,9 @@ tbody .drow:not(:last-child) td{
 .cred-label{font-size:11px;font-weight:700;color:var(--tm);margin-bottom:6px;}
 .cred-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
 .cred-row input{flex:1;padding:10px 14px;border-radius:12px;border:1px solid rgba(23,147,158,0.2);background:rgba(255,255,255,0.7);font-size:13px;color:var(--td);outline:none;}
-.cred-save-btn{padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#17939e,#2aeeb5);border:none;color:white;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.cred-save-btn{padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#17939e,#2aeeb5);border:none;color:white;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;}.eff-banner{overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,rgba(23,147,158,0.12),rgba(42,238,181,0.12));border:1px solid rgba(23,147,158,0.25);border-radius:8px;padding:4px 0;margin-top:4px;}
+.eff-banner span{display:inline-block;padding-left:100%;font-size:11px;font-weight:700;color:var(--aqua);animation:eff-scroll 14s linear infinite;}
+@keyframes eff-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
 </style>
 
 
@@ -483,6 +485,7 @@ tbody .drow:not(:last-child) td{
   <div class="mob-title">
     <h1 id="lbl-mtitle">Grievance log</h1>
     <p>AKH Eco Apparels Ltd.</p>
+    <div class="eff-banner"><span>📅 Effective From: 01 August 2026</span></div>
   </div>
   <div class="mob-nav">
     <div class="mob-brand">
@@ -600,6 +603,7 @@ tbody .drow:not(:last-child) td{
     <header class="topbar">
       <div class="topbar-left">
         <div class="topbar-title" id="topbar-title">Grievance Tracker Dashboard</div>
+        <div class="eff-banner" style="max-width:260px;"><span>📅 Effective From: 01 August 2026</span></div>
         <div class="tb-sync">
           <div class="tb-sync-dot" id="tb-dot"></div>
           <span class="tb-sync-txt" id="tb-txt">Connecting...</span>
@@ -718,6 +722,16 @@ tbody .drow:not(:last-child) td{
             <!-- Description -->
             <div class="fg full"><label>Incident Description</label>
               <textarea id="f-desc" class="fc" placeholder="বিস্তারিত বিবরণ লিখুন..." spellcheck="false" autocomplete="off"></textarea>
+            </div>
+
+            <!-- Upload Documents -->
+            <div class="fg full"><label>📎 Upload Documents <span style="font-weight:400;color:var(--tm);font-size:10px;">(অভিযোগের প্রমাণ — ছবি বা PDF)</span></label>
+              <div id="doc-drop" onclick="document.getElementById('f-docs').click()" style="border:2px dashed rgba(23,147,158,0.35);border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:rgba(23,147,158,0.04);">
+                <span style="font-size:12px;color:var(--aqua);font-weight:700;">📤 ছবি / PDF আপলোড করতে এখানে ক্লিক করুন</span>
+                <div style="font-size:9px;color:var(--tm);margin-top:3px;">প্রতিটি ফাইল সর্বোচ্চ 3MB</div>
+              </div>
+              <input type="file" id="f-docs" accept="image/*,application/pdf" multiple style="display:none;" onchange="handleDocSelect(this.files)">
+              <div id="doc-preview-list" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;"></div>
             </div>
 
             <!-- Investigator | Handler -->
@@ -2331,6 +2345,7 @@ function renderTable(){
       <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">
         ${g.date}
         ${cdHtml}
+        ${g.refNo?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(g.refNo)}</div>`:""}
       </td>
       <td>
         <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span><br>
@@ -2342,7 +2357,7 @@ function renderTable(){
         ${g.complainantName?`<span style="font-weight:700;">${esc(g.complainantName)}</span><br><small style="color:var(--tm);">${esc(g.complainantDesig||"—")}</small>${g.complainantId?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(g.complainantId)}</small>`:""}${g.complainantSec?`<br><small style="color:var(--tm);font-size:9px;">📍 ${esc(g.complainantSec)}</small>`:""}${g.source?`<br><span style="font-size:9px;background:rgba(23,147,158,0.12);color:var(--aqua);padding:1px 5px;border-radius:8px;font-weight:700;">${esc(g.source)}</span>`:""}`:(g.source?`<span style="font-size:9px;background:rgba(23,147,158,0.12);color:var(--aqua);padding:1px 5px;border-radius:8px;font-weight:700;">${esc(g.source)}</span>`:`<span style="color:var(--tm);font-size:10px;">—</span>`)}
       </td>
       <td>${esc(g.type).split(",").map(t=>`<span class="pill ${tm.cls}" style="display:block;margin-bottom:2px;">${t.trim()}</span>`).join("")}</td>
-      <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div></td>
+      <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div>${g.attachments&&g.attachments.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;" onclick="event.stopPropagation()">${g.attachments.map(a=>`<span onclick="viewAttachment('${esc(g.id)}','${esc(a.docId)}','${esc(a.name)}')" style="cursor:pointer;font-size:9px;background:rgba(23,147,158,0.1);color:var(--aqua);padding:2px 6px;border-radius:8px;font-weight:700;">📎 ${esc((a.name||"file").slice(0,14))}</span>`).join("")}</div>`:""}</td>
       <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.investigator) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.investigator); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
       <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.handler) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.handler); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
       <td style="min-width:110px;" onclick="event.stopPropagation()">
@@ -2457,6 +2472,100 @@ function clearTypeCheckboxes(){
   closeTypeDropdown();
 }
 
+// ═══ DOCUMENT UPLOAD (Add New Grievance) — stored as base64 in the free
+// Realtime Database (not Firebase Storage, which now requires a paid Blaze
+// plan). Kept in a separate "grievance_docs" node so the main grievance list
+// (loaded fully on every page load) stays light — actual file bytes are only
+// fetched on demand when someone clicks to view a document. ═══
+window._pendingDocs = [];       // raw File objects picked but not yet saved (new/edit)
+window._existingDocs = [];      // {docId,name,type,size} metadata already saved on this grievance
+
+function handleDocSelect(fileList){
+  const MAX_SIZE = 3*1024*1024; // 3MB per file — keeps Realtime Database light
+  Array.from(fileList||[]).forEach(f=>{
+    if(f.size>MAX_SIZE){ toast("⚠ "+f.name+" — 3MB এর বেশি, বাদ দেওয়া হলো","err"); return; }
+    window._pendingDocs.push(f);
+  });
+  document.getElementById("f-docs").value=""; // allow re-selecting the same file
+  renderDocPreview();
+}
+function removePendingDoc(idx){
+  window._pendingDocs.splice(idx,1);
+  renderDocPreview();
+}
+async function removeExistingDoc(idx){
+  const doc=window._existingDocs[idx];
+  if(!doc) return;
+  if(!confirm("এই document টি মুছে ফেলবেন?")) return;
+  const eid=document.getElementById("edit-id").value.trim();
+  window._existingDocs.splice(idx,1);
+  if(window._fb && eid && doc.docId) window._fb.removeAttachment(eid,doc.docId).catch(()=>{});
+  if(eid){
+    const g=grievances.find(x=>x.id===eid);
+    if(g){ g.attachments=[...window._existingDocs]; persistOne(g); }
+  }
+  renderDocPreview();
+}
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+async function viewAttachment(grievanceId, docId, name){
+  if(!window._fb){ toast("⚠ অফলাইনে document দেখা যাবে না","err"); return; }
+  toast("📄 লোড হচ্ছে...","ok");
+  try{
+    const doc=await window._fb.getAttachment(grievanceId, docId);
+    if(!doc||!doc.data){ toast("⚠ Document খুঁজে পাওয়া যায়নি","err"); return; }
+    const win=window.open();
+    if(win){
+      if((doc.type||"").includes("pdf")){
+        win.document.write(`<iframe src="${doc.data}" style="border:none;width:100%;height:100vh;"></iframe>`);
+      } else {
+        win.document.write(`<body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${doc.data}" style="max-width:100%;max-height:100vh;"></body>`);
+      }
+    }
+  }catch(err){
+    toast("⚠ Document লোড ব্যর্থ হয়েছে","err");
+  }
+}
+function renderDocPreview(){
+  const el=document.getElementById("doc-preview-list");
+  if(!el) return;
+  const eid=document.getElementById("edit-id").value.trim();
+  const existingChips=(window._existingDocs||[]).map((d,i)=>
+    `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(23,147,158,0.1);color:var(--aqua);padding:4px 8px;border-radius:8px;font-size:11px;font-weight:600;">
+      <span onclick="viewAttachment('${esc(eid)}','${esc(d.docId)}','${esc(d.name)}')" style="cursor:pointer;">📎 ${esc((d.name||"file").slice(0,20))}</span>
+      <span onclick="removeExistingDoc(${i})" style="cursor:pointer;color:#ef4444;font-weight:800;">✕</span>
+    </span>`
+  ).join("");
+  const pendingChips=(window._pendingDocs||[]).map((f,i)=>
+    `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(251,191,36,0.12);color:#b45309;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:600;">
+      ⏳ ${esc(f.name.slice(0,20))}
+      <span onclick="removePendingDoc(${i})" style="cursor:pointer;color:#ef4444;font-weight:800;">✕</span>
+    </span>`
+  ).join("");
+  el.innerHTML = existingChips+pendingChips;
+}
+
+async function uploadPendingDocs(grievanceId, files){
+  const meta=[];
+  for(const f of files){
+    try{
+      const dataUrl=await fileToBase64(f);
+      const docId="doc"+Date.now()+Math.random().toString(36).slice(2,7);
+      await window._fb.saveAttachment(grievanceId, docId, {name:f.name, type:f.type, size:f.size, data:dataUrl});
+      meta.push({docId, name:f.name, type:f.type, size:f.size});
+    }catch(err){
+      toast("⚠ "+f.name+" সংরক্ষণ ব্যর্থ","err");
+    }
+  }
+  return meta;
+}
+
 async function saveGrievance(){
   const eid=document.getElementById("edit-id").value.trim();
   const empId=document.getElementById("f-empid").value.trim();
@@ -2479,15 +2588,45 @@ async function saveGrievance(){
   const payload={date:document.getElementById("f-date").value,empId,empName,section,designation,doj,complainantName,complainantDesig,complainantId,complainantSec,complainantDoj,source,type,description,investigator,handler};
   if(eid){
     const g=grievances.find(x=>x.id===eid);
-    if(g){Object.assign(g,payload);await persistOne(g);}
+    if(g){
+      Object.assign(g,payload);
+      if(window._pendingDocs&&window._pendingDocs.length&&window._fb){
+        toast("📤 Document সংরক্ষণ হচ্ছে...","ok");
+        const uploaded=await uploadPendingDocs(g.id, window._pendingDocs);
+        g.attachments=[...(window._existingDocs||[]),...uploaded];
+      }
+      await persistOne(g);
+    }
     toast("✓ Record Updated","ok");cancelEdit();
   } else {
-    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"",processingLog:[]};
+    const filesToUpload=[...(window._pendingDocs||[])];
+    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"",processingLog:[],attachments:[]};
     grievances.unshift(newG);
     // Pre-register own ID so no self-notification
     if(window._grvState) window._grvState[newG.id]={status:newG.status||"",processing:newG.processing||""};
     persistOne(newG);
     toast("✓ Grievance Saved","ok");resetForm();
+
+    // Generate the official Ref No. (AKHECO/HR/DA/{year}/{seq}) and save
+    // any attached documents — both happen after the instant save/UI-clear
+    // above so the form feels immediate even if these take a moment.
+    (async ()=>{
+      if(window._fb){
+        try{
+          newG.refNo=await window._fb.nextRefNo();
+        }catch(err){
+          const yr=new Date().getFullYear();
+          const k="akh_refseq_"+yr;
+          const seq=(parseInt(localStorage.getItem(k)||"0",10)+1);
+          localStorage.setItem(k,String(seq));
+          newG.refNo="AKHECO/HR/DA/"+yr+"/"+String(seq).padStart(2,"0");
+        }
+        if(filesToUpload.length){
+          newG.attachments=await uploadPendingDocs(newG.id, filesToUpload);
+        }
+        await persistOne(newG);
+      }
+    })();
   }
 }
 
@@ -2509,6 +2648,9 @@ function editRow(id){
   document.getElementById("f-handler").value=g.handler||"";
   setStaffLabel('invest');
   setStaffLabel('handler');
+  window._existingDocs=[...(g.attachments||[])];
+  window._pendingDocs=[];
+  try{renderDocPreview();}catch(e){}
   document.getElementById("form-title").textContent="📝 Edit Grievance";
   document.getElementById("submit-btn").textContent="Update Record";
   document.getElementById("cancel-btn").style.display="block";
@@ -2534,6 +2676,9 @@ function resetForm(){
   document.getElementById("submit-btn").textContent="Submit Grievance";
   document.getElementById("cancel-btn").style.display="none";
   hideSuggest();
+  window._pendingDocs=[];
+  window._existingDocs=[];
+  try{renderDocPreview();}catch(e){}
 }
 async function deleteRow(id,e){
   if(e)e.stopPropagation();
@@ -3633,7 +3778,7 @@ function downloadPDF(){
 
 <script type="module">
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, remove, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const cfg = {
     apiKey:            "AIzaSyAloqcTSfE1QFayJvqmDGO8bZFP-xR-rLU",
@@ -3660,6 +3805,29 @@ function downloadPDF(){
       },
       async remove(id) {
         await remove(ref(db, NODE + "/" + id));
+      },
+      // Documents are stored as base64 directly in the free Realtime Database
+      // node (not Firebase Storage, which now requires the paid Blaze plan).
+      // Kept in a separate node — not inside the main grievance record — so
+      // the full grievance list (loaded on every page load) stays light.
+      async saveAttachment(grievanceId, docId, doc) {
+        await set(ref(db, "grievance_docs/" + grievanceId + "/" + docId), doc);
+      },
+      async removeAttachment(grievanceId, docId) {
+        await remove(ref(db, "grievance_docs/" + grievanceId + "/" + docId));
+      },
+      async getAttachment(grievanceId, docId) {
+        const snap = await get(ref(db, "grievance_docs/" + grievanceId + "/" + docId));
+        return snap.val();
+      },
+      async nextRefNo() {
+        // Format: AKHECO/HR/DA/{year}/{seq} — seq resets to 01 each new year,
+        // atomically incremented so concurrent saves never collide.
+        const year = new Date().getFullYear();
+        const counterRef = ref(db, "ref_counters/" + year);
+        const result = await runTransaction(counterRef, current => (current || 0) + 1);
+        const seq = result.snapshot.val();
+        return "AKHECO/HR/DA/" + year + "/" + String(seq).padStart(2, "0");
       },
       async saveSettings(key, val) {
         await set(ref(db, SETTINGS_NODE + "/" + key), val);
