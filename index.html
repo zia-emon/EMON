@@ -462,7 +462,23 @@ tbody .drow:not(:last-child) td{
 .cred-row input{flex:1;padding:10px 14px;border-radius:12px;border:1px solid rgba(23,147,158,0.2);background:rgba(255,255,255,0.7);font-size:13px;color:var(--td);outline:none;}
 .cred-save-btn{padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#17939e,#2aeeb5);border:none;color:white;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;}.eff-banner{overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,rgba(23,147,158,0.12),rgba(42,238,181,0.12));border:1px solid rgba(23,147,158,0.25);border-radius:8px;padding:4px 0;margin-top:4px;}
 .eff-banner span{display:inline-block;padding-left:100%;font-size:11px;font-weight:700;color:var(--aqua);animation:eff-scroll 14s linear infinite;}
-@keyframes eff-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+@keyframes eff-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}/* ═══ BUYER MODE — restricted, read-only, buyer-approved-only view ═══ */
+body.buyer-mode #new-grievance-panel,
+body.buyer-mode #internal-stats-panel,
+body.buyer-mode #n-acc,
+body.buyer-mode #n-tl,
+body.buyer-mode #n-set,
+body.buyer-mode #n-users,
+body.buyer-mode .buyer-hide,
+body.buyer-mode .del-btn,
+body.buyer-mode .proc-del,
+body.buyer-mode .dmy,
+body.buyer-mode #tb-refresh-btn,
+body.buyer-mode #mob-refresh-btn,
+body.buyer-mode .eff-banner{display:none !important;}
+body.buyer-mode .proc-sel{pointer-events:none;background:transparent;border:none;box-shadow:none;color:var(--td);}
+body.buyer-mode .stb{pointer-events:none;}
+body.buyer-mode .buyer-hide-col{display:none !important;}
 </style>
 
 
@@ -621,10 +637,10 @@ tbody .drow:not(:last-child) td{
     <!-- DASHBOARD -->
     <div id="sec-dash" class="section active">
       <div class="page">
-        <h2 style="font-size:20px;font-weight:800;color:var(--aqua);">Operational Overview</h2>
+        <h2 id="dash-title" style="font-size:20px;font-weight:800;color:var(--aqua);">Operational Overview</h2>
 
         <!-- STATS -->
-        <div class="stats-grid">
+        <div class="stats-grid" id="internal-stats-panel">
           <div class="stat-card af" onclick="filterStat('')">
             <div class="stat-hdr"><span class="stat-lbl" id="lbl-total">Total Cases</span><span class="sig sig-b"></span></div>
             <div class="stat-num" id="cnt-total">0</div><div class="stat-foot">Live Logs</div>
@@ -655,7 +671,7 @@ tbody .drow:not(:last-child) td{
         </div>
 
         <!-- FORM -->
-        <div class="panel">
+        <div class="panel" id="new-grievance-panel">
           <div class="panel-title" id="form-title">Add New Grievance</div>
           <input type="hidden" id="edit-id">
           <div class="form-grid">
@@ -798,7 +814,7 @@ tbody .drow:not(:last-child) td{
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters(true)"><option value="">All</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters(true)"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters(true)"><option value="">All</option></select></th>
-              <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
+              <th class="buyer-hide-col" style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
             </tr></thead>
             <tbody id="tbody"></tbody>
           </table>
@@ -1063,6 +1079,13 @@ tbody .drow:not(:last-child) td{
             <div class="panel-title">🔧 Ref No. পুনর্গণনা <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
             <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">যদি কোনো test/demo case delete করার কারণে Ref No. তে ফাঁক (gap) তৈরি হয়ে থাকে, এই বাটনে ক্লিক করলে বর্তমানে থাকা সব case প্রতি বছর অনুযায়ী নতুন করে ০১, ০২, ০৩... ক্রমানুসারে (তারিখ অনুযায়ী) renumber হয়ে যাবে।</div>
             <button onclick="recalculateRefNos()" style="width:100%;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🔁 এখনই পুনর্গণনা করুন</button>
+          </div>
+
+          <!-- Force Update All Devices -->
+          <div class="panel" style="max-width:600px;margin-top:18px;">
+            <div class="panel-title">🚀 Force Update All Devices <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
+            <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">GitHub Pages-এ নতুন update deploy করার পর, এখানে ক্লিক করলে যাদের app আগে থেকে খোলা আছে তাদের সবার device-এ automatic reload হয়ে নতুন version load হবে। Deploy করার পর প্রতিবার এই বাটনে ক্লিক করার অভ্যাস করুন।</div>
+            <button onclick="forceUpdateAllDevices()" style="width:100%;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🚀 এখনই সবাইকে Update করুন</button>
           </div>
 
           <!-- Employee Database Upload -->
@@ -1465,8 +1488,11 @@ const TITLES={dash:"Grievance Tracker Dashboard",acc:"Accounts Node Analytics",t
 // ══════════════════════════════════════════
 var SUPER_ADMIN_USER = localStorage.getItem("akh_sa_user")||"admin";
 var SUPER_ADMIN_PASS = localStorage.getItem("akh_sa_pass")||"emon";
+var BUYER_USER = localStorage.getItem("akh_buyer_user")||"buyer";
+var BUYER_PASS = localStorage.getItem("akh_buyer_pass")||"buyer123";
 window._currentUser = window._currentUser || null;
 window._isSuperAdmin = window._isSuperAdmin || false;
+window._isBuyer = window._isBuyer || false;
 // Note: _appShown already initialized before boot IIFE
 
 // Copy photo to login avatar
@@ -1518,6 +1544,17 @@ async function lsDoLogin(){
     if(isSA){
       window._currentUser={username,role:"superadmin",name:"Z. H. EMON"};
       window._isSuperAdmin=true;
+      window._isBuyer=false;
+      lsOnSuccess();
+      return;
+    }
+
+    // Check buyer account — read-only, sees only approved cases
+    const isBuyer = (username===BUYER_USER) && pass===BUYER_PASS;
+    if(isBuyer){
+      window._currentUser={username,role:"buyer",name:"Buyer"};
+      window._isSuperAdmin=false;
+      window._isBuyer=true;
       lsOnSuccess();
       return;
     }
@@ -1553,6 +1590,7 @@ async function lsDoLogin(){
     }
     window._currentUser=user;
     window._isSuperAdmin=false;
+    window._isBuyer=false;
     lsOnSuccess();
 
   }catch(e){
@@ -1572,6 +1610,7 @@ function lsOnSuccess(){
   applyColHeadings(loadColHeadings());
   // Now show main app
   document.body.classList.add("app-ready");
+  document.body.classList.toggle("buyer-mode", !!window._isBuyer);
   try{ _resetIdleTimer(); }catch(e){}
   // Column toggle — only super admin
   const ctb=document.getElementById("col-toggle-bar");
@@ -1581,7 +1620,10 @@ function lsOnSuccess(){
   if(nm) nm.style.display=window._isSuperAdmin?"block":"none";
   // Current user display
   const uname=document.getElementById("current-user-name");
-  if(uname) uname.textContent=(window._currentUser?.name||window._currentUser?.username||"")+(window._isSuperAdmin?" (Super Admin)":"");
+  if(uname) uname.textContent=window._isBuyer?(window._currentUser?.name||"Buyer"):(window._currentUser?.name||window._currentUser?.username||"")+(window._isSuperAdmin?" (Super Admin)":"");
+  // Dashboard title — buyer just sees a normal-looking "Grievance Log"
+  const dt=document.getElementById("dash-title");
+  if(dt) dt.textContent=window._isBuyer?"Grievance Log":"Operational Overview";
   // Logout btn
   const lb=document.getElementById("logout-btn");
   if(lb) lb.style.display="block";
@@ -1598,7 +1640,9 @@ function lsOnSuccess(){
 function _doLogoutNow(){
   window._currentUser=null;
   window._isSuperAdmin=false;
+  window._isBuyer=false;
   document.body.classList.remove("app-ready");
+  document.body.classList.remove("buyer-mode");
   lsShow();
   const uInp=document.getElementById("ls-user"); if(uInp) uInp.value="";
   const pInp=document.getElementById("ls-pass"); if(pInp) pInp.value="";
@@ -1948,6 +1992,7 @@ function populatePersonFilterOptions(){
   if(!panel) return;
   const seen=new Map();
   (window.grievances||grievances||[]).forEach(g=>{
+    if(window._isBuyer && !g.buyerVisible) return; // don't leak names of hidden cases
     if(g.empId && !seen.has(g.empId)) seen.set(g.empId, g.empName||g.empId);
   });
   const opts=[...seen.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
@@ -2097,6 +2142,20 @@ function renderUsers(){
       <div class="cred-row">
         <input type="text" id="sa-pass-inp" value="${SUPER_ADMIN_PASS}" placeholder="Super Admin password">
       </div>
+    </div>
+
+    <div class="cred-card" style="margin-top:12px;">
+      <div style="font-size:13px;font-weight:800;color:#0369a1;margin-bottom:6px;">🧑‍💼 Buyer Account Credentials</div>
+      <div style="font-size:10px;color:var(--tm);margin-bottom:10px;">এই account দিয়ে login করলে শুধু "✅ Buyer" hিসেবে approve করা case-গুলো দেখা যাবে — সম্পাদনা/ডিলিট করা যাবে না।</div>
+      <div class="cred-label">Username</div>
+      <div class="cred-row">
+        <input type="text" id="buyer-user-inp" value="${BUYER_USER}" placeholder="Buyer username">
+        <button class="cred-save-btn" onclick="saveBuyerCred()">💾 Save</button>
+      </div>
+      <div class="cred-label">Password</div>
+      <div class="cred-row">
+        <input type="text" id="buyer-pass-inp" value="${BUYER_PASS}" placeholder="Buyer password">
+      </div>
     </div>`;
 
   // Regular users
@@ -2130,6 +2189,16 @@ function saveSuperAdminCred(){
   SUPER_ADMIN_PASS=newPass;
   try{localStorage.setItem("akh_sa_user",newUser);localStorage.setItem("akh_sa_pass",newPass);}catch(e){}
   toast("✓ Super Admin credentials updated","ok");
+}
+
+function saveBuyerCred(){
+  const newUser=(document.getElementById("buyer-user-inp")?.value||"").trim();
+  const newPass=(document.getElementById("buyer-pass-inp")?.value||"").trim();
+  if(!newUser||!newPass){toast("⚠ ফাঁকা রাখা যাবে না","err");return;}
+  BUYER_USER=newUser;
+  BUYER_PASS=newPass;
+  try{localStorage.setItem("akh_buyer_user",newUser);localStorage.setItem("akh_buyer_pass",newPass);}catch(e){}
+  toast("✓ Buyer credentials updated","ok");
 }
 
 async function editUserPass(uid, username){
@@ -2218,6 +2287,7 @@ function applyFilters(resetPage){
   const cfPersonSet=window._cfPersonSelected||new Set();
 
   filtered=grievances.filter(g=>{
+    if(window._isBuyer && !g.buyerVisible) return false;
     const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,g.processing].some(f=>(f||"").toLowerCase().includes(q));
     const empMatch=!cfE||(g.empId+" "+g.empName+" "+g.section+" "+g.designation).toLowerCase().includes(cfE);
     const cmpMatch=!cfS||((g.complainantName||"")+" "+(g.complainantDesig||"")).toLowerCase().includes(cfS);
@@ -2380,7 +2450,12 @@ function renderTable(){
         ${logHtml}
       </td>
 
-      <td onclick="event.stopPropagation()"><button class="del-btn" onclick="deleteRow('${g.id}',event)">Delete</button></td>
+      <td class="buyer-hide-col" onclick="event.stopPropagation()">
+        ${window._isSuperAdmin?`<label style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:${g.buyerVisible?"#059669":"var(--tm)"};cursor:pointer;margin-bottom:6px;">
+          <input type="checkbox" ${g.buyerVisible?"checked":""} onchange="toggleBuyerVisible('${g.id}',this.checked)"> ${g.buyerVisible?"✅ Buyer":"👁 Buyer"}
+        </label>`:""}
+        <button class="del-btn" onclick="deleteRow('${g.id}',event)">Delete</button>
+      </td>
     </tr>`;
   }).join("");
 
@@ -2638,6 +2713,7 @@ async function saveGrievance(){
 }
 
 function editRow(id){
+  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   const g=grievances.find(x=>x.id===id);if(!g)return;
   document.getElementById("edit-id").value=g.id;
   document.getElementById("f-date").value=g.date;
@@ -2687,6 +2763,18 @@ function resetForm(){
   window._existingDocs=[];
   try{renderDocPreview();}catch(e){}
 }
+async function forceUpdateAllDevices(){
+  if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
+  if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
+  if(!confirm("সবার device-এ এখনই reload হবে। নিশ্চিত?")) return;
+  try{
+    await window._fb.setAppVersion(String(Date.now()));
+    toast("✓ Update signal পাঠানো হয়েছে — সবার device কিছুক্ষণের মধ্যে reload হবে","ok");
+  }catch(err){
+    toast("⚠ ব্যর্থ হয়েছে","err");
+  }
+}
+
 async function recalculateRefNos(){
   if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
   if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
@@ -2721,8 +2809,19 @@ async function recalculateRefNos(){
   toast(`✓ ${updated}টি case renumber করা হয়েছে`,"ok");
 }
 
+function toggleBuyerVisible(id,checked){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err");return;}
+  const g=grievances.find(x=>x.id===id);
+  if(g){
+    g.buyerVisible=checked;
+    persistOne(g);
+    toast(checked?"✅ Buyer এখন এই case দেখতে পারবে":"এই case buyer থেকে লুকানো হলো","ok");
+  }
+}
+
 async function deleteRow(id,e){
   if(e)e.stopPropagation();
+  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   if(!confirm("রেকর্ডটি ডিলেট করতে চান?"))return;
   const g = grievances.find(x=>x.id===id);
   if(g && window._fb){
@@ -2744,6 +2843,7 @@ async function deleteRow(id,e){
 }
 function setStatus(id,val,e){
   if(e)e.stopPropagation();
+  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   // Pre-update state so no self-notification
   if(window._grvState&&window._grvState[id]) window._grvState[id].status=val;
   const g=grievances.find(x=>x.id===id);
@@ -2752,6 +2852,7 @@ function setStatus(id,val,e){
 }
 function setProc(id,val){
   if(!val) return; // placeholder "— নির্বাচন করুন —" — nothing to do
+  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   // Pre-update state so no self-notification
   if(window._grvState&&window._grvState[id]) window._grvState[id].processing=val;
   const g=grievances.find(x=>x.id===id);
@@ -3728,6 +3829,7 @@ function downloadPDF(){
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
+        ${g.refNo?`<br><span style="color:#888;font-size:8px;">${(g.refNo||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
         <strong>${empName}</strong><br>
@@ -3884,6 +3986,9 @@ function downloadPDF(){
       },
       async setRefCounter(year, val) {
         await set(ref(db, "ref_counters/" + year), val);
+      },
+      async setAppVersion(v) {
+        await set(ref(db, "app_version"), v);
       },
       async saveSettings(key, val) {
         await set(ref(db, SETTINGS_NODE + "/" + key), val);
