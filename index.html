@@ -1058,6 +1058,13 @@ tbody .drow:not(:last-child) td{
             <div id="deleted-log-list"></div>
           </div>
 
+          <!-- Ref No. Recalculation (fixes any gap caused by deleted test/demo cases) -->
+          <div class="panel" style="max-width:600px;margin-top:18px;">
+            <div class="panel-title">🔧 Ref No. পুনর্গণনা <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
+            <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">যদি কোনো test/demo case delete করার কারণে Ref No. তে ফাঁক (gap) তৈরি হয়ে থাকে, এই বাটনে ক্লিক করলে বর্তমানে থাকা সব case প্রতি বছর অনুযায়ী নতুন করে ০১, ০২, ০৩... ক্রমানুসারে (তারিখ অনুযায়ী) renumber হয়ে যাবে।</div>
+            <button onclick="recalculateRefNos()" style="width:100%;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🔁 এখনই পুনর্গণনা করুন</button>
+          </div>
+
           <!-- Employee Database Upload -->
           <div class="panel" style="max-width:600px;margin-top:18px;">
             <div class="panel-title">👥 Employee Database <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
@@ -2680,6 +2687,40 @@ function resetForm(){
   window._existingDocs=[];
   try{renderDocPreview();}catch(e){}
 }
+async function recalculateRefNos(){
+  if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
+  if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
+  if(!confirm("সব case-এর Ref No. নতুন করে renumber হয়ে যাবে (তারিখ অনুযায়ী)। এগোতে চান?")) return;
+
+  // Group by the year each case was actually CREATED (from its id's
+  // timestamp), since that's what the ref-no year is meant to reflect.
+  const byYear = {};
+  grievances.forEach(g=>{
+    const ts = parseInt((g.id||"").replace("GRV-",""),10);
+    const year = isNaN(ts) ? (new Date(g.date).getFullYear()||new Date().getFullYear()) : new Date(ts).getFullYear();
+    (byYear[year]=byYear[year]||[]).push(g);
+  });
+
+  let updated=0;
+  for(const year of Object.keys(byYear)){
+    const list = byYear[year].sort((a,b)=>{
+      const ta=parseInt((a.id||"").replace("GRV-",""),10)||0;
+      const tb=parseInt((b.id||"").replace("GRV-",""),10)||0;
+      return ta-tb;
+    });
+    for(let i=0;i<list.length;i++){
+      const newRef="AKHECO/HR/DA/"+year+"/"+String(i+1).padStart(2,"0");
+      if(list[i].refNo!==newRef){
+        list[i].refNo=newRef;
+        try{ await window._fb.save(list[i]); updated++; }catch(err){}
+      }
+    }
+    try{ await window._fb.setRefCounter(year, list.length); }catch(err){}
+  }
+  applyFilters();
+  toast(`✓ ${updated}টি case renumber করা হয়েছে`,"ok");
+}
+
 async function deleteRow(id,e){
   if(e)e.stopPropagation();
   if(!confirm("রেকর্ডটি ডিলেট করতে চান?"))return;
@@ -2694,6 +2735,7 @@ async function deleteRow(id,e){
       data: g
     };
     try{ await window._fb.saveDeletedLog(logEntry); }catch(err){}
+    if(g.refNo){ try{ await window._fb.reclaimRefNo(g.refNo); }catch(err){} }
   }
   grievances=grievances.filter(g=>g.id!==id);
   await removeOne(id);
@@ -3828,6 +3870,20 @@ function downloadPDF(){
         const result = await runTransaction(counterRef, current => (current || 0) + 1);
         const seq = result.snapshot.val();
         return "AKHECO/HR/DA/" + year + "/" + String(seq).padStart(2, "0");
+      },
+      async reclaimRefNo(refNo) {
+        // If the deleted grievance's ref number was the LAST one generated for
+        // that year, give it back (decrement) so the next save reuses it —
+        // handles "added a demo/test case then deleted it right away" without
+        // ever risking a duplicate ref no. for older, unrelated cases.
+        const m = /^AKHECO\/HR\/DA\/(\d{4})\/(\d+)$/.exec(refNo || "");
+        if (!m) return;
+        const year = m[1], seq = parseInt(m[2], 10);
+        const counterRef = ref(db, "ref_counters/" + year);
+        await runTransaction(counterRef, current => (current === seq) ? current - 1 : current);
+      },
+      async setRefCounter(year, val) {
+        await set(ref(db, "ref_counters/" + year), val);
       },
       async saveSettings(key, val) {
         await set(ref(db, SETTINGS_NODE + "/" + key), val);
