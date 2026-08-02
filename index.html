@@ -463,22 +463,8 @@ tbody .drow:not(:last-child) td{
 .cred-save-btn{padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#17939e,#2aeeb5);border:none;color:white;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;}.eff-banner{overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,rgba(23,147,158,0.12),rgba(42,238,181,0.12));border:1px solid rgba(23,147,158,0.25);border-radius:8px;padding:4px 0;margin-top:4px;}
 .eff-banner span{display:inline-block;padding-left:100%;font-size:11px;font-weight:700;color:var(--aqua);animation:eff-scroll 14s linear infinite;}
 @keyframes eff-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}/* ═══ BUYER MODE — restricted, read-only, buyer-approved-only view ═══ */
-body.buyer-mode #new-grievance-panel,
-body.buyer-mode #internal-stats-panel,
-body.buyer-mode #n-acc,
-body.buyer-mode #n-tl,
-body.buyer-mode #n-set,
-body.buyer-mode #n-users,
-body.buyer-mode .buyer-hide,
-body.buyer-mode .del-btn,
-body.buyer-mode .proc-del,
-body.buyer-mode .dmy,
-body.buyer-mode #tb-refresh-btn,
-body.buyer-mode #mob-refresh-btn,
-body.buyer-mode .eff-banner{display:none !important;}
-body.buyer-mode .proc-sel{pointer-events:none;background:transparent;border:none;box-shadow:none;color:var(--td);}
-body.buyer-mode .stb{pointer-events:none;}
-body.buyer-mode .buyer-hide-col{display:none !important;}
+.admin-only-col{display:none !important;}
+body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 </style>
 
 
@@ -814,7 +800,7 @@ body.buyer-mode .buyer-hide-col{display:none !important;}
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-hnd" class="th-jelly">Handler</span></div><select class="col-filter" id="cf-hnd" onchange="applyFilters(true)"><option value="">All</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-st" class="th-jelly">Status</span></div><select class="col-filter" id="cf-st" onchange="applyFilters(true)"><option value="">All</option><option value="Pending">Pending</option><option value="Under Investigation">Invest.</option><option value="Resolved">Resolved</option><option value="Closed">Closed</option></select></th>
               <th style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-proc" class="th-jelly">Processing</span></div><select class="col-filter" id="cf-proc" onchange="applyFilters(true)"><option value="">All</option></select></th>
-              <th class="buyer-hide-col" style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
+              <th class="admin-only-col" style="padding:6px 8px;border:none;position:sticky;top:0;z-index:8;background:linear-gradient(90deg,rgba(180,236,240,0.97),rgba(210,245,248,0.97));"><div class="th-jelly-wrap"><span id="th-act" class="th-jelly">Actions</span></div></th>
             </tr></thead>
             <tbody id="tbody"></tbody>
           </table>
@@ -1079,13 +1065,6 @@ body.buyer-mode .buyer-hide-col{display:none !important;}
             <div class="panel-title">🔧 Ref No. পুনর্গণনা <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
             <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">যদি কোনো test/demo case delete করার কারণে Ref No. তে ফাঁক (gap) তৈরি হয়ে থাকে, এই বাটনে ক্লিক করলে বর্তমানে থাকা সব case প্রতি বছর অনুযায়ী নতুন করে ০১, ০২, ০৩... ক্রমানুসারে (তারিখ অনুযায়ী) renumber হয়ে যাবে।</div>
             <button onclick="recalculateRefNos()" style="width:100%;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🔁 এখনই পুনর্গণনা করুন</button>
-          </div>
-
-          <!-- Force Update All Devices -->
-          <div class="panel" style="max-width:600px;margin-top:18px;">
-            <div class="panel-title">🚀 Force Update All Devices <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
-            <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">GitHub Pages-এ নতুন update deploy করার পর, এখানে ক্লিক করলে যাদের app আগে থেকে খোলা আছে তাদের সবার device-এ automatic reload হয়ে নতুন version load হবে। Deploy করার পর প্রতিবার এই বাটনে ক্লিক করার অভ্যাস করুন।</div>
-            <button onclick="forceUpdateAllDevices()" style="width:100%;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🚀 এখনই সবাইকে Update করুন</button>
           </div>
 
           <!-- Employee Database Upload -->
@@ -1610,7 +1589,7 @@ function lsOnSuccess(){
   applyColHeadings(loadColHeadings());
   // Now show main app
   document.body.classList.add("app-ready");
-  document.body.classList.toggle("buyer-mode", !!window._isBuyer);
+  document.body.classList.toggle("is-super-admin-mode", !!window._isSuperAdmin);
   try{ _resetIdleTimer(); }catch(e){}
   // Column toggle — only super admin
   const ctb=document.getElementById("col-toggle-bar");
@@ -1620,10 +1599,7 @@ function lsOnSuccess(){
   if(nm) nm.style.display=window._isSuperAdmin?"block":"none";
   // Current user display
   const uname=document.getElementById("current-user-name");
-  if(uname) uname.textContent=window._isBuyer?(window._currentUser?.name||"Buyer"):(window._currentUser?.name||window._currentUser?.username||"")+(window._isSuperAdmin?" (Super Admin)":"");
-  // Dashboard title — buyer just sees a normal-looking "Grievance Log"
-  const dt=document.getElementById("dash-title");
-  if(dt) dt.textContent=window._isBuyer?"Grievance Log":"Operational Overview";
+  if(uname) uname.textContent=(window._currentUser?.name||window._currentUser?.username||"")+(window._isSuperAdmin?" (Super Admin)":"");
   // Logout btn
   const lb=document.getElementById("logout-btn");
   if(lb) lb.style.display="block";
@@ -1642,7 +1618,7 @@ function _doLogoutNow(){
   window._isSuperAdmin=false;
   window._isBuyer=false;
   document.body.classList.remove("app-ready");
-  document.body.classList.remove("buyer-mode");
+  document.body.classList.remove("is-super-admin-mode");
   lsShow();
   const uInp=document.getElementById("ls-user"); if(uInp) uInp.value="";
   const pInp=document.getElementById("ls-pass"); if(pInp) pInp.value="";
@@ -2273,6 +2249,40 @@ function filterByType(catLabel){
 }
 
 // ═══ FILTERS ═══
+// Data scope: Buyer only ever sees Super-Admin-marked ("buyerVisible") cases —
+// everywhere (log, stats, chart, accounts, timeline, PDF). Everyone else sees
+// everything, same as before.
+function visibleGrievances(){
+  return window._isBuyer ? grievances.filter(g=>g.buyerVisible) : grievances;
+}
+
+// Buyer must never see the REAL ref no. (e.g. .../06, .../10) since gaps would
+// reveal that other, hidden cases exist. Instead, renumber just their visible
+// subset fresh as 01, 02, 03... (grouped by year, ordered by creation time) —
+// computed on the fly, never stored.
+function getBuyerRefNoMap(){
+  const map={};
+  const byYear={};
+  visibleGrievances().forEach(g=>{
+    const ts=parseInt((g.id||"").replace("GRV-",""),10);
+    const year=isNaN(ts)?(new Date(g.date).getFullYear()||new Date().getFullYear()):new Date(ts).getFullYear();
+    (byYear[year]=byYear[year]||[]).push(g);
+  });
+  Object.keys(byYear).forEach(year=>{
+    const list=byYear[year].sort((a,b)=>{
+      const ta=parseInt((a.id||"").replace("GRV-",""),10)||0;
+      const tb=parseInt((b.id||"").replace("GRV-",""),10)||0;
+      return ta-tb;
+    });
+    list.forEach((g,i)=>{ map[g.id]="AKHECO/HR/DA/"+year+"/"+String(i+1).padStart(2,"0"); });
+  });
+  return map;
+}
+function displayRefNo(g){
+  if(window._isBuyer) return (window._buyerRefNoMap||{})[g.id]||"";
+  return g.refNo||"";
+}
+
 function applyFilters(resetPage){
   const q=(document.getElementById("search")?.value||"").toLowerCase();
   const cfD=(document.getElementById("cf-date")?.value||"").toLowerCase();
@@ -2297,11 +2307,13 @@ function applyFilters(resetPage){
       &&(cfPersonSet.size===0||cfPersonSet.has(g.empId));
   }).sort((a,b)=>(b.id||"").localeCompare(a.id||"")); // newest-added grievance first
 
-  document.getElementById("cnt-total").textContent=grievances.length;
-  document.getElementById("cnt-pending").textContent=grievances.filter(x=>x.status==="Pending").length;
-  document.getElementById("cnt-invest").textContent=grievances.filter(x=>x.status==="Under Investigation").length;
-  document.getElementById("cnt-resolved").textContent=grievances.filter(x=>x.status==="Resolved").length;
-  document.getElementById("cnt-closed").textContent=grievances.filter(x=>x.status==="Closed").length;
+  if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
+
+  document.getElementById("cnt-total").textContent=visibleGrievances().length;
+  document.getElementById("cnt-pending").textContent=visibleGrievances().filter(x=>x.status==="Pending").length;
+  document.getElementById("cnt-invest").textContent=visibleGrievances().filter(x=>x.status==="Under Investigation").length;
+  document.getElementById("cnt-resolved").textContent=visibleGrievances().filter(x=>x.status==="Resolved").length;
+  document.getElementById("cnt-closed").textContent=visibleGrievances().filter(x=>x.status==="Closed").length;
   if(resetPage) page=1;
   renderTable();
 }
@@ -2422,7 +2434,7 @@ function renderTable(){
       <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">
         ${g.date}
         ${cdHtml}
-        ${g.refNo?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(g.refNo)}</div>`:""}
+        ${displayRefNo(g)?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(displayRefNo(g))}</div>`:""}
       </td>
       <td>
         <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span><br>
@@ -2450,7 +2462,7 @@ function renderTable(){
         ${logHtml}
       </td>
 
-      <td class="buyer-hide-col" onclick="event.stopPropagation()">
+      <td class="admin-only-col" onclick="event.stopPropagation()">
         ${window._isSuperAdmin?`<label style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:${g.buyerVisible?"#059669":"var(--tm)"};cursor:pointer;margin-bottom:6px;">
           <input type="checkbox" ${g.buyerVisible?"checked":""} onchange="toggleBuyerVisible('${g.id}',this.checked)"> ${g.buyerVisible?"✅ Buyer":"👁 Buyer"}
         </label>`:""}
@@ -2682,7 +2694,7 @@ async function saveGrievance(){
     toast("✓ Record Updated","ok");cancelEdit();
   } else {
     const filesToUpload=[...(window._pendingDocs||[])];
-    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"",processingLog:[],attachments:[]};
+    const newG={id:"GRV-"+Date.now(),...payload,status:"Pending",processing:"",processingLog:[],attachments:[],buyerVisible:!!window._isBuyer};
     grievances.unshift(newG);
     // Pre-register own ID so no self-notification
     if(window._grvState) window._grvState[newG.id]={status:newG.status||"",processing:newG.processing||""};
@@ -2713,7 +2725,6 @@ async function saveGrievance(){
 }
 
 function editRow(id){
-  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   const g=grievances.find(x=>x.id===id);if(!g)return;
   document.getElementById("edit-id").value=g.id;
   document.getElementById("f-date").value=g.date;
@@ -2763,18 +2774,6 @@ function resetForm(){
   window._existingDocs=[];
   try{renderDocPreview();}catch(e){}
 }
-async function forceUpdateAllDevices(){
-  if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
-  if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
-  if(!confirm("সবার device-এ এখনই reload হবে। নিশ্চিত?")) return;
-  try{
-    await window._fb.setAppVersion(String(Date.now()));
-    toast("✓ Update signal পাঠানো হয়েছে — সবার device কিছুক্ষণের মধ্যে reload হবে","ok");
-  }catch(err){
-    toast("⚠ ব্যর্থ হয়েছে","err");
-  }
-}
-
 async function recalculateRefNos(){
   if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
   if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
@@ -2821,7 +2820,7 @@ function toggleBuyerVisible(id,checked){
 
 async function deleteRow(id,e){
   if(e)e.stopPropagation();
-  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin ডিলিট করতে পারবেন","err");return;}
   if(!confirm("রেকর্ডটি ডিলেট করতে চান?"))return;
   const g = grievances.find(x=>x.id===id);
   if(g && window._fb){
@@ -2843,7 +2842,6 @@ async function deleteRow(id,e){
 }
 function setStatus(id,val,e){
   if(e)e.stopPropagation();
-  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   // Pre-update state so no self-notification
   if(window._grvState&&window._grvState[id]) window._grvState[id].status=val;
   const g=grievances.find(x=>x.id===id);
@@ -2852,7 +2850,6 @@ function setStatus(id,val,e){
 }
 function setProc(id,val){
   if(!val) return; // placeholder "— নির্বাচন করুন —" — nothing to do
-  if(window._isBuyer){toast("⚠ এই অ্যাকাউন্ট শুধুমাত্র দেখতে পারবে","err");return;}
   // Pre-update state so no self-notification
   if(window._grvState&&window._grvState[id]) window._grvState[id].processing=val;
   const g=grievances.find(x=>x.id===id);
@@ -2906,23 +2903,24 @@ function buildPerfTable(list, map, tbodyId, icon){
 }
 
 function renderAccounts(){
+  const list = visibleGrievances();
   // Handler map
   const hmap={};
   HANDLERS.forEach(h=>{hmap[h]={assigned:0,pending:0,active:0,resolved:0};});
   // Investigator map — collect from actual grievance data
   const imap={};
   const invList=[];
-  grievances.forEach(g=>{
+  list.forEach(g=>{
     if(g.investigator&&g.investigator.trim()){
       const inv=g.investigator.trim();
       if(!imap[inv]){imap[inv]={assigned:0,pending:0,active:0,resolved:0};invList.push(inv);}
     }
   });
 
-  const total=grievances.length;
+  const total=list.length;
   let totalPend=0,totalAct=0,totalRes=0;
 
-  grievances.forEach(g=>{
+  list.forEach(g=>{
     if(g.status==="Pending")totalPend++;
     if(g.status==="Under Investigation")totalAct++;
     if(g.status==="Resolved"||g.status==="Closed")totalRes++;
@@ -2956,7 +2954,7 @@ function renderAccounts(){
 
   // Type breakdown
   const typeCount={};
-  grievances.forEach(g=>{if(g.type)typeCount[g.type]=(typeCount[g.type]||0)+1;});
+  list.forEach(g=>{if(g.type)typeCount[g.type]=(typeCount[g.type]||0)+1;});
   const maxT=Math.max(1,...Object.values(typeCount));
   document.getElementById("acc-type-bars").innerHTML=Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([t,c])=>{
     const pct=Math.round((c/total)*100);
@@ -2972,7 +2970,7 @@ function renderAccounts(){
 
   // Processing breakdown
   const procCount={};
-  grievances.forEach(g=>{if(g.processing)procCount[g.processing]=(procCount[g.processing]||0)+1;});
+  list.forEach(g=>{if(g.processing)procCount[g.processing]=(procCount[g.processing]||0)+1;});
   const maxP=Math.max(1,...Object.values(procCount));
   document.getElementById("acc-proc-bars").innerHTML=Object.entries(procCount).sort((a,b)=>b[1]-a[1]).map(([p,c])=>{
     const w=Math.round((c/maxP)*100);
@@ -3205,7 +3203,7 @@ function renderChart(){
   // tag is counted once — this answers "kon category te koyta case".
   const CATEGORY_ORDER = Object.keys(TYPE_MAP);
   const counts = {};
-  grievances.forEach(g=>{
+  visibleGrievances().forEach(g=>{
     (g.type||"").split(",").map(s=>s.trim()).filter(Boolean).forEach(t=>{
       counts[t] = (counts[t]||0) + 1;
     });
@@ -3434,13 +3432,13 @@ function renderTimeline(){
   const STATUS_COLOR={Pending:"#f87171","Under Investigation":"#fbbf24",Resolved:"#2aeeb5",Closed:"#94a3b8"};
   const STATUS_BG={Pending:"rgba(248,113,113,0.12)","Under Investigation":"rgba(251,191,36,0.12)",Resolved:"rgba(42,238,181,0.12)",Closed:"rgba(148,163,184,0.1)"};
 
-  let list=[...grievances].sort((a,b)=>b.date>a.date?1:-1);
+  let list=[...visibleGrievances()].sort((a,b)=>b.date>a.date?1:-1);
   if(q)list=list.filter(g=>[g.empId,g.empName,g.section,g.type,g.investigator,g.handler,g.processing,g.description].some(f=>(f||"").toLowerCase().includes(q)));
   if(st)list=list.filter(g=>g.status===st);
   if(mo)list=list.filter(g=>(g.date||"").startsWith(mo));
 
   const countEl=document.getElementById("tl-count");
-  if(countEl)countEl.textContent=`Showing ${list.length} of ${grievances.length} records`;
+  if(countEl)countEl.textContent=`Showing ${list.length} of ${visibleGrievances().length} records`;
 
   if(!list.length){
     document.getElementById("tl-wrap").innerHTML=`<div style="text-align:center;padding:30px;color:var(--tm);font-size:13px;">📭 No records found</div>`;
@@ -3507,9 +3505,23 @@ function renderDeletedLog(list){
       <div style="font-size:12px;font-weight:700;color:var(--td);">${esc(g.empName||"—")} <span style="font-weight:400;color:var(--tm);">— ${esc(g.type||"")}</span></div>
       <div style="font-size:10px;color:var(--tm);margin:3px 0;">🗑️ Deleted by <b>${esc(entry.deletedBy||"Unknown")}</b> (${esc(entry.deletedByUsername||"")}) — ${when}</div>
       <div style="font-size:10px;color:var(--tm);margin-bottom:8px;">Incident Date: ${esc(g.date||"—")}</div>
-      <button onclick="restoreDeletedGrievance('${esc(entry.id)}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">↺ Restore</button>
+      <div style="display:flex;gap:8px;">
+        <button onclick="restoreDeletedGrievance('${esc(entry.id)}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">↺ Restore</button>
+        <button onclick="permanentlyDeleteLog('${esc(entry.id)}')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">✕ Delete</button>
+      </div>
     </div>`;
   }).join("");
+}
+
+async function permanentlyDeleteLog(id){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err");return;}
+  if(!confirm("এই entry টি স্থায়ীভাবে মুছে ফেলবেন? এটি আর restore করা যাবে না।")) return;
+  try{
+    await window._fb.removeDeletedLog(id);
+    toast("✓ স্থায়ীভাবে মুছে ফেলা হয়েছে","ok");
+  }catch(err){
+    toast("⚠ ব্যর্থ হয়েছে","err");
+  }
 }
 
 async function restoreDeletedGrievance(id){
@@ -3749,7 +3761,10 @@ function downloadJSON(){
 }
 function downloadPDF(){
   if(!grievances.length){toast("⚠ No data to export","err");return;}
-  const src = [...filtered].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
+  const src = window._isBuyer
+    ? [...filtered].sort((a,b)=>(parseInt((a.id||"").replace("GRV-",""),10)||0)-(parseInt((b.id||"").replace("GRV-",""),10)||0))
+    : [...filtered].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
   const _ch = loadColHeadings();
 
@@ -3829,7 +3844,7 @@ function downloadPDF(){
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
-        ${g.refNo?`<br><span style="color:#888;font-size:8px;">${(g.refNo||"").replace(/</g,"&lt;")}</span>`:""}
+        ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
         <strong>${empName}</strong><br>
