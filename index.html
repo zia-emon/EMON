@@ -485,7 +485,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 <!-- MOBILE HEADER -->
 <header class="mob-header">
   <div class="mob-title">
-    <h1 id="lbl-mtitle">Grievance log</h1>
+    <h1 id="lbl-mtitle" data-en="Grievance log" data-bn="অভিযোগ ট্র্যাকার">Grievance log</h1>
     <p>AKH Eco Apparels Ltd.</p>
     <div class="eff-banner"><span>📅 Effective From: 01 August 2026</span></div>
   </div>
@@ -593,11 +593,11 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
       <span class="brand-title">Grievance Tracker</span>
     </div>
     <ul class="nav-list">
-      <li class="nav-item active" id="n-dash" onclick="goTo('dash')">📊 Dashboard</li>
-      <li class="nav-item" id="n-acc" onclick="goTo('acc')">👥 Accounts Node</li>
-      <li class="nav-item" id="n-tl" onclick="goTo('tl')">📅 Timeline Events</li>
-      <li class="nav-item" id="n-set" onclick="goTo('set')">⚙️ Settings</li>
-      <li class="nav-item" id="n-users" onclick="goTo('users')" style="display:none;">👤 User Management</li>
+      <li class="nav-item active" id="n-dash" onclick="goTo('dash')" data-en="📊 Dashboard" data-bn="📊 ড্যাশবোর্ড">📊 Dashboard</li>
+      <li class="nav-item" id="n-acc" onclick="goTo('acc')" data-en="👥 Accounts Node" data-bn="👥 অ্যাকাউন্টস নোড">👥 Accounts Node</li>
+      <li class="nav-item" id="n-tl" onclick="goTo('tl')" data-en="📅 Timeline Events" data-bn="📅 টাইমলাইন">📅 Timeline Events</li>
+      <li class="nav-item" id="n-set" onclick="goTo('set')" data-en="⚙️ Settings" data-bn="⚙️ সেটিংস">⚙️ Settings</li>
+      <li class="nav-item" id="n-users" onclick="goTo('users')" style="display:none;" data-en="👤 User Management" data-bn="👤 ইউজার ব্যবস্থাপনা">👤 User Management</li>
     </ul>
   </aside>
 
@@ -628,24 +628,24 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
         <!-- STATS -->
         <div class="stats-grid" id="internal-stats-panel">
           <div class="stat-card af" onclick="filterStat('')">
-            <div class="stat-hdr"><span class="stat-lbl" id="lbl-total">Total Cases</span><span class="sig sig-b"></span></div>
-            <div class="stat-num" id="cnt-total">0</div><div class="stat-foot">Live Logs</div>
+            <div class="stat-hdr"><span class="stat-lbl" id="lbl-total" data-en="Total Cases" data-bn="সর্বমোট কেস">Total Cases</span><span class="sig sig-b"></span></div>
+            <div class="stat-num" id="cnt-total">0</div><div class="stat-foot" data-en="Live Logs" data-bn="সচল তালিকা">Live Logs</div>
           </div>
           <div class="stat-card" onclick="filterStat('Pending')">
-            <div class="stat-hdr"><span class="stat-lbl" id="lbl-pending">Pending</span><span class="sig sig-r"></span></div>
-            <div class="stat-num" id="cnt-pending">0</div><div class="stat-foot">Awaiting Action</div>
+            <div class="stat-hdr"><span class="stat-lbl" id="lbl-pending" data-en="Pending" data-bn="অপেক্ষমাণ">Pending</span><span class="sig sig-r"></span></div>
+            <div class="stat-num" id="cnt-pending">0</div><div class="stat-foot" data-en="Awaiting Action" data-bn="পদক্ষেপের অপেক্ষায়">Awaiting Action</div>
           </div>
           <div class="stat-card" onclick="filterStat('Under Investigation')">
-            <div class="stat-hdr"><span class="stat-lbl">Processing</span><span class="sig sig-p"></span></div>
-            <div class="stat-num" id="cnt-invest">0</div><div class="stat-foot">Active Review</div>
+            <div class="stat-hdr"><span class="stat-lbl" data-en="Processing" data-bn="তদন্তাধীন">Processing</span><span class="sig sig-p"></span></div>
+            <div class="stat-num" id="cnt-invest">0</div><div class="stat-foot" data-en="Active Review" data-bn="সক্রিয় পর্যালোচনা">Active Review</div>
           </div>
           <div class="stat-card" onclick="filterStat('Resolved')">
-            <div class="stat-hdr"><span class="stat-lbl">Resolved</span><span class="sig sig-g"></span></div>
-            <div class="stat-num" id="cnt-resolved">0</div><div class="stat-foot">Solved</div>
+            <div class="stat-hdr"><span class="stat-lbl" data-en="Resolved" data-bn="সমাধান হয়েছে">Resolved</span><span class="sig sig-g"></span></div>
+            <div class="stat-num" id="cnt-resolved">0</div><div class="stat-foot" data-en="Solved" data-bn="সমাধানকৃত">Solved</div>
           </div>
           <div class="stat-card" onclick="filterStat('Closed')">
-            <div class="stat-hdr"><span class="stat-lbl">Closed</span><span class="sig sig-db"></span></div>
-            <div class="stat-num" id="cnt-closed">0</div><div class="stat-foot">Archived</div>
+            <div class="stat-hdr"><span class="stat-lbl" data-en="Closed" data-bn="বন্ধ">Closed</span><span class="sig sig-db"></span></div>
+            <div class="stat-num" id="cnt-closed">0</div><div class="stat-foot" data-en="Archived" data-bn="সংরক্ষিত">Archived</div>
           </div>
           <!-- PIE CHART - hologram style, no box -->
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;overflow:visible;">
@@ -663,8 +663,8 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
           <div class="form-grid">
 
             <!-- Row 1: Date | Source -->
-            <div class="fg"><label>Incident Date</label><input type="date" id="f-date" class="fc"></div>
-            <div class="fg"><label>Grievance Source</label>
+            <div class="fg"><label data-en="Incident Date" data-bn="ঘটনার তারিখ">Incident Date</label><input type="date" id="f-date" class="fc"></div>
+            <div class="fg"><label data-en="Grievance Source" data-bn="অভিযোগের উৎস">Grievance Source</label>
               <select id="f-source" class="fc"><option value="">— Select Source —</option></select>
             </div>
 
@@ -699,7 +699,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 
             <!-- Grievance Type -->
             <div class="fg full" style="position:relative;">
-              <label>Grievance Type <span style="font-size:10px;font-weight:400;color:var(--tm);">(একাধিক ধারা)</span></label>
+              <label data-en="Grievance Type" data-bn="অভিযোগের ধরন">Grievance Type</label> <span style="font-size:10px;font-weight:400;color:var(--tm);">(একাধিক ধারা)</span>
               <div id="type-dropdown-btn" class="fc" onclick="toggleTypeDropdown()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:42px;flex-wrap:wrap;gap:4px;">
                 <div id="type-selected-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
                   <span id="type-placeholder" style="color:#9ca3af;font-size:13px;">— Select Type —</span>
@@ -722,12 +722,12 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
             </div>
 
             <!-- Description -->
-            <div class="fg full"><label>Incident Description</label>
+            <div class="fg full"><label data-en="Incident Description" data-bn="ঘটনার বিবরণ">Incident Description</label>
               <textarea id="f-desc" class="fc" placeholder="বিস্তারিত বিবরণ লিখুন..." spellcheck="false" autocomplete="off"></textarea>
             </div>
 
             <!-- Upload Documents -->
-            <div class="fg full"><label>📎 Upload Documents <span style="font-weight:400;color:var(--tm);font-size:10px;">(অভিযোগের প্রমাণ — ছবি বা PDF)</span></label>
+            <div class="fg full"><label><span data-en="📎 Upload Documents" data-bn="📎 ডকুমেন্ট আপলোড">📎 Upload Documents</span> <span style="font-weight:400;color:var(--tm);font-size:10px;">(অভিযোগের প্রমাণ — ছবি বা PDF)</span></label>
               <div id="doc-drop" onclick="document.getElementById('f-docs').click()" style="border:2px dashed rgba(23,147,158,0.35);border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:rgba(23,147,158,0.04);">
                 <span style="font-size:12px;color:var(--aqua);font-weight:700;">📤 ছবি / PDF আপলোড করতে এখানে ক্লিক করুন</span>
                 <div style="font-size:9px;color:var(--tm);margin-top:3px;">প্রতিটি ফাইল সর্বোচ্চ 3MB</div>
@@ -756,13 +756,13 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
               </div>
             </div>
           </div>
-          <button class="btn-save" id="submit-btn" onclick="saveGrievance()">Submit Grievance</button>
-          <button class="btn-cancel" id="cancel-btn" onclick="cancelEdit()">✕ Cancel Edit</button>
+          <button class="btn-save" id="submit-btn" onclick="saveGrievance()" data-en="Submit Grievance" data-bn="অভিযোগ জমা দিন">Submit Grievance</button>
+          <button class="btn-cancel" id="cancel-btn" onclick="cancelEdit()" data-en="✕ Cancel Edit" data-bn="✕ বাতিল করুন">✕ Cancel Edit</button>
         </div>
 
         <!-- TABLE -->
         <div class="panel">
-          <div class="panel-title" id="lbl-log">Grievance Log</div>
+          <div class="panel-title" id="lbl-log" data-en="Grievance Log" data-bn="অভিযোগের খতিয়ান">Grievance Log</div>
           <div class="filter-bar">
             <input type="text" id="search" class="fc" style="flex:1;min-width:160px;" placeholder="🔍 Search...">
             <div style="position:relative;">
@@ -771,8 +771,8 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
               </div>
               <div id="cf-person-panel" style="display:none;position:absolute;top:100%;left:0;z-index:999;min-width:240px;max-height:260px;overflow-y:auto;background:white;border:1px solid rgba(15,108,116,0.25);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;"></div>
             </div>
-            <button class="btn-jelly" onclick="applyFilters(true)">🔍 Search</button>
-            <button class="btn-jelly btn-clear" onclick="clearFilters()">✕ Clear</button>
+            <button class="btn-jelly" onclick="applyFilters(true)" data-en="🔍 Search" data-bn="🔍 খুঁজুন">🔍 Search</button>
+            <button class="btn-jelly btn-clear" onclick="clearFilters()" data-en="✕ Clear" data-bn="✕ মুছে ফেলুন">✕ Clear</button>
             <select id="cf-status" style="display:none;" onchange="applyFilters(true)">
               <option value=""></option>
               <option value="Pending">Pending</option>
@@ -1022,12 +1022,12 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
           </div>
 
           <div class="fg" style="margin-top:18px;">
-            <label style="font-size:14px;color:var(--aqua);">💾 Download Data</label>
+            <label style="font-size:14px;color:var(--aqua);" data-en="💾 Download Data" data-bn="💾 ডেটা ডাউনলোড">💾 Download Data</label>
             <div style="display:flex;gap:7px;margin-top:7px;">
               <button onclick="downloadCSV()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#38bdf8,#0284c7);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;">⬇ CSV</button>
-              <button onclick="downloadPDF()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;">📄 Download PDF</button>
+              <button onclick="downloadPDF()" style="flex:1;padding:10px;border-radius:11px;background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;" data-en="📄 Download PDF" data-bn="📄 পিডিএফ ডাউনলোড">📄 Download PDF</button>
             </div>
-            <div style="font-size:11px;color:var(--tm);margin-top:5px;text-align:center;">Records: <strong id="dl-count">0</strong></div>
+            <div style="font-size:11px;color:var(--tm);margin-top:5px;text-align:center;"><span data-en="Records:" data-bn="মোট রেকর্ড:">Records:</span> <strong id="dl-count">0</strong></div>
           </div>
         </div>
 
@@ -1287,7 +1287,7 @@ window._onFBData=function(data){
   try{populateColumnFilters();}catch(e){}
   applyFilters();
   const dlc=document.getElementById("dl-count");
-  if(dlc)dlc.textContent=grievances.length;
+  if(dlc)dlc.textContent=visibleGrievances().length;
 };
 window._onFBOffline=function(){setSyncStatus(false);};
 
@@ -1467,11 +1467,12 @@ const TITLES={dash:"Grievance Tracker Dashboard",acc:"Accounts Node Analytics",t
 // ══════════════════════════════════════════
 var SUPER_ADMIN_USER = localStorage.getItem("akh_sa_user")||"admin";
 var SUPER_ADMIN_PASS = localStorage.getItem("akh_sa_pass")||"emon";
-var BUYER_USER = localStorage.getItem("akh_buyer_user")||"buyer";
-var BUYER_PASS = localStorage.getItem("akh_buyer_pass")||"buyer123";
+var BUYER_USER = localStorage.getItem("akh_buyer_user")||"admin";
+var BUYER_PASS = localStorage.getItem("akh_buyer_pass")||"admin";
 window._currentUser = window._currentUser || null;
 window._isSuperAdmin = window._isSuperAdmin || false;
 window._isBuyer = window._isBuyer || false;
+window._isMainSuperAdmin = window._isMainSuperAdmin || false;
 // Note: _appShown already initialized before boot IIFE
 
 // Copy photo to login avatar
@@ -1523,16 +1524,20 @@ async function lsDoLogin(){
     if(isSA){
       window._currentUser={username,role:"superadmin",name:"Z. H. EMON"};
       window._isSuperAdmin=true;
+      window._isMainSuperAdmin=true;
       window._isBuyer=false;
       lsOnSuccess();
       return;
     }
 
-    // Check buyer account — read-only, sees only approved cases
+    // Check buyer account — sees only Super-Admin-approved cases, but the
+    // account itself should look completely ordinary (never surface "Buyer"
+    // anywhere in the UI, or it'd tip them off that something is restricted).
     const isBuyer = (username===BUYER_USER) && pass===BUYER_PASS;
     if(isBuyer){
-      window._currentUser={username,role:"buyer",name:"Buyer"};
+      window._currentUser={username,role:"buyer",name:username};
       window._isSuperAdmin=false;
+      window._isMainSuperAdmin=false;
       window._isBuyer=true;
       lsOnSuccess();
       return;
@@ -1568,7 +1573,8 @@ async function lsDoLogin(){
       return;
     }
     window._currentUser=user;
-    window._isSuperAdmin=false;
+    window._isSuperAdmin=(user.role==="superadmin");
+    window._isMainSuperAdmin=false;
     window._isBuyer=false;
     lsOnSuccess();
 
@@ -1616,6 +1622,7 @@ function lsOnSuccess(){
 function _doLogoutNow(){
   window._currentUser=null;
   window._isSuperAdmin=false;
+  window._isMainSuperAdmin=false;
   window._isBuyer=false;
   document.body.classList.remove("app-ready");
   document.body.classList.remove("is-super-admin-mode");
@@ -1801,11 +1808,13 @@ async function renderPendingRequests(){
     } else {
       pending.forEach(r=>{
         if(!_reqSeen.has(r.id)){
-          notifyEveryone(
-            r.type==="forgot" ? "🔑 Password Reset Request" : "🆕 New Access Request",
-            (r.username||r.name||"")+(r.type==="forgot"?" পাসওয়ার্ড রিসেট চাইছে":" account request পাঠিয়েছে"),
-            "req-"+r.id
-          );
+          const title = r.type==="forgot" ? "🔑 Password Reset Request"
+            : r.type==="promote_sa" ? "👑 Super Admin Promotion Request"
+            : "🆕 New Access Request";
+          const body = r.type==="forgot" ? (r.username||"")+" পাসওয়ার্ড রিসেট চাইছে"
+            : r.type==="promote_sa" ? (r.requestedByName||"")+" চান "+(r.targetUserName||"")+"-কে Super Admin বানাতে"
+            : (r.username||r.name||"")+" account request পাঠিয়েছে";
+          notifyEveryone(title, body, "req-"+r.id);
         }
       });
       _reqSeen=new Set(curIds);
@@ -1813,7 +1822,19 @@ async function renderPendingRequests(){
 
     if(!el) return;
     if(!pending.length){el.innerHTML=`<div style="color:var(--tm);font-size:12px;text-align:center;padding:12px;">কোনো pending request নেই</div>`;return;}
-    el.innerHTML=pending.map(r=>`
+    el.innerHTML=pending.map(r=>{
+      if(r.type==="promote_sa"){
+        return `<div class="user-card" style="flex-wrap:wrap;gap:6px;">
+          <div class="user-info">
+            <div class="user-name">👑 ${esc(r.targetUserName||"—")}</div>
+            <div class="user-email">${esc(r.requestedByName||"")} চান একে Super Admin বানাতে</div>
+          </div>
+          ${window._isMainSuperAdmin?`<button onclick="approveSuperAdminPromotion('${r.id}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✓ Approve</button>`
+            :`<span style="font-size:10px;color:var(--tm);">মূল Super Admin-এর অনুমোদনের অপেক্ষায়</span>`}
+          ${window._isMainSuperAdmin?`<button onclick="rejectRequest('${r.id}')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✕ Reject</button>`:""}
+        </div>`;
+      }
+      return `
       <div class="user-card" style="flex-wrap:wrap;gap:6px;">
         <div class="user-info">
           <div class="user-name">${esc(r.name||r.username||"—")}</div>
@@ -1821,8 +1842,26 @@ async function renderPendingRequests(){
         </div>
         ${r.type!=="forgot"?`<button onclick="approveRequest('${r.id}')" style="background:rgba(42,238,181,0.12);border:1px solid rgba(42,238,181,0.3);color:#059669;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✓ Approve</button>`:`<button onclick="resolveForgotRequest('${r.id}','${esc(r.username)}')" style="background:rgba(23,147,158,0.12);border:1px solid rgba(23,147,158,0.3);color:#0f6c74;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">🔑 Reset Password</button>`}
         <button onclick="rejectRequest('${r.id}')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">✕ Reject</button>
-      </div>`).join("");
+      </div>`;
+    }).join("");
   });
+}
+
+async function approveSuperAdminPromotion(reqId){
+  if(!window._isMainSuperAdmin){toast("⚠ শুধুমাত্র মূল Super Admin এটি অনুমোদন করতে পারবেন","err");return;}
+  const req=(window._fbRequests||[]).find(r=>r.id===reqId);
+  if(!req){toast("⚠ Request খুঁজে পাওয়া যায়নি","err");return;}
+  const user=(window._fbUsers||[]).find(u=>u.id===req.targetUserId);
+  if(!user){toast("⚠ User খুঁজে পাওয়া যায়নি","err");return;}
+  try{
+    await window._fb.saveUser({id:req.targetUserId, role:"superadmin", _update:true});
+    user.role="superadmin";
+    await window._fb.updateRequestStatus(reqId,"approved");
+    renderUsers();
+    toast("✓ "+(req.targetUserName||"User")+" এখন Super Admin","ok");
+  }catch(err){
+    toast("⚠ ব্যর্থ হয়েছে","err");
+  }
 }
 
 async function approveRequest(reqId){
@@ -2144,10 +2183,11 @@ function renderUsers(){
       <div class="usr-card">
         <div class="usr-avatar">${(u.name||u.username||"U")[0].toUpperCase()}</div>
         <div class="usr-info">
-          <div class="usr-name">${esc(u.name||u.username)}</div>
+          <div class="usr-name">${esc(u.name||u.username)}${u.role==="superadmin"?' <span style="color:#b45309;">👑</span>':""}</div>
           <div class="usr-meta">@${esc(u.username||"")} · 🔑 ${esc(u.password||"****")}</div>
         </div>
-        <span class="usr-role-badge user">${u.role==="handler"?"👔":u.role==="investigator"?"🔎":"👤"}</span>
+        <span class="usr-role-badge user">${u.role==="superadmin"?"👑":u.role==="handler"?"👔":u.role==="investigator"?"🔎":"👤"}</span>
+        <button class="btn-del-user" onclick="toggleUserSuperAdmin('${u.id}','${esc(u.name||u.username)}',${u.role==="superadmin"})" title="${u.role==="superadmin"?"Remove Super Admin":"Make Super Admin"}">${u.role==="superadmin"?"👑✕":"👑+"}</button>
         <button class="btn-del-user" onclick="editUserPass('${u.id}','${esc(u.username)}')">✏️</button>
         <button class="btn-del-user" onclick="lsDeleteUser('${u.id}','${esc(u.name||u.username)}')">✕</button>
       </div>`).join("");
@@ -2155,6 +2195,51 @@ function renderUsers(){
     html+=`<div style="color:var(--tm);font-size:12px;text-align:center;padding:12px;">কোনো regular user নেই</div>`;
   }
   el.innerHTML=html;
+}
+
+async function toggleUserSuperAdmin(uid, name, currentlyAdmin){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err");return;}
+  const user=(window._fbUsers||[]).find(u=>u.id===uid);
+  if(!user){toast("⚠ User খুঁজে পাওয়া যায়নি","err");return;}
+  const makingAdmin=!currentlyAdmin;
+
+  // Promoting someone new: if this isn't the ORIGINAL main Super Admin,
+  // it needs the main Super Admin's approval — send a request instead of
+  // promoting directly.
+  if(makingAdmin && !window._isMainSuperAdmin){
+    if(!confirm(`"${name}" কে Super Admin বানানোর জন্য মূল Super Admin-এর কাছে অনুমোদনের অনুরোধ পাঠাবেন?`)) return;
+    try{
+      const who=window._currentUser||{};
+      await window._fb.saveRequest({
+        id:"PROMOTE_"+Date.now(),
+        type:"promote_sa",
+        targetUserId:uid,
+        targetUserName:name,
+        requestedByUsername:who.username||"",
+        requestedByName:who.name||who.username||"",
+        status:"pending",
+        requestedAt:new Date().toISOString()
+      });
+      toast("✓ অনুরোধ পাঠানো হয়েছে — মূল Super Admin-এর অনুমোদনের অপেক্ষা","ok");
+    }catch(err){
+      toast("⚠ ব্যর্থ হয়েছে","err");
+    }
+    return;
+  }
+
+  const msg=makingAdmin
+    ? `"${name}" কে Super Admin বানাবেন? তিনি তখন সব কিছু দেখতে ও পরিবর্তন করতে পারবেন, এবং অন্য কাউকে Super Admin বানানোর অনুরোধও পাঠাতে পারবেন।`
+    : `"${name}" এর Super Admin অধিকার তুলে নেবেন?`;
+  if(!confirm(msg)) return;
+  try{
+    const newRole = makingAdmin ? "superadmin" : "user";
+    await window._fb.saveUser({id:uid, role:newRole, _update:true});
+    user.role=newRole;
+    renderUsers();
+    toast(makingAdmin?"✓ Super Admin বানানো হয়েছে":"✓ Super Admin অধিকার সরানো হয়েছে","ok");
+  }catch(err){
+    toast("⚠ ব্যর্থ হয়েছে","err");
+  }
 }
 
 function saveSuperAdminCred(){
@@ -2212,7 +2297,7 @@ function goTo(id){
   if(id==="users"&&window._isSuperAdmin){renderUsers();}
   if(id==="set"){
     const dlc=document.getElementById("dl-count");
-    if(dlc)dlc.textContent=grievances.length;
+    if(dlc)dlc.textContent=visibleGrievances().length;
     const savedTheme=localStorage.getItem("akh_theme");
     if(savedTheme){const ts=document.getElementById("theme-sel");if(ts)ts.value=savedTheme;}
     refreshSAPanel();
@@ -3746,21 +3831,23 @@ function triggerDownload(url, filename){
   setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
 }
 function downloadCSV(){
-  if(!grievances.length){toast("⚠ No data","err");return;}
+  const list=visibleGrievances();
+  if(!list.length){toast("⚠ No data","err");return;}
   const h=["Date","Employee ID","Employee Name","Section","Type","Description","Investigator","Handler","Status","Processing"];
-  const rows=grievances.map(g=>[g.date,`"${g.empId}"`,`"${g.empName}"`,`"${g.section||""}"`,`"${g.type}"`,`"${(g.description||"").replace(/"/g,"'")}"`,`"${g.investigator||""}"`,`"${g.handler||""}"`,g.status,`"${g.processing||""}"`].join(","));
+  const rows=list.map(g=>[g.date,`"${g.empId}"`,`"${g.empName}"`,`"${g.section||""}"`,`"${g.type}"`,`"${(g.description||"").replace(/"/g,"'")}"`,`"${g.investigator||""}"`,`"${g.handler||""}"`,g.status,`"${g.processing||""}"`].join(","));
   const blob=new Blob([[h.join(","),...rows].join("\n")],{type:"text/csv;charset=utf-8;"});
   triggerDownload(URL.createObjectURL(blob), `Grievance_${new Date().toISOString().slice(0,10)}.csv`);
   toast("✓ CSV Downloaded","ok");
 }
 function downloadJSON(){
-  if(!grievances.length){toast("⚠ No data","err");return;}
-  const blob=new Blob([JSON.stringify(grievances,null,2)],{type:"application/json"});
+  const list=visibleGrievances();
+  if(!list.length){toast("⚠ No data","err");return;}
+  const blob=new Blob([JSON.stringify(list,null,2)],{type:"application/json"});
   triggerDownload(URL.createObjectURL(blob), `Grievance_${new Date().toISOString().slice(0,10)}.json`);
   toast("✓ JSON Downloaded","ok");
 }
 function downloadPDF(){
-  if(!grievances.length){toast("⚠ No data to export","err");return;}
+  if(!visibleGrievances().length){toast("⚠ No data to export","err");return;}
   if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
   const src = window._isBuyer
     ? [...filtered].sort((a,b)=>(parseInt((a.id||"").replace("GRV-",""),10)||0)-(parseInt((b.id||"").replace("GRV-",""),10)||0))
