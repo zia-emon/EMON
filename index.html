@@ -4450,6 +4450,7 @@ function downloadPDF(){
 <script>
 // ── Permission ──
 function requestNotificationPermission(){
+  if(window._isBuyer) return; // buyer never gets asked/sent notifications
   if(!("Notification" in window)) return;
   if(Notification.permission==="default"){
     Notification.requestPermission().then(p=>{
@@ -4463,6 +4464,27 @@ function requestNotificationPermission(){
 }
 document.addEventListener("user-logged-in", requestNotificationPermission);
 
+// Handle "🔕 Mute" tapped on a lock-screen notification — either via a
+// live postMessage from the service worker (app already open) or a
+// ?action=mute URL flag (service worker had to open a fresh tab/window).
+function _applyMuteFromNotif(){
+  notifOn = false;
+  try{ localStorage.setItem("akh_notif_on", "false"); }catch(e){}
+  const swEl=document.getElementById("sw-notif"), lblEl=document.getElementById("notif-lbl");
+  if(swEl) swEl.classList.remove("on");
+  if(lblEl) lblEl.textContent="Currently: OFF";
+  try{ toast("🔕 Notifications OFF", "err"); }catch(e){}
+}
+if(navigator.serviceWorker){
+  navigator.serviceWorker.addEventListener("message", e=>{
+    if(e.data && e.data.type==="MUTE_NOTIF") _applyMuteFromNotif();
+  });
+}
+if(new URLSearchParams(location.search).get("action")==="mute"){
+  _applyMuteFromNotif();
+  history.replaceState(null, "", location.pathname);
+}
+
 // ── Core notifier: in-app toast (always, if notifications are ON) +
 //    OS-level browser notification (if permission granted). Note: this
 //    fires from each logged-in device's own open tab/PWA — it can't wake a
@@ -4471,12 +4493,37 @@ document.addEventListener("user-logged-in", requestNotificationPermission);
 //    as the PWA/tab stays open (foreground or backgrounded), the device
 //    will get a real system notification. ──
 function notifyEveryone(title, body, tag){
+  if(window._isBuyer) return; // buyer page never sees any notification, per design
   if(!notifOn) return;
   try{ toast(title+" — "+body, "ok"); }catch(e){}
   if(!("Notification" in window)||Notification.permission!=="granted") return;
+  const icon = document.querySelector("link[rel='icon']")?.href || "";
+  const opts = {
+    body,
+    icon,
+    badge: icon,
+    tag: tag||"grv-"+Date.now(),
+    requireInteraction: false,
+    vibrate: [120, 60, 120],
+    renotify: true,
+    actions: [
+      {action:"view", title:"👀 দেখুন"},
+      {action:"mute", title:"🔕 Mute"}
+    ]
+  };
   try{
-    const icon = document.querySelector("link[rel='icon']")?.href || "";
-    const n = new Notification(title,{body, icon, tag:tag||"grv-"+Date.now(), requireInteraction:false});
+    // Route through the service worker when it's active — this is what
+    // unlocks a WhatsApp-style rich lock-screen notification (bigger icon,
+    // action buttons, better OS persistence in background). Plain
+    // `new Notification()` can't show action buttons at all.
+    if(_swReg && navigator.serviceWorker.controller){
+      _swReg.showNotification(title, opts);
+      return;
+    }
+  }catch(e){}
+  // Fallback: works everywhere, just without action buttons
+  try{
+    const n = new Notification(title, {body, icon, tag: opts.tag, requireInteraction:false});
     setTimeout(()=>n.close(), 7000);
     n.onclick = ()=>{ window.focus(); n.close(); };
   }catch(e){}
