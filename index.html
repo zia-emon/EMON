@@ -673,7 +673,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
               <div style="font-size:10px;font-weight:800;color:var(--aqua);margin-bottom:8px;letter-spacing:.5px;">👤 DEFENDANT (অভিযুক্ত)</div>
               <div style="display:flex;gap:6px;margin-bottom:10px;">
                 <button type="button" id="def-type-emp" onclick="setDefendantType('employee')" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:var(--aqua);color:white;font-size:11px;font-weight:700;cursor:pointer;">👤 Employee</button>
-                <button type="button" id="def-type-ext" onclick="setDefendantType('external')" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:transparent;color:var(--aqua);font-size:11px;font-weight:700;cursor:pointer;">🏢 Vendor / Supplier</button>
+                <button type="button" id="def-type-ext" onclick="setDefendantType('external')" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:transparent;color:var(--aqua);font-size:11px;font-weight:700;cursor:pointer;">🏢 Supplier</button>
               </div>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 <div><label style="font-size:10px;" id="def-lbl-id">ID</label>
@@ -1622,7 +1622,7 @@ function lsOnSuccess(){
   if(mlb) mlb.style.display="flex";
   const tlb=document.getElementById("topbar-logout-btn");
   if(tlb) tlb.style.display="block";
-  // Vendor / Supplier defendant option hidden from buyer accounts — buyer
+  // Supplier defendant option hidden from buyer accounts — buyer
   // can only file grievances against employees, keeps their form simple.
   const extBtn=document.getElementById("def-type-ext");
   if(extBtn) extBtn.style.display=window._isBuyer?"none":"";
@@ -2537,7 +2537,7 @@ function renderTable(){
         ${displayRefNo(g)?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(displayRefNo(g))}</div>`:""}
       </td>
       <td>
-        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Vendor/Supplier</span>`:""}<br>
+        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Supplier</span>`:""}<br>
         <small style="color:var(--tm);font-size:10px;">${esc(g.designation||"—")}</small><br>
         ${g.empId?`<small style="color:var(--aqua);font-size:9px;">ID: ${esc(g.empId)}</small><br>`:""}
         <small style="color:var(--tm);font-size:9px;">📍 ${esc(g.section||"—")}</small>
@@ -2783,7 +2783,7 @@ async function saveGrievance(){
   const description=document.getElementById("f-desc").value.trim();
   const investigator=document.getElementById("f-invest").value;
   const handler=document.getElementById("f-handler").value;
-  if(defendantType==='employee' && !empId){toast("⚠ Employee ID দিন, অথবা 'Vendor / Supplier' মোডে যান","err");return;}
+  if(defendantType==='employee' && !empId){toast("⚠ Employee ID দিন, অথবা 'Supplier' মোডে যান","err");return;}
   if(!empName||!description||!types.length){toast("⚠ অন্তত একটি ধারা নির্বাচন করুন এবং সব আবশ্যিক ঘর পূরণ করুন","err");return;}
   const payload={date:document.getElementById("f-date").value,defendantType,empId,empName,section,designation,doj,complainantName,complainantDesig,complainantId,complainantSec,complainantDoj,complainants,defendants,source,type,description,investigator,handler};
   if(eid){
@@ -3263,9 +3263,9 @@ function setDefendantType(type){
         lblSec=document.getElementById("def-lbl-sec"), lblDesig=document.getElementById("def-lbl-desig"),
         idInput=document.getElementById("f-empid"), dojWrap=document.getElementById("def-doj-wrap");
   if(isExt){
-    if(lblId) lblId.textContent="Vendor / Supplier ID (যদি থাকে)";
+    if(lblId) lblId.textContent="Supplier ID (যদি থাকে)";
     if(lblName) lblName.textContent="Contact Person Name";
-    if(lblSec) lblSec.textContent="Company / Vendor Name";
+    if(lblSec) lblSec.textContent="Company / Supplier Name";
     if(lblDesig) lblDesig.textContent="Role / Designation";
     if(idInput) idInput.placeholder="Optional";
     if(dojWrap) dojWrap.style.display="none";
@@ -4203,7 +4203,7 @@ function downloadPDF(){
         ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
-        <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Vendor/Supplier</span>`:""}<br>
+        <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:""}<br>
         <span style="color:#666;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
         <span style="color:#777;font-size:9px;">📍 ${section}</span>
