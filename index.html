@@ -1299,7 +1299,14 @@ window._onFBData=function(data){
     if(inp)inp.value=cfg.shareLink;
     if(txt)txt.textContent=cfg.shareLink;
   }
-  grievances=data.filter(d=>d.id&&d.id!=="__config__"&&d._type!=="config");
+  let list=data.filter(d=>d.id&&d.id!=="__config__"&&d._type!=="config");
+  // CRITICAL for buyer privacy: filter here, at the moment data enters memory
+  // — not just later at render time. This means a buyer's `grievances` array
+  // (and its localStorage cache below) never holds non-buyer-visible cases
+  // at all, so no render path — current or future — could ever leak them,
+  // and no stale full dataset can get cached and replayed on the next visit.
+  if(window._isBuyer) list=list.filter(g=>g.buyerVisible);
+  grievances=list;
   // Only cache to localStorage if data is small enough (<4MB)
   try{
     const json=JSON.stringify(grievances);
@@ -1663,6 +1670,14 @@ function _doLogoutNow(){
   window._isBuyer=false;
   document.body.classList.remove("app-ready");
   document.body.classList.remove("is-super-admin-mode");
+  // Clear in-memory data and its localStorage cache on logout too — not just
+  // at the next login — so nothing from this session (buyer-visible subset
+  // or full admin data) can possibly bleed into whoever logs in next on this
+  // same tab/device, even for the instant before their own data arrives.
+  grievances=[]; filtered=[];
+  try{ localStorage.removeItem("akh_grv"); }catch(e){}
+  try{ renderChart(); }catch(e){}
+  try{ renderChart2(); }catch(e){}
   lsShow();
   const uInp=document.getElementById("ls-user"); if(uInp) uInp.value="";
   const pInp=document.getElementById("ls-pass"); if(pInp) pInp.value="";
