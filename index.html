@@ -2391,7 +2391,12 @@ function getBuyerRefNoMap(){
     (byYear[year]=byYear[year]||[]).push(g);
   });
   Object.keys(byYear).forEach(year=>{
+    // Same fix as recalculateRefNos(): order by the case's own incident date
+    // first, so a back-dated case gets the earlier 01/02/03... a buyer sees —
+    // creation order is only the tie-breaker for same-date cases.
     const list=byYear[year].sort((a,b)=>{
+      const dCmp=(a.date||"").localeCompare(b.date||"");
+      if(dCmp!==0) return dCmp;
       const ta=parseInt((a.id||"").replace("GRV-",""),10)||0;
       const tb=parseInt((b.id||"").replace("GRV-",""),10)||0;
       return ta-tb;
@@ -2427,7 +2432,14 @@ function applyFilters(resetPage){
       &&(!cfDesc||(g.description||"").toLowerCase().includes(cfDesc))&&(!cfI||g.investigator===cfI)
       &&(!cfH||g.handler===cfH)&&(!cfSt||g.status===cfSt)&&(!cfP||g.processing===cfP)
       &&(cfPersonSet.size===0||cfPersonSet.has(g.empId));
-  }).sort((a,b)=>(b.id||"").localeCompare(a.id||"")); // newest-added grievance first
+  }).sort((a,b)=>{
+    // Sort by the grievance's own incident date — not by when it was added —
+    // so a back-dated case (added later, for an earlier date) lands in its
+    // correct chronological position, same for every user and buyer mode.
+    const d = (b.date||"").localeCompare(a.date||"");
+    if(d!==0) return d;
+    return (b.id||"").localeCompare(a.id||""); // tie-break: same date, newest-added first
+  });
 
   if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
 
@@ -3062,7 +3074,13 @@ async function recalculateRefNos(){
 
   let updated=0;
   for(const year of Object.keys(byYear)){
+    // Sort by the grievance's own incident date first — so a back-dated case
+    // gets the earlier Ref No. it should have, matching the same chronological
+    // order now used in the Grievance Log itself. Creation order is only the
+    // tie-breaker for same-date cases.
     const list = byYear[year].sort((a,b)=>{
+      const dCmp = (a.date||"").localeCompare(b.date||"");
+      if(dCmp!==0) return dCmp;
       const ta=parseInt((a.id||"").replace("GRV-",""),10)||0;
       const tb=parseInt((b.id||"").replace("GRV-",""),10)||0;
       return ta-tb;
