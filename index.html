@@ -2706,20 +2706,27 @@ window._existingDocs = [];      // {docId,name,type,size} metadata already saved
 // fileToBase64()/Firebase. Images and PDFs pass through untouched.
 function compressAudioFile(file){
   return new Promise((resolve)=>{
+    let done=false;
+    const finish=(result)=>{ if(done) return; done=true; resolve(result); };
     try{
       const AC = window.AudioContext||window.webkitAudioContext;
       const ctx = new AC();
       const reader = new FileReader();
       reader.onload = async ()=>{
         try{
+          // Some browsers create AudioContext in a "suspended" state until
+          // explicitly resumed — without this, playback/recording below
+          // never actually starts, onended never fires, and the whole
+          // upload silently hangs forever (the bug that caused audio
+          // attachments to never reach Firebase).
+          if(ctx.state==="suspended"){ try{ await ctx.resume(); }catch(e){} }
           const buf = await ctx.decodeAudioData(reader.result);
           const dest = ctx.createMediaStreamDestination();
           const src = ctx.createBufferSource();
           src.buffer = buf;
-          src.connect(dest);
-          src.connect(ctx.destination); // needed in some browsers to keep the graph alive
           const gain = ctx.createGain(); gain.gain.value=0; // mute local playback only
-          src.disconnect(ctx.destination); src.connect(gain); gain.connect(ctx.destination);
+          src.connect(dest);
+          src.connect(gain); gain.connect(ctx.destination);
           const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm";
           const rec = new MediaRecorder(dest.stream, {mimeType:mime, audioBitsPerSecond:48000});
           const chunks=[];
@@ -2727,27 +2734,35 @@ function compressAudioFile(file){
           rec.onstop=()=>{
             const blob=new Blob(chunks,{type:mime});
             const newName=file.name.replace(/\.[^.]+$/,"")+"_compressed.webm";
-            resolve(new File([blob], newName, {type:mime}));
-            ctx.close();
+            try{ ctx.close(); }catch(e){}
+            finish(blob.size>0 ? new File([blob], newName, {type:mime}) : file);
           };
           rec.start();
           src.start();
-          src.onended=()=>setTimeout(()=>rec.stop(), 150);
-        }catch(err){ resolve(file); } // fallback: upload original if decode/encode fails
+          src.onended=()=>setTimeout(()=>{ if(rec.state==="recording") rec.stop(); }, 150);
+          // Failsafe: if onended never fires for any reason, force-stop
+          // shortly after the buffer's known duration so this can never hang.
+          setTimeout(()=>{ if(rec.state==="recording") rec.stop(); }, (buf.duration*1000)+3000);
+        }catch(err){ try{ctx.close();}catch(e){} finish(file); } // fallback: upload original if decode/encode fails
       };
-      reader.onerror=()=>resolve(file);
+      reader.onerror=()=>finish(file);
       reader.readAsArrayBuffer(file);
-    }catch(err){ resolve(file); }
+      // Absolute outer failsafe in case FileReader/decodeAudioData itself hangs
+      setTimeout(()=>finish(file), 45000);
+    }catch(err){ finish(file); }
   });
 }
 function compressVideoFile(file){
   return new Promise((resolve)=>{
+    let done=false;
+    const finish=(result)=>{ if(done) return; done=true; resolve(result); };
     try{
       const url = URL.createObjectURL(file);
       const video = document.createElement("video");
       video.src=url; video.muted=false; video.preload="auto"; video.playsInline=true;
       video.style.cssText="position:fixed;left:-9999px;top:-9999px;";
       document.body.appendChild(video);
+      const cleanup=()=>{ try{document.body.removeChild(video);}catch(e){} URL.revokeObjectURL(url); };
       video.onloadedmetadata=()=>{
         try{
           const stream = video.captureStream ? video.captureStream() : video.mozCaptureStream();
@@ -2758,22 +2773,23 @@ function compressVideoFile(file){
           rec.onstop=()=>{
             const blob=new Blob(chunks,{type:mime});
             const newName=file.name.replace(/\.[^.]+$/,"")+"_compressed.webm";
-            document.body.removeChild(video);
-            URL.revokeObjectURL(url);
-            resolve(new File([blob], newName, {type:mime}));
+            cleanup();
+            finish(blob.size>0 ? new File([blob], newName, {type:mime}) : file);
           };
           rec.start();
-          video.play().catch(()=>{});
-          video.onended=()=>setTimeout(()=>rec.stop(), 150);
-          // Safety timeout: never let a huge/broken video hang the form forever
+          video.play().catch(()=>{ if(rec.state==="recording") rec.stop(); });
+          video.onended=()=>setTimeout(()=>{ if(rec.state==="recording") rec.stop(); }, 150);
+          // Failsafe #1: based on the video's own known duration
+          const durMs = isFinite(video.duration) ? (video.duration*1000)+3000 : 120000;
+          setTimeout(()=>{ if(rec.state==="recording") rec.stop(); }, durMs);
+          // Failsafe #2: absolute hard cap so a broken video can never hang the form
           setTimeout(()=>{ if(rec.state==="recording") rec.stop(); }, 120000);
-        }catch(err){
-          document.body.removeChild(video); URL.revokeObjectURL(url);
-          resolve(file); // fallback: upload original
-        }
+        }catch(err){ cleanup(); finish(file); } // fallback: upload original
       };
-      video.onerror=()=>{ try{document.body.removeChild(video);}catch(e){} URL.revokeObjectURL(url); resolve(file); };
-    }catch(err){ resolve(file); }
+      video.onerror=()=>{ cleanup(); finish(file); };
+      // Absolute outer failsafe in case loadedmetadata never fires
+      setTimeout(()=>{ if(!done){ cleanup(); finish(file); } }, 20000);
+    }catch(err){ finish(file); }
   });
 }
 async function compressIfRecording(file){
@@ -2787,26 +2803,31 @@ async function handleDocSelect(fileList){
   const MAX_RECORDING_RAW = 60*1024*1024; // 60MB raw input cap before compression
   const files = Array.from(fileList||[]);
   document.getElementById("f-docs").value=""; // allow re-selecting the same file
-  for(const f of files){
-    const isRecording = f.type.startsWith("audio/")||f.type.startsWith("video/");
-    if(!isRecording && f.size>MAX_IMG_SIZE){ toast("⚠ "+f.name+" — 3MB এর বেশি, বাদ দেওয়া হলো","err"); continue; }
-    if(isRecording && f.size>MAX_RECORDING_RAW){ toast("⚠ "+f.name+" — খুব বড় recording (60MB+), বাদ দেওয়া হলো","err"); continue; }
-    if(isRecording){
-      toast("🎙️ "+f.name+" compress হচ্ছে...","ok");
-      const compressed = await compressIfRecording(f);
-      const MAX_COMPRESSED = 8*1024*1024; // 8MB cap after compression, keeps RTDB light
-      if(compressed.size > MAX_COMPRESSED){
-        toast("⚠ "+f.name+" — compress করার পরও অনেক বড় (৮MB+), বাদ দেওয়া হলো","err");
-        continue;
+  window._docsProcessing = true;
+  try{
+    for(const f of files){
+      const isRecording = f.type.startsWith("audio/")||f.type.startsWith("video/");
+      if(!isRecording && f.size>MAX_IMG_SIZE){ toast("⚠ "+f.name+" — 3MB এর বেশি, বাদ দেওয়া হলো","err"); continue; }
+      if(isRecording && f.size>MAX_RECORDING_RAW){ toast("⚠ "+f.name+" — খুব বড় recording (60MB+), বাদ দেওয়া হলো","err"); continue; }
+      if(isRecording){
+        toast("🎙️ "+f.name+" compress হচ্ছে...","ok");
+        const compressed = await compressIfRecording(f);
+        const MAX_COMPRESSED = 8*1024*1024; // 8MB cap after compression, keeps RTDB light
+        if(compressed.size > MAX_COMPRESSED){
+          toast("⚠ "+f.name+" — compress করার পরও অনেক বড় (৮MB+), বাদ দেওয়া হলো","err");
+          continue;
+        }
+        if(compressed.size < f.size){
+          toast("✓ "+f.name+" compress হয়েছে ("+Math.round(f.size/1024)+"KB → "+Math.round(compressed.size/1024)+"KB)","ok");
+        }
+        window._pendingDocs.push(compressed);
+      } else {
+        window._pendingDocs.push(f);
       }
-      if(compressed.size < f.size){
-        toast("✓ "+f.name+" compress হয়েছে ("+Math.round(f.size/1024)+"KB → "+Math.round(compressed.size/1024)+"KB)","ok");
-      }
-      window._pendingDocs.push(compressed);
-    } else {
-      window._pendingDocs.push(f);
+      renderDocPreview();
     }
-    renderDocPreview();
+  } finally {
+    window._docsProcessing = false;
   }
 }
 function removePendingDoc(idx){
@@ -2893,6 +2914,10 @@ async function uploadPendingDocs(grievanceId, files){
 }
 
 async function saveGrievance(){
+  if(window._docsProcessing){
+    toast("⏳ Recording compress হচ্ছে, একটু অপেক্ষা করুন...","err");
+    return;
+  }
   const eid=document.getElementById("edit-id").value.trim();
   const defendantType=window._defendantType||'employee';
   const empId=document.getElementById("f-empid").value.trim();
