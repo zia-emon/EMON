@@ -3720,7 +3720,16 @@ function renderChart(){
     ...Object.keys(counts).filter(k=>!CATEGORY_ORDER.includes(k))
   ];
   const total = labels.reduce((sum,l)=>sum+counts[l],0);
-  if(total===0){ legend.innerHTML="<span style=\'font-size:9px;color:var(--tm)\'>No data</span>"; return; }
+  if(total===0){
+    // Without this, an old animation loop from a *previous* session in this
+    // same tab (e.g. an admin login before a buyer logs in) keeps redrawing
+    // its own stale full-data pixels forever — canceling it and wiping the
+    // canvas here is what actually stops that leak from being visible.
+    if(_chartAnim){ cancelAnimationFrame(_chartAnim); _chartAnim=null; }
+    canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+    legend.innerHTML="<span style='font-size:9px;color:var(--tm)'>No data</span>";
+    return;
+  }
 
   const data = labels.map(l=>counts[l]);
   const BASE_PALETTE = [
@@ -3889,7 +3898,12 @@ function renderChart2(){
     ...Object.keys(counts).filter(k=>!STATUS_ORDER.includes(k))
   ];
   const total = labels.reduce((sum,l)=>sum+counts[l],0);
-  if(total===0){ legend.innerHTML="<span style='font-size:9px;color:var(--tm)'>No data</span>"; return; }
+  if(total===0){
+    if(_chart2Anim){ cancelAnimationFrame(_chart2Anim); _chart2Anim=null; }
+    canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+    legend.innerHTML="<span style='font-size:9px;color:var(--tm)'>No data</span>";
+    return;
+  }
 
   const data = labels.map(l=>counts[l]);
   const STATUS_PALETTE = {
