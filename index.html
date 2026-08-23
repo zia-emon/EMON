@@ -4459,9 +4459,13 @@ function downloadJSON(){
 function downloadPDF(){
   if(!visibleGrievances().length){toast("⚠ No data to export","err");return;}
   if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
-  const src = window._isBuyer
-    ? [...filtered].sort((a,b)=>(parseInt((a.id||"").replace("GRV-",""),10)||0)-(parseInt((b.id||"").replace("GRV-",""),10)||0))
-    : [...filtered].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  // Same order as the Grievance Log itself: newest incident date first,
+  // tie-broken by creation order — for both buyer and non-buyer PDFs.
+  const src = [...filtered].sort((a,b)=>{
+    const d=(b.date||"").localeCompare(a.date||"");
+    if(d!==0) return d;
+    return (b.id||"").localeCompare(a.id||"");
+  });
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
   const _ch = loadColHeadings();
 
