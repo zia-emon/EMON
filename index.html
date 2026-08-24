@@ -786,7 +786,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
         <div class="panel">
           <div class="panel-title" id="lbl-log" data-en="Grievance Log" data-bn="অভিযোগের খতিয়ান">Grievance Log</div>
           <div class="filter-bar">
-            <input type="text" id="search" class="fc" style="flex:1;min-width:160px;" placeholder="🔍 Search...">
+            <input type="text" id="search" class="fc" style="flex:1;min-width:160px;" placeholder="🔍 Search..." oninput="_debouncedSearch()">
             <div style="position:relative;">
               <div id="cf-person-btn" class="fc" onclick="togglePersonFilterDropdown()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-width:190px;gap:8px;">
                 <span id="cf-person-label">👤 সবার Grievance (All)</span><span style="font-size:10px;color:var(--tm);">▾</span>
@@ -2425,6 +2425,15 @@ function displayRefNo(g){
   return g.refNo||"";
 }
 
+let _searchDebounceT=null;
+function _debouncedSearch(){
+  // PC-style live search: filters as you type, but with a tiny debounce so
+  // fast typing doesn't trigger a full table+chart re-render on every
+  // single keystroke — feels instant, stays smooth on larger datasets.
+  clearTimeout(_searchDebounceT);
+  _searchDebounceT=setTimeout(()=>applyFilters(true), 180);
+}
+
 function applyFilters(resetPage){
   const q=(document.getElementById("search")?.value||"").toLowerCase();
   const cfD=(document.getElementById("cf-date")?.value||"").toLowerCase();
@@ -2440,7 +2449,9 @@ function applyFilters(resetPage){
 
   filtered=grievances.filter(g=>{
     if(window._isBuyer && !g.buyerVisible) return false;
-    const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,g.processing,...(g.complainants||[]).flatMap(c=>[c.name,c.id]),...(g.defendants||[]).flatMap(c=>[c.name,c.id])].some(f=>(f||"").toLowerCase().includes(q));
+    const invEmp = g.investigator ? findEmployee(g.investigator) : null;
+    const hndEmp = g.handler ? findEmployee(g.handler) : null;
+    const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,invEmp?.name,invEmp?.designation,hndEmp?.name,hndEmp?.designation,g.processing,...(g.complainants||[]).flatMap(c=>[c.name,c.id]),...(g.defendants||[]).flatMap(c=>[c.name,c.id])].some(f=>(f||"").toLowerCase().includes(q));
     const empMatch=!cfE||(g.empId+" "+g.empName+" "+g.section+" "+g.designation).toLowerCase().includes(cfE);
     const cmpMatch=!cfS||((g.complainantName||"")+" "+(g.complainantDesig||"")).toLowerCase().includes(cfS);
     return mQ&&(!cfD||(g.date||"").includes(cfD))&&empMatch&&cmpMatch&&(!cfT||g.type===cfT)
@@ -3203,7 +3214,16 @@ function buildPerfTable(list, map, tbodyId, icon){
     const eff=Math.round((d.resolved/d.assigned)*100);
     const barColor=eff>=80?"#2aeeb5":eff>=50?"#fbbf24":"#f87171";
     const bar=`<div style="display:flex;align-items:center;gap:4px;"><div style="flex:1;height:7px;border-radius:20px;background:rgba(0,0,0,0.08);overflow:hidden;"><div style="height:100%;width:${eff}%;background:${barColor};border-radius:20px;transition:width .5s;"></div></div><span style="font-size:10px;font-weight:700;color:${barColor};white-space:nowrap;">${eff}%</span></div>`;
-    return`<tr class="drow"><td style="word-break:break-word;max-width:90px;"><span class="ptag ptag-b">${icon} ${name}</span></td><td style="text-align:center;">${d.assigned}</td><td style="text-align:center;"><span class="pill ph">${d.pending}</span></td><td style="text-align:center;"><span class="pill pm">${d.active}</span></td><td style="text-align:center;"><span class="pill pl">${d.resolved}</span></td><td style="min-width:80px;">${bar}</td></tr>`;
+    // Resolve ID -> Name/Designation from the employee database, same lookup
+    // used everywhere else in the app; falls back to just the ID if not found.
+    const emp = findEmployee(name);
+    const label = emp
+      ? `${esc(emp.name)}<br><span style="font-size:9px;font-weight:600;color:var(--tm);">${esc(emp.designation||"")} · ${esc(name)}</span>`
+      : esc(name);
+    // display:block + box-sizing keeps this badge strictly inside its <td>
+    // (previously an inline-block span here overflowed past the fixed
+    // column width and visually sat on top of the Assigned number next to it)
+    return`<tr class="drow"><td style="word-break:break-word;overflow:hidden;"><span class="ptag ptag-b" style="display:block;width:100%;box-sizing:border-box;line-height:1.4;overflow-wrap:break-word;white-space:normal;">${icon} ${label}</span></td><td style="text-align:center;">${d.assigned}</td><td style="text-align:center;"><span class="pill ph">${d.pending}</span></td><td style="text-align:center;"><span class="pill pm">${d.active}</span></td><td style="text-align:center;"><span class="pill pl">${d.resolved}</span></td><td style="min-width:80px;">${bar}</td></tr>`;
   }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--tm);padding:16px;font-size:12px;">No data</td></tr>`;
 }
 
