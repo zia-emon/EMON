@@ -517,6 +517,28 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 <div id="login-screen" class="hidden">
   <div class="ls-bg">
     <div class="ls-bg-photo" id="ls-bg-photo"></div>
+    <script>
+      // Apply any cached login background INSTANTLY, synchronously, right here
+      // as the page parses — no waiting for the Firebase SDK to load over the
+      // network. The Firebase check further down still runs and will correct/
+      // update this moments later if anything's changed, but the visible
+      // photo itself no longer waits on that round trip.
+      (function(){
+        try{
+          var raw = localStorage.getItem("akh_login_bg_cache");
+          if(!raw) return;
+          var v = JSON.parse(raw);
+          var THREE_DAYS = 3*24*60*60*1000;
+          if(v && v.data && v.setAt && (Date.now()-v.setAt) < THREE_DAYS){
+            var el = document.getElementById("ls-bg-photo");
+            el.style.backgroundImage = 'url("'+v.data+'")';
+            el.style.backgroundSize = (v.zoom||100)+"%";
+            el.style.backgroundPosition = (v.posX!=null?v.posX:50)+"% "+(v.posY!=null?v.posY:50)+"%";
+            el.style.display = "block";
+          }
+        }catch(e){}
+      })();
+    </script>
     <div class="ls-bg-gradient"></div>
     <div class="ls-grid"></div>
     <div class="ls-orb o1"></div>
@@ -5184,7 +5206,15 @@ if("serviceWorker" in navigator){
       const gradEl = document.querySelector(".ls-bg-gradient");
       if(!photoEl) return;
       const THREE_DAYS = 3*24*60*60*1000;
-      if(v && v.data && v.setAt && (Date.now()-v.setAt) < THREE_DAYS){
+      const isActive = v && v.data && v.setAt && (Date.now()-v.setAt) < THREE_DAYS;
+      // Keep the local cache in sync so the *next* page load can show this
+      // instantly (see the inline script right after #ls-bg-photo) instead of
+      // waiting on this same Firebase round trip again.
+      try{
+        if(isActive) localStorage.setItem("akh_login_bg_cache", JSON.stringify(v));
+        else localStorage.removeItem("akh_login_bg_cache");
+      }catch(e){}
+      if(isActive){
         photoEl.style.backgroundImage = `url("${v.data}")`;
         photoEl.style.backgroundSize = (v.zoom||100)+"%";
         photoEl.style.backgroundPosition = (v.posX!=null?v.posX:50)+"% "+(v.posY!=null?v.posY:50)+"%";
