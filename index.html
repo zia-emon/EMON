@@ -371,6 +371,7 @@ tbody .drow:not(:last-child) td{
 #login-screen{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#050d18;}
 #login-screen.hidden{display:none!important;}
 .ls-bg{position:absolute;inset:0;}
+.ls-bg-photo{position:absolute;inset:0;background-repeat:no-repeat;background-position:center;background-color:#050d18;display:none;}
 .ls-bg-gradient{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(23,147,158,0.3) 0%,transparent 55%),radial-gradient(ellipse at 70% 80%,rgba(15,68,74,0.35) 0%,transparent 55%),#050d18;}
 .ls-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(42,238,181,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(42,238,181,0.03) 1px,transparent 1px);background-size:45px 45px;}
 .ls-orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orbMove ease-in-out infinite;}
@@ -515,6 +516,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 <!-- ═══ LOGIN SCREEN ═══ -->
 <div id="login-screen" class="hidden">
   <div class="ls-bg">
+    <div class="ls-bg-photo" id="ls-bg-photo"></div>
     <div class="ls-bg-gradient"></div>
     <div class="ls-grid"></div>
     <div class="ls-orb o1"></div>
@@ -1086,6 +1088,37 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
             <div class="panel-title">🔧 Ref No. পুনর্গণনা <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin)</span></div>
             <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">যদি কোনো test/demo case delete করার কারণে Ref No. তে ফাঁক (gap) তৈরি হয়ে থাকে, এই বাটনে ক্লিক করলে বর্তমানে থাকা সব case প্রতি বছর অনুযায়ী নতুন করে ০১, ০২, ০৩... ক্রমানুসারে (তারিখ অনুযায়ী) renumber হয়ে যাবে।</div>
             <button onclick="recalculateRefNos()" style="width:100%;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🔁 এখনই পুনর্গণনা করুন</button>
+          </div>
+
+          <!-- Login page background — temporary, auto-expires after 3 days -->
+          <div class="panel" style="max-width:600px;margin-top:18px;">
+            <div class="panel-title">🖼️ Login Page Background <span style="font-size:10px;font-weight:400;color:var(--tm);">(Super Admin — ৩ দিন পর auto চলে যাবে)</span></div>
+            <div style="font-size:11px;color:var(--tm);margin-bottom:10px;">একটা ছবি upload করে নিজের মতো করে zoom ও position adjust করে নিন, তারপর Save করুন। ঠিক ৩ দিন পর নিজে থেকেই সরে যাবে।</div>
+            <div id="login-bg-status" style="font-size:11px;color:var(--aqua);font-weight:700;margin-bottom:8px;"></div>
+            <input type="file" id="login-bg-input" accept="image/*" style="display:none;" onchange="pickLoginBg(this.files[0])">
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <button onclick="document.getElementById('login-bg-input').click()" style="flex:1;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">📤 ছবি বেছে নিন</button>
+              <button onclick="removeLoginBg()" style="padding:10px 14px;border-radius:11px;background:#ef4444;border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">🗑️ এখনই সরান</button>
+            </div>
+
+            <!-- Adjust panel — hidden until an image is picked -->
+            <div id="login-bg-adjust" style="display:none;">
+              <div style="position:relative;width:100%;max-width:220px;aspect-ratio:9/16;margin:0 auto 12px;border-radius:16px;overflow:hidden;background:#050d18;border:2px solid rgba(23,147,158,0.3);">
+                <div id="login-bg-preview" style="position:absolute;inset:0;background-repeat:no-repeat;"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;color:var(--tm);">
+                <label>🔍 Zoom (<span id="lbg-zoom-val">100</span>%)
+                  <input type="range" id="lbg-zoom" min="50" max="300" value="100" oninput="updateLoginBgPreview()" style="width:100%;">
+                </label>
+                <label>↔️ Position X (<span id="lbg-x-val">50</span>%)
+                  <input type="range" id="lbg-x" min="0" max="100" value="50" oninput="updateLoginBgPreview()" style="width:100%;">
+                </label>
+                <label>↕️ Position Y (<span id="lbg-y-val">50</span>%)
+                  <input type="range" id="lbg-y" min="0" max="100" value="50" oninput="updateLoginBgPreview()" style="width:100%;">
+                </label>
+              </div>
+              <button onclick="saveLoginBg()" style="width:100%;margin-top:12px;padding:10px;border-radius:11px;background:var(--btn);border:none;color:white;font-size:13px;font-weight:700;cursor:pointer;">✓ এই adjustment দিয়ে Save করুন</button>
+            </div>
           </div>
 
           <!-- Employee Database Upload -->
@@ -2353,6 +2386,7 @@ function goTo(id){
     const savedTheme=localStorage.getItem("akh_theme");
     if(savedTheme){const ts=document.getElementById("theme-sel");if(ts)ts.value=savedTheme;}
     refreshSAPanel();
+    try{ renderLoginBgStatus(window._appSettings?.login_bg); }catch(e){}
   }
 }
 
@@ -3084,6 +3118,91 @@ function resetForm(){
   try{renderExtraDefendants();}catch(e){}
   try{setDefendantType('employee');}catch(e){}
 }
+// ═══ LOGIN PAGE BACKGROUND (temporary, auto-expires in 3 days) ═══
+window._lbgPendingDataUrl = null; // the picked (compressed) image, before save
+function pickLoginBg(file){
+  if(!file) return;
+  if(!file.type.startsWith("image/")){ toast("⚠ শুধু ছবি (image) upload করা যাবে","err"); return; }
+  const img=new Image();
+  const reader=new FileReader();
+  reader.onload=()=>{
+    img.onload=()=>{
+      // Downscale to a reasonable max width so this stays light in Firebase —
+      // it's a full-screen background, not something that needs to be pixel-sharp.
+      const MAX_W=1280;
+      const scale=Math.min(1, MAX_W/img.width);
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.round(img.width*scale);
+      canvas.height=Math.round(img.height*scale);
+      const ctx=canvas.getContext("2d");
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      window._lbgPendingDataUrl=canvas.toDataURL("image/jpeg",0.8);
+      // Reset sliders to defaults for the newly picked image, then show the adjuster
+      document.getElementById("lbg-zoom").value=100;
+      document.getElementById("lbg-x").value=50;
+      document.getElementById("lbg-y").value=50;
+      document.getElementById("login-bg-adjust").style.display="block";
+      updateLoginBgPreview();
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+  document.getElementById("login-bg-input").value="";
+}
+function updateLoginBgPreview(){
+  if(!window._lbgPendingDataUrl) return;
+  const zoom=document.getElementById("lbg-zoom").value;
+  const x=document.getElementById("lbg-x").value;
+  const y=document.getElementById("lbg-y").value;
+  document.getElementById("lbg-zoom-val").textContent=zoom;
+  document.getElementById("lbg-x-val").textContent=x;
+  document.getElementById("lbg-y-val").textContent=y;
+  const prev=document.getElementById("login-bg-preview");
+  prev.style.backgroundImage=`url("${window._lbgPendingDataUrl}")`;
+  prev.style.backgroundSize=zoom+"%";
+  prev.style.backgroundPosition=x+"% "+y+"%";
+}
+async function saveLoginBg(){
+  if(!window._lbgPendingDataUrl){ toast("⚠ আগে একটা ছবি বেছে নিন","err"); return; }
+  const payload={
+    data: window._lbgPendingDataUrl,
+    setAt: Date.now(),
+    zoom: parseInt(document.getElementById("lbg-zoom").value,10),
+    posX: parseInt(document.getElementById("lbg-x").value,10),
+    posY: parseInt(document.getElementById("lbg-y").value,10)
+  };
+  try{
+    if(window._fb) await window._fb.saveSettings("login_bg", payload);
+    toast("✓ Login background সেট হয়েছে — ৩ দিন পর auto চলে যাবে","ok");
+    renderLoginBgStatus(payload);
+    document.getElementById("login-bg-adjust").style.display="none";
+    window._lbgPendingDataUrl=null;
+  }catch(e){
+    toast("⚠ Upload ব্যর্থ হয়েছে","err");
+  }
+}
+async function removeLoginBg(){
+  if(!confirm("Login background এখনই সরিয়ে দিতে চান?")) return;
+  try{
+    if(window._fb) await window._fb.saveSettings("login_bg", null);
+    toast("✓ Login background সরানো হয়েছে","ok");
+    renderLoginBgStatus(null);
+    document.getElementById("login-bg-adjust").style.display="none";
+    window._lbgPendingDataUrl=null;
+  }catch(e){ toast("⚠ ব্যর্থ হয়েছে","err"); }
+}
+function renderLoginBgStatus(v){
+  const el=document.getElementById("login-bg-status");
+  if(!el) return;
+  const THREE_DAYS=3*24*60*60*1000;
+  if(v && v.data && v.setAt && (Date.now()-v.setAt)<THREE_DAYS){
+    const hoursLeft=Math.max(0, Math.round((THREE_DAYS-(Date.now()-v.setAt))/3600000));
+    el.textContent=`🟢 বর্তমানে active — আরও প্রায় ${hoursLeft} ঘণ্টা পর auto চলে যাবে`;
+  } else {
+    el.textContent="⚪ এখন কোনো background সেট নেই";
+  }
+}
+
 async function recalculateRefNos(){
   if(!window._isSuperAdmin){ toast("⚠ শুধুমাত্র Super Admin এটি করতে পারবেন","err"); return; }
   if(!window._fb){ toast("⚠ অফলাইনে করা যাবে না","err"); return; }
@@ -4284,6 +4403,9 @@ function loadHeadlineInputs(){loadColHeadingInputs();}
 // Load all settings from Firebase
 function loadAllSettings(s){
   if(!s) return;
+  // Login page background (temporary, super-admin-set, auto-expires client-side)
+  window._appSettings.login_bg = s.login_bg || null;
+
   // Column headings
   if(s.col_heads){
     window._appSettings.col_heads=s.col_heads;
@@ -5037,6 +5159,50 @@ if("serviceWorker" in navigator){
     window.location.reload();
   });
 }
+
+// 1b. Login page background — public, pre-login read (same unauthenticated
+// pattern as the version check below). Auto-expires 3 days after it was set;
+// no cleanup write needed, it just silently stops rendering after that.
+(async ()=>{
+  try{
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, onValue } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const cfg = {
+      apiKey:"AIzaSyAloqcTSfE1QFayJvqmDGO8bZFP-xR-rLU",
+      authDomain:"grievance-tracker-23bcb.firebaseapp.com",
+      databaseURL:"https://grievance-tracker-23bcb-default-rtdb.firebaseio.com",
+      projectId:"grievance-tracker-23bcb",
+      storageBucket:"grievance-tracker-23bcb.firebasestorage.app",
+      messagingSenderId:"957573660800",
+      appId:"1:957573660800:web:37147405ffd093a9966665"
+    };
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const db = getDatabase(app);
+    onValue(ref(db,"app_settings/login_bg"), snap=>{
+      const v = snap.val();
+      const photoEl = document.getElementById("ls-bg-photo");
+      const gradEl = document.querySelector(".ls-bg-gradient");
+      if(!photoEl) return;
+      const THREE_DAYS = 3*24*60*60*1000;
+      if(v && v.data && v.setAt && (Date.now()-v.setAt) < THREE_DAYS){
+        photoEl.style.backgroundImage = `url("${v.data}")`;
+        photoEl.style.backgroundSize = (v.zoom||100)+"%";
+        photoEl.style.backgroundPosition = (v.posX!=null?v.posX:50)+"% "+(v.posY!=null?v.posY:50)+"%";
+        photoEl.style.display = "block";
+        if(gradEl) gradEl.style.opacity = "0.55"; // let the photo show through, keep text readable
+        // The login card normally uses a frosted-glass backdrop-blur — that
+        // would blur the photo showing through it too, which isn't wanted here.
+        const cardInner=document.querySelector(".ls-card-inner");
+        if(cardInner){ cardInner.style.backdropFilter="none"; cardInner.style.webkitBackdropFilter="none"; }
+      } else {
+        photoEl.style.display = "none";
+        if(gradEl) gradEl.style.opacity = "1";
+        const cardInner=document.querySelector(".ls-card-inner");
+        if(cardInner){ cardInner.style.backdropFilter=""; cardInner.style.webkitBackdropFilter=""; }
+      }
+    });
+  }catch(e){}
+})();
 
 // 2. Firebase version listener — deploy এ version change → all users auto reload
 (async ()=>{
