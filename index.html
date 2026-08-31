@@ -4912,6 +4912,7 @@ function downloadPDF(){
       },
       listen() {
         if(_unsubscribe) { try{_unsubscribe();}catch(e){} }
+        let _fbDataDebounceT=null;
         _unsubscribe = onValue(ref(db, NODE), snap => {
           const list = [];
           snap.forEach(c => {
@@ -4925,7 +4926,16 @@ function downloadPDF(){
             }
           });
           list.sort((a,b) => (b.date||"").localeCompare(a.date||""));
-          if (typeof window._onFBData === "function") window._onFBData(list);
+          // When several people save around the same time, Firebase can fire
+          // this callback many times within a second or two — each one was
+          // triggering a full table + chart re-render, which is what showed
+          // up as the screen visibly "shaking"/flickering. Coalescing rapid
+          // bursts into a single render fixes that without delaying a lone
+          // update noticeably (250ms).
+          clearTimeout(_fbDataDebounceT);
+          _fbDataDebounceT=setTimeout(()=>{
+            if (typeof window._onFBData === "function") window._onFBData(list);
+          }, 250);
         }, err => {
           console.error("RTDB:", err);
           if (typeof window._onFBOffline === "function") window._onFBOffline();
