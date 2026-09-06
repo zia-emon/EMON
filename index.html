@@ -708,11 +708,12 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
             <!-- Defendant + Complainant side by side -->
             <div class="fg" style="background:rgba(23,147,158,0.04);border-radius:12px;padding:10px;border:1px solid rgba(23,147,158,0.12);">
               <div style="font-size:10px;font-weight:800;color:var(--aqua);margin-bottom:8px;letter-spacing:.5px;">👤 DEFENDANT (অভিযুক্ত)</div>
-              <div style="display:flex;gap:6px;margin-bottom:10px;">
-                <button type="button" id="def-type-emp" onclick="setDefendantType('employee')" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:var(--aqua);color:white;font-size:11px;font-weight:700;cursor:pointer;">👤 Employee</button>
-                <button type="button" id="def-type-ext" onclick="setDefendantType('external')" style="flex:1;padding:6px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:transparent;color:var(--aqua);font-size:11px;font-weight:700;cursor:pointer;">🏢 Supplier</button>
+              <div style="display:flex;gap:4px;margin-bottom:10px;align-items:stretch;width:100%;overflow:hidden;">
+                <button type="button" id="def-type-emp" onclick="setDefendantType('employee')" style="flex:1 1 0%;min-width:0;max-width:33.33%;padding:6px 2px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:var(--aqua);color:white;font-size:9px;font-weight:700;cursor:pointer;white-space:normal;word-break:break-word;line-height:1.25;text-align:center;overflow:hidden;box-sizing:border-box;">👤 Employee</button>
+                <button type="button" id="def-type-ext" onclick="setDefendantType('external')" style="flex:1 1 0%;min-width:0;max-width:33.33%;padding:6px 2px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:transparent;color:var(--aqua);font-size:9px;font-weight:700;cursor:pointer;white-space:normal;word-break:break-word;line-height:1.25;text-align:center;overflow:hidden;box-sizing:border-box;">🏢 Supplier</button>
+                <button type="button" id="def-type-anon" onclick="setDefendantType('anonymous')" style="flex:1 1 0%;min-width:0;max-width:33.33%;padding:6px 2px;border-radius:8px;border:1px solid rgba(23,147,158,0.35);background:transparent;color:var(--aqua);font-size:9px;font-weight:700;cursor:pointer;white-space:normal;word-break:break-word;line-height:1.25;text-align:center;overflow:hidden;box-sizing:border-box;">❓ Anonymous</button>
               </div>
-              <div style="display:flex;flex-direction:column;gap:8px;">
+              <div id="def-fields-wrap" style="display:flex;flex-direction:column;gap:8px;">
                 <div><label style="font-size:10px;" id="def-lbl-id">ID</label>
                   <input type="text" id="f-empid" class="fc" placeholder="EMP-XXX" oninput="autoFillEmployee(this.value,'def')" autocomplete="off">
                   <div id="emp-suggest" style="display:none;position:absolute;z-index:999;background:white;border:1px solid rgba(23,147,158,0.3);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.12);max-height:160px;overflow-y:auto;width:calc(100% - 20px);"></div>
@@ -722,8 +723,11 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
                 <div><label style="font-size:10px;" id="def-lbl-desig">Designation</label><input type="text" id="f-desig" class="fc" placeholder="Designation"></div>
                 <div id="def-doj-wrap"><label style="font-size:10px;">Join Date</label><input type="date" id="f-doj" class="fc"></div>
               </div>
-              <div id="extra-defendants-list"></div>
-              <button type="button" onclick="addExtraDefendant()" style="margin-top:10px;width:100%;padding:7px;border-radius:8px;border:1px dashed rgba(23,147,158,0.4);background:transparent;color:var(--aqua);font-size:11px;font-weight:700;cursor:pointer;">➕ আরও একজন অভিযুক্ত যুক্ত করুন</button>
+              <div id="def-anon-note" style="display:none;font-size:12px;color:var(--tm);font-weight:600;padding:6px 2px;">অভিযুক্ত ব্যক্তির নাম প্রকাশ করে নি</div>
+              <div id="def-extra-wrap">
+                <div id="extra-defendants-list"></div>
+                <button type="button" onclick="addExtraDefendant()" style="margin-top:10px;width:100%;padding:7px;border-radius:8px;border:1px dashed rgba(23,147,158,0.4);background:transparent;color:var(--aqua);font-size:11px;font-weight:700;cursor:pointer;">➕ আরও একজন অভিযুক্ত যুক্ত করুন</button>
+              </div>
             </div>
 
             <div class="fg" style="background:rgba(239,68,68,0.04);border-radius:12px;padding:10px;border:1px solid rgba(239,68,68,0.12);">
@@ -2654,7 +2658,7 @@ function renderTable(){
         ${displayRefNo(g)?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(displayRefNo(g))}</div>`:""}
       </td>
       <td>
-        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Supplier</span>`:""}<br>
+        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="font-size:8px;background:rgba(107,114,128,0.14);color:#4b5563;padding:1px 5px;border-radius:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
         <small style="color:var(--tm);font-size:10px;">${esc(g.designation||"—")}</small><br>
         ${g.empId?`<small style="color:var(--aqua);font-size:9px;">ID: ${esc(g.empId)}</small><br>`:""}
         <small style="color:var(--tm);font-size:9px;">📍 ${esc(g.section||"—")}</small>
@@ -3083,7 +3087,7 @@ function editRow(id){
   const g=grievances.find(x=>x.id===id);if(!g)return;
   document.getElementById("edit-id").value=g.id;
   document.getElementById("f-date").value=g.date;
-  try{setDefendantType(g.defendantType==='external'?'external':'employee');}catch(e){}
+  try{setDefendantType(g.defendantType==='external'?'external':g.defendantType==='anonymous'?'anonymous':'employee');}catch(e){}
   document.getElementById("f-empid").value=g.empId;
   document.getElementById("f-name").value=g.empName;
   document.getElementById("f-sec").value=g.section||"";
@@ -3604,13 +3608,40 @@ function findEmployee(rawId){
 window._defendantType='employee';
 function setDefendantType(type){
   window._defendantType=type;
-  const empBtn=document.getElementById("def-type-emp"), extBtn=document.getElementById("def-type-ext");
-  const isExt=type==='external';
-  if(empBtn){empBtn.style.background=isExt?"transparent":"var(--aqua)";empBtn.style.color=isExt?"var(--aqua)":"white";}
-  if(extBtn){extBtn.style.background=isExt?"var(--aqua)":"transparent";extBtn.style.color=isExt?"white":"var(--aqua)";}
+  const empBtn=document.getElementById("def-type-emp"), extBtn=document.getElementById("def-type-ext"), anonBtn=document.getElementById("def-type-anon");
+  const isExt=type==='external', isAnon=type==='anonymous';
+  const setBtn=(btn,active)=>{ if(btn){btn.style.background=active?"var(--aqua)":"transparent";btn.style.color=active?"white":"var(--aqua)";} };
+  setBtn(empBtn, !isExt && !isAnon);
+  setBtn(extBtn, isExt);
+  setBtn(anonBtn, isAnon);
+
+  const fieldsWrap=document.getElementById("def-fields-wrap"), anonNote=document.getElementById("def-anon-note"),
+        extraWrap=document.getElementById("def-extra-wrap");
   const lblId=document.getElementById("def-lbl-id"), lblName=document.getElementById("def-lbl-name"),
         lblSec=document.getElementById("def-lbl-sec"), lblDesig=document.getElementById("def-lbl-desig"),
         idInput=document.getElementById("f-empid"), dojWrap=document.getElementById("def-doj-wrap");
+
+  if(isAnon){
+    // Anonymous: no identifying info is recorded at all — hide every input
+    // field, "joint defendants" doesn't apply either since there's no one
+    // to add a second identity for.
+    if(fieldsWrap) fieldsWrap.style.display="none";
+    if(anonNote) anonNote.style.display="block";
+    if(extraWrap) extraWrap.style.display="none";
+    hideSuggest('def');
+    const nameEl=document.getElementById("f-name");
+    if(idInput) idInput.value="";
+    if(nameEl) nameEl.value="Anonymous";
+    const secEl=document.getElementById("f-sec"), desigEl=document.getElementById("f-desig");
+    if(secEl) secEl.value=""; if(desigEl) desigEl.value="";
+    return;
+  }
+  if(fieldsWrap) fieldsWrap.style.display="flex";
+  if(anonNote) anonNote.style.display="none";
+  if(extraWrap) extraWrap.style.display="block";
+  const nameEl=document.getElementById("f-name");
+  if(nameEl && nameEl.value==="Anonymous") nameEl.value="";
+
   if(isExt){
     if(lblId) lblId.textContent="Supplier ID (যদি থাকে)";
     if(lblName) lblName.textContent="Contact Person Name";
@@ -4723,7 +4754,7 @@ function downloadPDF(){
         ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
-        <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:""}<br>
+        <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="background:#e5e7eb;color:#4b5563;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
         <span style="color:#666;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
         <span style="color:#777;font-size:9px;">📍 ${section}</span>
