@@ -1718,6 +1718,10 @@ function lsOnSuccess(){
   if(window._isBuyer){ try{setDefendantType('employee');}catch(e){} }
   // Load Firebase data
   if(window._fb) window._fb.listen();
+  // Load any employees added via Excel import in a previous session —
+  // without this call, saveEmpDbToFirebase() was write-only and nothing
+  // ever read it back.
+  try{ loadEmpDbFromFirebase(); }catch(e){}
   setSyncStatus(true);
   goTo("dash");
 }
@@ -3537,10 +3541,16 @@ async function importEmployeeExcel(input){
     const merged = {...current, ...newEmployees};
     window.EMP_DB = merged;
 
+    if(bar) bar.style.width='90%';
+    if(status) status.textContent = 'Firebase এ save হচ্ছে...';
+    // Auto-save to Firebase right away — without this, the import only ever
+    // lived in this browser tab's memory and silently vanished on next login.
+    await saveEmpDbToFirebase();
+
     if(bar) bar.style.width='100%';
     const added = Object.keys(newEmployees).length;
     const total = Object.keys(merged).length;
-    if(status) status.textContent = `✅ ${added} জন import হয়েছে। মোট: ${total} জন।`;
+    if(status) status.textContent = `✅ ${added} জন import ও save হয়েছে। মোট: ${total} জন।`;
     updateEmpCount();
     input.value='';
 
@@ -3576,8 +3586,10 @@ async function saveEmpDbToFirebase(){
 
 async function loadEmpDbFromFirebase(){
   try{
-    const { getDatabase, ref, get } = window._fbDb;
-    const db = getDatabase();
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const app = getApps().length ? getApps()[0] : initializeApp(window._fbCfg);
+    const db = getDatabase(app);
     const meta = await get(ref(db,'emp_db/_meta'));
     if(!meta.exists()) return;
     const keys = await get(ref(db,'emp_db'));
@@ -3589,8 +3601,12 @@ async function loadEmpDbFromFirebase(){
       Object.assign(merged, v);
     });
     if(Object.keys(merged).length > 0){
+      // Any employee added via Excel import (and saved to Firebase) merges
+      // in here on top of the file's built-in defaults — this is the piece
+      // that was missing before: without it, Firebase-saved additions were
+      // never read back, so they vanished the moment you logged in again.
       window.EMP_DB = {...EMP_DB, ...merged};
-      updateEmpCount();
+      try{ updateEmpCount(); }catch(e){}
     }
   } catch(e){ /* offline — use embedded */ }
 }
