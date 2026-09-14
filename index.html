@@ -1642,6 +1642,17 @@ async function _authEmailFor(username, password){
   const safeUser=username.toLowerCase().replace(/[^a-z0-9]/g,"") || "user";
   return `${safeUser}.${hex}@akheco.internal`;
 }
+// Firebase Auth's Email/Password provider requires a 6+ character password —
+// several of this app's real login passwords are shorter (e.g. the default
+// Super Admin password is only 4 characters), which made every Auth call
+// fail with "weak-password" and silently left the app unauthenticated
+// (showing as "Offline" with 0 records once Security Rules required
+// `auth != null`). This padded version is used ONLY for the backstage
+// Firebase Auth call — never shown, never checked against the app's own
+// custom login, which still uses the real password exactly as typed.
+function _authPasswordFor(password){
+  return (password + "‡akhFBpad2026").slice(0, 4096);
+}
 async function _ensureFirebaseAuthSession(username, password){
   try{
     const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
@@ -1650,20 +1661,19 @@ async function _ensureFirebaseAuthSession(username, password){
     const app = getApps().length ? getApps()[0] : initializeApp(window._fbCfg);
     const auth = getAuth(app);
     const email = await _authEmailFor(username, password);
+    const authPass = _authPasswordFor(password);
     try{
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, authPass);
     }catch(err){
       if(err.code==="auth/user-not-found" || err.code==="auth/invalid-credential"){
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, email, authPass);
       } else {
         throw err;
       }
     }
   }catch(e){
     console.error("Firebase Auth session failed:", e);
-    // Fail open rather than locking the app out entirely if Auth has a
-    // hiccup — Security Rules will simply deny reads until this succeeds,
-    // which surfaces as a sync error rather than a hard crash.
+    toast("⚠ Firebase Auth সমস্যা: "+(e.code||e.message||"unknown")+" — data নাও দেখাতে পারে","err");
   }
 }
 
