@@ -642,6 +642,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
         <span class="tb-autosave" id="autosave-lbl"></span>
       </div>
       <div class="topbar-right" style="display:flex;align-items:center;gap:8px;">
+        <button class="btn-top" id="tb-dark-toggle" onclick="toggleDarkMode()" title="Dark Mode" style="padding:7px 12px;font-size:16px;">🌙</button>
         <button class="btn-top" id="tb-refresh-btn" onclick="refreshData()" title="Refresh Data" style="padding:7px 12px;font-size:16px;">🔄</button>
         <button class="btn-top" onclick="downloadPDF()" style="background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-weight:700;">📄 Download PDF</button>
         <button id="topbar-logout-btn" onclick="lsLogout()" style="display:none;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚪 Logout</button>
@@ -900,6 +901,20 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
           <div class="tbl-wrap">
             <table style="table-layout:fixed;width:100%;"><thead><tr><th style="width:28%;word-break:break-word;">Investigator</th><th style="width:13%;">Assigned</th><th style="width:13%;">Pending</th><th style="width:13%;">Active</th><th style="width:13%;">Resolved</th><th style="width:20%;">Efficiency</th></tr></thead>
             <tbody id="acc-inv-tbody"></tbody></table>
+          </div>
+        </div>
+
+        <!-- Department-wise Heatmap -->
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-title">🌡️ Department-wise Heatmap <span style="font-size:10px;font-weight:400;color:var(--tm);">(কোন section-এ সবচেয়ে বেশি case)</span></div>
+          <div id="acc-heatmap" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;"></div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-title">📈 Monthly Trend <span style="font-size:10px;font-weight:400;color:var(--tm);">(শেষ ১২ মাস)</span></div>
+          <div style="position:relative;width:100%;height:180px;margin-top:8px;">
+            <canvas id="trend-chart" style="width:100%;height:100%;"></canvas>
           </div>
         </div>
 
@@ -1189,6 +1204,12 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 
 <script>
 // ═══ DATA ═══
+const TYPE_ICON = {
+  "ধারা ২৩/৪ (ক)":"⚠️","ধারা ২৩/৪ (খ)":"🗣️","ধারা ২৩/৪ (গ)":"🚫",
+  "ধারা ২৩/৪ (ঘ)":"💰","ধারা ২৩/৪ (ঙ)":"⏰","ধারা ২৩/৪ (চ)":"🏭",
+  "ধারা ২৩/৪ (ছ)":"🤝","ধারা ২৩/৪ (জ)":"🛡️","ধারা ২৩/৪ (ঝ)":"📋",
+  "ধারা ২৩/৪ (ঞ)":"⚖️","ধারা ৫২(ক)":"📝","অন্যান্য":"❔"
+};
 const TYPE_MAP = {
   "ধারা ২৩/৪ (ক)":{cls:"ph"},"ধারা ২৩/৪ (খ)":{cls:"pc"},"ধারা ২৩/৪ (গ)":{cls:"pc"},
   "ধারা ২৩/৪ (ঘ)":{cls:"pm"},"ধারা ২৩/৪ (ঙ)":{cls:"pl"},"ধারা ২৩/৪ (চ)":{cls:"pm"},
@@ -1505,6 +1526,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   const savedTheme=localStorage.getItem("akh_theme");
   if(savedTheme)applyTheme(savedTheme);
+  try{ const btn=document.getElementById("tb-dark-toggle"); if(btn) btn.textContent = savedTheme==="midnight"?"☀️":"🌙"; }catch(e){}
   window.addEventListener("online",()=>{if(fbOnline)setSyncStatus(true);});
   window.addEventListener("offline",()=>setSyncStatus(false));
 })();
@@ -1598,6 +1620,53 @@ function lsTogglePass(){
   if(eye) eye.textContent=inp.type==="password"?"👁":"🙈";
 }
 
+// ═══ REAL FIREBASE AUTHENTICATION ═══
+// The app's login screen has always been a CUSTOM check (username/password
+// matched against a Firebase Database node) — Firebase itself never knew
+// whether a request came from someone who passed that screen or from anyone
+// else who simply had the public Firebase config (which is unavoidably
+// visible in this file). That meant Database Security Rules could not tell
+// the two apart, so real read/write restrictions were impossible.
+//
+// This bridges that gap: right after the custom check succeeds, we sign the
+// browser into a REAL Firebase Auth session — silently, with no UI change —
+// so Security Rules can finally require `auth != null` for reading sensitive
+// data. The Auth "email" is derived from the username + a hash of the
+// current password, so if a password is later changed, a fresh Auth
+// identity is naturally created on next login (no manual re-sync needed);
+// the old one is simply left unused.
+async function _authEmailFor(username, password){
+  const enc=new TextEncoder().encode(username.toLowerCase()+"::"+password);
+  const digest=await crypto.subtle.digest("SHA-256", enc);
+  const hex=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,16);
+  const safeUser=username.toLowerCase().replace(/[^a-z0-9]/g,"") || "user";
+  return `${safeUser}.${hex}@akheco.internal`;
+}
+async function _ensureFirebaseAuthSession(username, password){
+  try{
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } =
+      await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    const app = getApps().length ? getApps()[0] : initializeApp(window._fbCfg);
+    const auth = getAuth(app);
+    const email = await _authEmailFor(username, password);
+    try{
+      await signInWithEmailAndPassword(auth, email, password);
+    }catch(err){
+      if(err.code==="auth/user-not-found" || err.code==="auth/invalid-credential"){
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        throw err;
+      }
+    }
+  }catch(e){
+    console.error("Firebase Auth session failed:", e);
+    // Fail open rather than locking the app out entirely if Auth has a
+    // hiccup — Security Rules will simply deny reads until this succeeds,
+    // which surfaces as a sync error rather than a hard crash.
+  }
+}
+
 async function lsDoLogin(){
   const username=(document.getElementById("ls-user")?.value||"").trim();
   const pass=document.getElementById("ls-pass")?.value||"";
@@ -1614,6 +1683,7 @@ async function lsDoLogin(){
       window._isSuperAdmin=true;
       window._isMainSuperAdmin=true;
       window._isBuyer=false;
+      await _ensureFirebaseAuthSession(username,pass);
       lsOnSuccess();
       return;
     }
@@ -1627,6 +1697,7 @@ async function lsDoLogin(){
       window._isSuperAdmin=false;
       window._isMainSuperAdmin=false;
       window._isBuyer=true;
+      await _ensureFirebaseAuthSession(username,pass);
       lsOnSuccess();
       return;
     }
@@ -1664,6 +1735,7 @@ async function lsDoLogin(){
     window._isSuperAdmin=(user.role==="superadmin");
     window._isMainSuperAdmin=false;
     window._isBuyer=false;
+    await _ensureFirebaseAuthSession(username,pass);
     lsOnSuccess();
 
   }catch(e){
@@ -1731,6 +1803,16 @@ function _doLogoutNow(){
   window._isSuperAdmin=false;
   window._isMainSuperAdmin=false;
   window._isBuyer=false;
+  // Also end the real Firebase Auth session — without this, a stale
+  // authenticated session could keep read/write access alive in this tab
+  // even after "logging out" of the app's own UI.
+  (async ()=>{
+    try{
+      const { getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getAuth, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      if(getApps().length){ await signOut(getAuth(getApps()[0])); }
+    }catch(e){}
+  })();
   document.body.classList.remove("app-ready");
   document.body.classList.remove("is-super-admin-mode");
   // Clear in-memory data and its localStorage cache on logout too — not just
@@ -2618,6 +2700,16 @@ function renderTable(){
 
   if(!slice.length){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--tm);">কোনো রেকর্ড নেই</td></tr>`;document.getElementById("page-info").textContent="No records";document.getElementById("pager-btns").innerHTML="";return;}
 
+  // Repeat-offender detection: count how many cases name each defendant
+  // (by ID when known, else by name) across everything this user can see —
+  // used below to flag a defendant who has 2+ grievances against them.
+  const _offenderCount={};
+  visibleGrievances().forEach(g=>{
+    if(g.defendantType==='anonymous') return; // no identity to count
+    const key=(g.empId||g.empName||"").trim().toLowerCase();
+    if(key) _offenderCount[key]=(_offenderCount[key]||0)+1;
+  });
+
   tbody.innerHTML=slice.map(g=>{
     const tm=TYPE_MAP[g.type]||{cls:"pl"};
     const opa={Pending:["1","0.3","0.3","0.3"],"Under Investigation":["0.3","1","0.3","0.3"],Resolved:["0.3","0.3","1","0.3"],Closed:["0.3","0.3","0.3","1"]}[g.status]||["0.3","0.3","0.3","0.3"];
@@ -2655,14 +2747,14 @@ function renderTable(){
       const cdText=remaining>0?`${remaining} দিন বাকি`:`${Math.abs(remaining)} দিন অতিক্রান্ত`;
       cdHtml=`<div style="margin-top:4px;padding:2px 8px;border-radius:20px;background:${cdBg};color:${cdColor};font-size:9px;font-weight:800;text-align:center;white-space:nowrap;display:inline-block;">${cdLabel} ${cdText}</div>`;
     }
-    return`<tr class="drow" onclick="editRow('${g.id}')">
-      <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">
+    return`<tr class="drow${g.needsReview?' needs-review-row':''}" onclick="editRow('${g.id}')">
+      ${g.needsReview?`<td colspan="10" style="background:rgba(246,185,59,0.16);padding:6px 10px;border:none;font-size:11px;font-weight:700;color:#92650a;">🆕 Worker Portal থেকে এসেছে — বিস্তারিত পর্যালোচনা করে Investigator/Handler assign করুন <button onclick="event.stopPropagation();clearNeedsReview('${g.id}')" style="float:right;background:#92650a;color:#fff;border:none;padding:2px 8px;border-radius:6px;font-size:10px;cursor:pointer;">✓ পর্যালোচনা সম্পন্ন</button></td></tr><tr class="drow" onclick="editRow('${g.id}')">`:""}      <td style="font-family:var(--mono);font-size:10px;white-space:nowrap;">
         ${g.date}
         ${cdHtml}
         ${displayRefNo(g)?`<div style="margin-top:3px;font-size:8px;color:var(--tm);font-family:var(--mono);white-space:normal;">${esc(displayRefNo(g))}</div>`:""}
       </td>
       <td>
-        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="font-size:8px;background:rgba(107,114,128,0.14);color:#4b5563;padding:1px 5px;border-radius:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
+        <span style="font-size:11px;font-weight:700;">${esc(g.empName)}</span>${g.defendantType==='external'?` <span style="font-size:8px;background:rgba(180,83,9,0.12);color:#b45309;padding:1px 5px;border-radius:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="font-size:8px;background:rgba(107,114,128,0.14);color:#4b5563;padding:1px 5px;border-radius:8px;font-weight:700;">❓ Anonymous</span>`:""}${(()=>{ const key=(g.empId||g.empName||"").trim().toLowerCase(); const c=_offenderCount[key]||0; return c>1?` <span title="এই ব্যক্তির নামে মোট ${c}টি অভিযোগ" style="font-size:8px;background:rgba(220,38,38,0.14);color:#dc2626;padding:1px 5px;border-radius:8px;font-weight:700;">🔁 ${c}x</span>`:""; })()}<br>
         <small style="color:var(--tm);font-size:10px;">${esc(g.designation||"—")}</small><br>
         ${g.empId?`<small style="color:var(--aqua);font-size:9px;">ID: ${esc(g.empId)}</small><br>`:""}
         <small style="color:var(--tm);font-size:9px;">📍 ${esc(g.section||"—")}</small>
@@ -2672,7 +2764,7 @@ function renderTable(){
         ${g.complainantName?`<span style="font-weight:700;">${esc(g.complainantName)}</span><br><small style="color:var(--tm);">${esc(g.complainantDesig||"—")}</small>${g.complainantId?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(g.complainantId)}</small>`:""}${g.complainantSec?`<br><small style="color:var(--tm);font-size:9px;">📍 ${esc(g.complainantSec)}</small>`:""}${g.source?`<br><span style="font-size:9px;background:rgba(23,147,158,0.12);color:var(--aqua);padding:1px 5px;border-radius:8px;font-weight:700;">/ ${esc(g.source)}</span>`:""}`:(g.source?`<span style="font-size:9px;background:rgba(23,147,158,0.12);color:var(--aqua);padding:1px 5px;border-radius:8px;font-weight:700;">/ ${esc(g.source)}</span>`:`<span style="color:var(--tm);font-size:10px;">—</span>`)}
         ${g.complainants&&g.complainants.length?g.complainants.map(c=>`<div style="margin-top:5px;padding-top:4px;border-top:1px dashed rgba(239,68,68,0.2);"><span style="font-weight:700;">${esc(c.name||"—")}</span>${c.desig?`<br><small style="color:var(--tm);">${esc(c.desig)}</small>`:""}${c.id?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(c.id)}</small>`:""}${c.section?`<br><small style="color:var(--tm);font-size:9px;">📍 ${esc(c.section)}</small>`:""}</div>`).join(""):""}
       </td>
-      <td>${esc(g.type).split(",").map(t=>`<span class="pill ${tm.cls}" style="display:block;margin-bottom:2px;">${t.trim()}</span>`).join("")}</td>
+      <td>${esc(g.type).split(",").map(t=>`<span class="pill ${tm.cls}" style="display:block;margin-bottom:2px;">${TYPE_ICON[t.trim()]||"📌"} ${t.trim()}</span>`).join("")}</td>
       <td><div style="max-width:180px;white-space:normal;word-break:break-word;font-size:11px;line-height:1.5;">${esc(g.description||"—")}</div>${g.attachments&&g.attachments.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;" onclick="event.stopPropagation()">${g.attachments.map(a=>`<span onclick="viewAttachment('${esc(g.id)}','${esc(a.docId)}','${esc(a.name)}')" style="cursor:pointer;font-size:9px;background:rgba(23,147,158,0.1);color:var(--aqua);padding:2px 6px;border-radius:8px;font-weight:700;">📎 ${esc((a.name||"file").slice(0,14))}</span>`).join("")}</div>`:""}</td>
       <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.investigator) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.investigator); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
       <td style="font-size:11px;word-wrap:break-word;white-space:normal;max-width:110px;">${(()=>{ if(!g.handler) return `<span style="color:var(--tm);font-size:10px;">—</span>`; const info=staffDisplayInfo(g.handler); return `<span style="font-weight:700;">${esc(info.name)}</span>${info.designation?`<br><small style="color:var(--tm);font-size:10px;">${esc(info.designation)}</small>`:""}${info.known?`<br><small style="color:var(--aqua);font-size:9px;">ID: ${esc(info.id)}</small>`:""}`; })()}</td>
@@ -2693,6 +2785,10 @@ function renderTable(){
         ${window._isSuperAdmin?`<label style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:${g.buyerVisible?"#059669":"var(--tm)"};cursor:pointer;margin-bottom:6px;">
           <input type="checkbox" ${g.buyerVisible?"checked":""} onchange="toggleBuyerVisible('${g.id}',this.checked)"> ${g.buyerVisible?"✅ Buyer":"👁 Buyer"}
         </label>`:""}
+        <div style="display:flex;gap:4px;margin-bottom:6px;">
+          <button onclick="shareViaWhatsApp('${g.id}')" title="WhatsApp-এ share করুন" style="flex:1;padding:4px;border-radius:6px;border:1px solid rgba(37,211,102,0.4);background:rgba(37,211,102,0.1);color:#1f9c4f;font-size:12px;cursor:pointer;">💬</button>
+          <button onclick="shareViaEmail('${g.id}')" title="Email-এ share করুন" style="flex:1;padding:4px;border-radius:6px;border:1px solid rgba(23,147,158,0.4);background:rgba(23,147,158,0.1);color:var(--aqua);font-size:12px;cursor:pointer;">📧</button>
+        </div>
         <button class="del-btn" onclick="deleteRow('${g.id}',event)">Delete</button>
       </td>
     </tr>`;
@@ -3047,6 +3143,10 @@ async function saveGrievance(){
     const g=grievances.find(x=>x.id===eid);
     if(g){
       Object.assign(g,payload);
+      // Admin has now actually edited a worker-portal case (assigned type/
+      // investigator/handler etc.) — the "needs review" flag has done its
+      // job, so drop it.
+      if(g.needsReview) delete g.needsReview;
       if(window._pendingDocs&&window._pendingDocs.length&&window._fb){
         toast("📤 Document সংরক্ষণ হচ্ছে...","ok");
         const uploaded=await uploadPendingDocs(g.id, window._pendingDocs);
@@ -3085,6 +3185,17 @@ async function saveGrievance(){
       }
     })();
   }
+}
+
+// Worker-portal cases come in flagged `needsReview` so they stand out until
+// an admin has actually looked at them and assigned an investigator/handler.
+function clearNeedsReview(id){
+  const g=grievances.find(x=>x.id===id);
+  if(!g) return;
+  delete g.needsReview;
+  persistOne(g);
+  toast("✓ পর্যালোচনা সম্পন্ন হিসেবে চিহ্নিত হলো","ok");
+  try{ renderTable(); }catch(e){}
 }
 
 function editRow(id){
@@ -3312,7 +3423,92 @@ function setStatus(id,val,e){
   const g=grievances.find(x=>x.id===id);
   if(g){g.status=val;persistOne(g);}
   toast("↻ Status: "+val,"ok");
+  if(val==="Resolved") launchConfetti();
 }
+
+// Small celebratory confetti burst — pure canvas, no libraries — plays once
+// whenever a case is marked Resolved.
+function launchConfetti(){
+  try{
+    const canvas=document.createElement("canvas");
+    canvas.style.cssText="position:fixed;inset:0;z-index:99997;pointer-events:none;";
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    document.body.appendChild(canvas);
+    const ctx=canvas.getContext("2d");
+    const colors=["#2aeeb5","#17939e","#f6b93b","#e84393","#1e90ff","#fd79a8"];
+    const pieces=Array.from({length:70},()=>({
+      x:Math.random()*canvas.width, y:-20-Math.random()*canvas.height*0.3,
+      vx:(Math.random()-0.5)*3, vy:2+Math.random()*3,
+      size:5+Math.random()*5, color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360, vr:(Math.random()-0.5)*10
+    }));
+    let frame=0;
+    function draw(){
+      frame++;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      let stillFalling=false;
+      pieces.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=0.03;
+        if(p.y<canvas.height+20) stillFalling=true;
+        ctx.save();
+        ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle=p.color;
+        ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+        ctx.restore();
+      });
+      if(stillFalling && frame<240) requestAnimationFrame(draw);
+      else document.body.removeChild(canvas);
+    }
+    draw();
+  }catch(e){}
+}
+
+// WhatsApp / Email quick-share — builds a plain-text case summary and opens
+// the native wa.me / mailto link with it pre-filled. No backend, no API key;
+// works instantly, but requires the person to hit send themselves (this is
+// NOT an automatic/background SMS or email service — that needs a paid
+// provider like Twilio/SendGrid with your own account, which isn't set up).
+function _grvShareSummary(g){
+  // Case-open date derived from the ID itself (GRV-<timestamp>), since that's
+  // when the case was actually created — separate from the incident date.
+  const openedTs = parseInt((g.id||"").replace("GRV-",""), 10);
+  const openedDate = openedTs ? new Date(openedTs).toISOString().slice(0,10) : "—";
+
+  const defendantLabel = g.defendantType==='anonymous'
+    ? "Anonymous (পরিচয় গোপন)"
+    : `${g.empName||"—"}${g.designation?" — "+g.designation:""}${g.empId?" (ID: "+g.empId+")":""}`;
+
+  const complainantLabel = g.complainantName
+    ? `${g.complainantName}${g.complainantDesig?" — "+g.complainantDesig:""}${g.complainantId?" (ID: "+g.complainantId+")":""}`
+    : (g.source ? `Source: ${g.source}` : "—");
+
+  const lines=[
+    `Grievance Ref: ${displayRefNo(g)||g.id}`,
+    `Case Opened: ${openedDate}`,
+    `Incident Date: ${g.date||"—"}`,
+    `Complainant: ${complainantLabel}`,
+    `Defendant: ${defendantLabel}`,
+    `Section: ${g.section||"—"}`,
+    `Type: ${g.type||"—"}`,
+    `Status: ${g.status||"—"}`,
+    `Investigator: ${g.investigator?(findEmployee(g.investigator)?.name||g.investigator):"—"}`,
+    `Handler: ${g.handler?(findEmployee(g.handler)?.name||g.handler):"—"}`,
+    `Description: ${(g.description||"—").slice(0,300)}`
+  ];
+  return lines.join("\n");
+}
+function shareViaWhatsApp(id){
+  const g=grievances.find(x=>x.id===id); if(!g) return;
+  const text=encodeURIComponent(_grvShareSummary(g));
+  window.open(`https://wa.me/?text=${text}`, "_blank");
+}
+function shareViaEmail(id){
+  const g=grievances.find(x=>x.id===id); if(!g) return;
+  const subject=encodeURIComponent(`Grievance Update — ${displayRefNo(g)||g.id}`);
+  const body=encodeURIComponent(_grvShareSummary(g));
+  window.location.href=`mailto:?subject=${subject}&body=${body}`;
+}
+
 function setProc(id,val){
   if(!val) return; // placeholder "— নির্বাচন করুন —" — nothing to do
   // Pre-update state so no self-notification
@@ -3456,6 +3652,106 @@ function renderAccounts(){
       <div style="min-width:30px;text-align:right;font-size:11px;font-weight:700;color:#d97706;">${c}</div>
     </div>`;
   }).join("") || "<div style='color:var(--tm);font-size:12px;'>No data yet</div>";
+
+  // Department/section heatmap — which line/section grievances cluster in,
+  // colored from cool (few cases) to hot red (most cases) so problem areas
+  // stand out at a glance.
+  const secCount={};
+  list.forEach(g=>{ const s=(g.section||"").trim(); if(s) secCount[s]=(secCount[s]||0)+1; });
+  const maxS=Math.max(1,...Object.values(secCount));
+  const heatColor=(ratio)=>{
+    // 0 → cool teal, 1 → hot red, smooth in between
+    const r=Math.round(23+ (220-23)*ratio);
+    const g2=Math.round(147+ (38-147)*ratio);
+    const b=Math.round(158+ (38-158)*ratio);
+    return `rgb(${r},${g2},${b})`;
+  };
+  document.getElementById("acc-heatmap").innerHTML=Object.entries(secCount).sort((a,b)=>b[1]-a[1]).map(([s,c])=>{
+    const ratio=c/maxS;
+    const w=Math.round(ratio*100);
+    return`<div style="display:flex;align-items:center;gap:8px;">
+      <div style="min-width:110px;font-size:11px;color:var(--td);font-weight:600;word-break:break-word;">📍 ${esc(s)}</div>
+      <div style="flex:1;height:11px;border-radius:20px;background:rgba(0,0,0,0.07);overflow:hidden;">
+        <div style="height:100%;width:${w}%;background:${heatColor(ratio)};border-radius:20px;"></div>
+      </div>
+      <div style="min-width:30px;text-align:right;font-size:11px;font-weight:700;color:${heatColor(ratio)};">${c}</div>
+    </div>`;
+  }).join("") || "<div style='color:var(--tm);font-size:12px;'>No data yet</div>";
+
+  try{ renderTrendChart(list); }catch(e){}
+}
+
+// Monthly trend — how many grievances were logged (by incident date) in
+// each of the last 12 months. Plain canvas line chart, same lightweight
+// approach as the pie charts elsewhere — no external library needed.
+function renderTrendChart(list){
+  const canvas=document.getElementById("trend-chart");
+  if(!canvas) return;
+  const wrap=canvas.parentElement;
+  const cssW=wrap.offsetWidth||300, cssH=wrap.offsetHeight||180;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=cssW*dpr; canvas.height=cssH*dpr;
+  const ctx=canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  // Build the last 12 month buckets (oldest → newest)
+  const months=[];
+  const now=new Date();
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push({key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`, label:d.toLocaleString("en",{month:"short"})});
+  }
+  const counts=months.map(m=>list.filter(g=>(g.date||"").startsWith(m.key)).length);
+  const maxC=Math.max(1,...counts);
+
+  const padL=28, padR=10, padT=10, padB=22;
+  const plotW=cssW-padL-padR, plotH=cssH-padT-padB;
+
+  // Gridlines + y-axis labels (0, mid, max)
+  ctx.strokeStyle="rgba(0,0,0,0.08)"; ctx.fillStyle="#3a686d"; ctx.font="9px Inter,sans-serif";
+  [0,0.5,1].forEach(f=>{
+    const y=padT+plotH-(plotH*f);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(cssW-padR,y); ctx.stroke();
+    ctx.fillText(Math.round(maxC*f), 2, y+3);
+  });
+
+  // Points
+  const pts=counts.map((c,i)=>({
+    x: padL + (plotW * (counts.length>1 ? i/(counts.length-1) : 0)),
+    y: padT + plotH - (plotH * (c/maxC))
+  }));
+
+  // Filled area under the line
+  const grad=ctx.createLinearGradient(0,padT,0,padT+plotH);
+  grad.addColorStop(0,"rgba(23,147,158,0.35)");
+  grad.addColorStop(1,"rgba(23,147,158,0.02)");
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, padT+plotH);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x, padT+plotH);
+  ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  pts.forEach((p,i)=> i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle="#17939e"; ctx.lineWidth=2; ctx.stroke();
+
+  // Points + value labels
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fillStyle="#17939e"; ctx.fill();
+    if(counts[i]>0){
+      ctx.fillStyle="#0d4045"; ctx.font="bold 9px Inter,sans-serif"; ctx.textAlign="center";
+      ctx.fillText(counts[i], p.x, p.y-6);
+    }
+  });
+
+  // X-axis month labels (skip every other one on narrow screens to avoid overlap)
+  ctx.fillStyle="#3a686d"; ctx.font="9px Inter,sans-serif"; ctx.textAlign="center";
+  const skip = cssW<340 ? 2 : 1;
+  months.forEach((m,i)=>{ if(i%skip===0) ctx.fillText(m.label, pts[i].x, cssH-6); });
 }
 
 // ═══ EMPLOYEE DB MANAGEMENT ═══
@@ -4591,6 +4887,24 @@ function applyTheme(v){
   const bar=document.getElementById("theme-bar");if(bar)bar.style.background=t.bar;
 }
 function changeTheme(){const v=document.getElementById("theme-sel").value;applyTheme(v);localStorage.setItem("akh_theme",v);toast(THEMES[v]?"Theme Applied!":"","ok");}
+
+// Quick one-tap dark mode toggle (topbar) — flips between the user's last
+// light theme and "midnight", remembering the light one to switch back to.
+function toggleDarkMode(){
+  const cur=localStorage.getItem("akh_theme")||"default";
+  const btn=document.getElementById("tb-dark-toggle");
+  if(cur==="midnight"){
+    const prev=localStorage.getItem("akh_theme_before_dark")||"default";
+    applyTheme(prev); localStorage.setItem("akh_theme",prev);
+    const sel=document.getElementById("theme-sel"); if(sel) sel.value=prev;
+    if(btn) btn.textContent="🌙";
+  } else {
+    localStorage.setItem("akh_theme_before_dark", cur);
+    applyTheme("midnight"); localStorage.setItem("akh_theme","midnight");
+    const sel=document.getElementById("theme-sel"); if(sel) sel.value="midnight";
+    if(btn) btn.textContent="☀️";
+  }
+}
 
 function changeLang(){
   lang=document.getElementById("lang-sel").value;
