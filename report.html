@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অভিযোগ জানান — AKH Eco Apparels Ltd.</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,">
+<style>
+  :root{
+    --aqua:#17939e; --aqua-dark:#0d4045; --mint:#e1f8fa; --mint-deep:#cdeef2;
+    --ink:#0d4045; --muted:#4a7276; --safe:#1f9c6e; --safe-bg:#e6f7ef;
+    --card:#ffffff; --border:rgba(13,64,69,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(180deg,var(--mint) 0%, var(--mint-deep) 100%);
+    color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:460px;margin:0 auto;padding:22px 18px 60px;}
+
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .brand-badge{width:38px;height:38px;border-radius:10px;background:var(--aqua);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;}
+  .brand-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .brand-sub{font-size:10px;color:var(--muted);font-weight:600;}
+
+  .hero{margin-bottom:20px;}
+  .hero h1{font-size:26px;line-height:1.25;margin:0 0 8px;font-weight:800;color:var(--ink);}
+  .hero p{font-size:14px;color:var(--muted);margin:0;line-height:1.6;}
+
+  .trust-row{display:flex;gap:8px;margin:16px 0 22px;flex-wrap:wrap;}
+  .trust-pill{display:flex;align-items:center;gap:6px;background:var(--safe-bg);color:var(--safe);
+    font-size:11px;font-weight:700;padding:7px 11px;border-radius:20px;}
+
+  .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(13,64,69,0.08);
+    border:1px solid var(--border);}
+
+  .step-label{font-size:11px;font-weight:800;color:var(--aqua);letter-spacing:.2px;margin-bottom:6px;display:block;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+  .field .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  select,textarea,input[type=text]{
+    width:100%;padding:12px 13px;border-radius:11px;border:1.5px solid var(--border);
+    font-size:14px;font-family:inherit;background:#fbfefe;color:var(--ink);
+  }
+  select:focus,textarea:focus,input:focus{outline:none;border-color:var(--aqua);}
+  textarea{resize:vertical;min-height:110px;line-height:1.5;}
+
+  .chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:9px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;
+    font-weight:600;color:var(--ink);cursor:pointer;background:#fbfefe;transition:.15s;}
+  .chip.sel{background:var(--aqua);border-color:var(--aqua);color:#fff;}
+
+  .upload-box{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;
+    cursor:pointer;font-size:12px;color:var(--muted);}
+  .upload-box:active{background:var(--mint);}
+  #file-list{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;}
+  .file-chip{background:var(--mint);color:var(--aqua-dark);font-size:11px;font-weight:600;
+    padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+  .file-chip span{cursor:pointer;font-weight:800;color:#c0392b;}
+
+  .submit-btn{width:100%;padding:15px;border-radius:13px;border:none;
+    background:linear-gradient(135deg,var(--aqua),#0f6b74);color:#fff;font-size:15px;font-weight:800;
+    cursor:pointer;margin-top:6px;box-shadow:0 8px 20px rgba(23,147,158,0.35);}
+  .submit-btn:active{transform:scale(0.98);}
+  .submit-btn:disabled{opacity:.6;cursor:default;}
+
+  .footnote{text-align:center;font-size:11px;color:var(--muted);margin-top:18px;line-height:1.6;}
+  .err-box{background:#fdecea;color:#c0392b;font-size:12px;font-weight:600;padding:10px 12px;
+    border-radius:10px;margin-bottom:14px;display:none;}
+
+  .success{display:none;text-align:center;padding:30px 10px;}
+  .success .check{width:64px;height:64px;border-radius:50%;background:var(--safe-bg);color:var(--safe);
+    display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;}
+  .success h2{font-size:19px;margin:0 0 8px;}
+  .success p{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 18px;}
+  .ref-box{background:var(--mint);border-radius:12px;padding:14px;font-size:13px;color:var(--ink);margin-bottom:18px;}
+  .ref-box b{font-size:16px;letter-spacing:.5px;}
+  .again-btn{background:transparent;border:1.5px solid var(--border);color:var(--ink);
+    padding:11px 18px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-badge">🛡️</div>
+    <div>
+      <div class="brand-name">AKH Eco Apparels Ltd.</div>
+      <div class="brand-sub">অভিযোগ জানানোর পোর্টাল</div>
+    </div>
+  </div>
+
+  <div id="form-view">
+    <div class="hero">
+      <h1>আপনার কথা আমরা শুনতে চাই</h1>
+      <p>কোনো লগইন লাগবে না। আপনার নাম না দিলে কেউ জানবে না এটা আপনি পাঠিয়েছেন।</p>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-pill">🔒 সম্পূর্ণ গোপনীয়</div>
+      <div class="trust-pill">🙅 লগইন লাগে না</div>
+      <div class="trust-pill">⚡ ৩০ সেকেন্ডে জমা দিন</div>
+    </div>
+
+    <div class="card">
+      <div class="err-box" id="err-box"></div>
+      <form id="grv-form">
+        <div class="field">
+          <span class="step-label">১. আপনি কোন লাইন/সেকশনে কাজ করেন?</span>
+          <select id="f-section" required>
+            <option value="">— সিলেক্ট করুন —</option>
+            <option>Line A-01</option>
+            <option>Line A-04</option>
+            <option>Line B-21</option>
+            <option>Cutting Section</option>
+            <option>Finishing Section</option>
+            <option>অন্য কোথাও / জানি না</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <span class="step-label">২. এটা কোন ধরনের সমস্যা?</span>
+          <div class="chip-group" id="type-chips">
+            <div class="chip" data-v="আচরণগত">🗣️ আচরণগত</div>
+            <div class="chip" data-v="বেতন/সুবিধা">💰 বেতন/সুবিধা</div>
+            <div class="chip" data-v="নিরাপত্তা">⚠️ নিরাপত্তা</div>
+            <div class="chip" data-v="হয়রানি">🚫 হয়রানি</div>
+            <div class="chip" data-v="অন্যান্য">❔ অন্যান্য</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="step-label">৩. বিস্তারিত লিখুন</span>
+          <textarea id="f-desc" placeholder="কী হয়েছে, কখন হয়েছে — যতটা পারেন লিখুন..." required></textarea>
+        </div>
+
+        <div class="field">
+          <div class="upload-box" id="upload-trigger">📎 ছবি যোগ করতে ট্যাপ করুন (ঐচ্ছিক, সর্বোচ্চ ৩টি)</div>
+          <input type="file" id="f-files" accept="image/*" multiple style="display:none;">
+          <div id="file-list"></div>
+        </div>
+
+        <div class="field">
+          <span class="step-label">৪. আপনার নাম (সম্পূর্ণ ঐচ্ছিক)</span>
+          <input type="text" id="f-name" placeholder="লিখতে না চাইলে ফাঁকা রাখুন">
+          <div class="hint">নাম দিলে আমরা আপডেট জানাতে পারব — না দিলেও অভিযোগ জমা হবে, কোনো সমস্যা নেই।</div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">অভিযোগ জমা দিন →</button>
+      </form>
+    </div>
+
+    <div class="footnote">
+      এই তথ্য শুধু HR Compliance টিমের কাছে যাবে।<br>
+      জরুরি বিপদের ক্ষেত্রে সরাসরি আপনার Line Supervisor-কে জানান।
+    </div>
+  </div>
+
+  <div class="card success" id="success-view">
+    <div class="check">✓</div>
+    <h2>আপনার অভিযোগ জমা হয়েছে</h2>
+    <p>ধন্যবাদ। আপনার তথ্য নিরাপদে HR Compliance টিমের কাছে পৌঁছে গেছে। তারা এটি পর্যালোচনা করবে।</p>
+    <div class="ref-box">
+      আপনার Reference নম্বর<br><b id="ref-no">—</b>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">চাইলে এই নম্বরটি টুকে রাখুন</div>
+    </div>
+    <button class="again-btn" onclick="location.reload()">← আরেকটি অভিযোগ জমা দিন</button>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAloqcTSfE1QFayJvqmDGO8bZFP-xR-rLU",
+    authDomain:        "grievance-tracker-23bcb.firebaseapp.com",
+    databaseURL:       "https://grievance-tracker-23bcb-default-rtdb.firebaseio.com",
+    projectId:         "grievance-tracker-23bcb",
+    storageBucket:     "grievance-tracker-23bcb.firebasestorage.app",
+    messagingSenderId: "957573660800",
+    appId:             "1:957573660800:web:37147405ffd093a9966665"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Pre-fill section from a QR code link like report.html?line=Line%20A-04
+  const params = new URLSearchParams(location.search);
+  const preLine = params.get("line");
+  if (preLine) {
+    const sel = document.getElementById("f-section");
+    if ([...sel.options].some(o => o.value === preLine)) sel.value = preLine;
+  }
+
+  // Type chip selection
+  let selectedType = "";
+  document.querySelectorAll("#type-chips .chip").forEach(c => {
+    c.addEventListener("click", () => {
+      document.querySelectorAll("#type-chips .chip").forEach(x => x.classList.remove("sel"));
+      c.classList.add("sel");
+      selectedType = c.dataset.v;
+    });
+  });
+
+  // Optional photo attachments — compressed client-side, same idea as the main app
+  let pendingFiles = [];
+  const fileInput = document.getElementById("f-files");
+  document.getElementById("upload-trigger").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    const room = 3 - pendingFiles.length;
+    Array.from(fileInput.files).slice(0, room).forEach(f => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = () => {
+        img.onload = () => {
+          const MAX_W = 1000;
+          const scale = Math.min(1, MAX_W / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          pendingFiles.push({ name: f.name, type: "image/jpeg", data: dataUrl });
+          renderFileList();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    });
+    fileInput.value = "";
+  });
+  function renderFileList() {
+    document.getElementById("file-list").innerHTML = pendingFiles.map((f, i) =>
+      `<div class="file-chip">📷 ${f.name.slice(0, 16)} <span onclick="window.__removeFile(${i})">✕</span></div>`
+    ).join("");
+  }
+  window.__removeFile = (i) => { pendingFiles.splice(i, 1); renderFileList(); };
+
+  // Submit
+  document.getElementById("grv-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errBox = document.getElementById("err-box");
+    errBox.style.display = "none";
+    const section = document.getElementById("f-section").value;
+    const desc = document.getElementById("f-desc").value.trim();
+    const name = document.getElementById("f-name").value.trim();
+
+    if (!section) { showErr("অনুগ্রহ করে আপনার লাইন/সেকশন সিলেক্ট করুন।"); return; }
+    if (!desc) { showErr("অনুগ্রহ করে বিস্তারিত লিখুন।"); return; }
+
+    const btn = document.getElementById("submit-btn");
+    btn.disabled = true; btn.textContent = "জমা হচ্ছে...";
+
+    try {
+      const id = "GRV-" + Date.now();
+      const today = new Date().toISOString().slice(0, 10);
+      // Worker portal never assigns a legal ধারা itself (that needs an HR
+      // reviewer's judgement) — it goes in as "অন্যান্য" with the worker's
+      // plain-language category kept in the description, and is flagged
+      // `needsReview` so it stands out in the Grievance Log until an admin
+      // classifies and assigns it properly.
+      const grievance = {
+        id, date: today,
+        defendantType: "anonymous",
+        empId: "", empName: "Anonymous", section, designation: "", doj: "",
+        complainantName: name || "", complainantDesig: "", complainantId: "",
+        complainantSec: section, complainantDoj: "",
+        complainants: [], defendants: [],
+        source: "Worker Portal (QR)",
+        type: "অন্যান্য",
+        description: (selectedType ? `[শ্রমিক-পোর্টাল ক্যাটাগরি: ${selectedType}]\n\n` : "") + desc,
+        investigator: "", handler: "",
+        status: "Pending", processing: "", processingLog: [],
+        attachments: pendingFiles.map((f, i) => ({ docId: "wp" + i, name: f.name, type: f.type, size: f.data.length })),
+        buyerVisible: false,
+        needsReview: true
+      };
+      await set(ref(db, "grievances/" + id), grievance);
+      // Attachments saved as separate nodes, matching the main app's structure
+      for (let i = 0; i < pendingFiles.length; i++) {
+        await set(ref(db, "grievance_docs/" + id + "/wp" + i), pendingFiles[i]);
+      }
+
+      const refNo = "AKHECO/WEB/" + new Date().getFullYear() + "/" + id.slice(-4);
+      document.getElementById("ref-no").textContent = refNo;
+      document.getElementById("form-view").style.display = "none";
+      document.getElementById("success-view").style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      showErr("দুঃখিত, জমা দিতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করে আবার চেষ্টা করুন।");
+      btn.disabled = false; btn.textContent = "অভিযোগ জমা দিন →";
+    }
+    function showErr(msg) {
+      errBox.textContent = msg; errBox.style.display = "block";
+      errBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+</script>
+
+</body>
+</html>
