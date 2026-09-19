@@ -5168,35 +5168,35 @@ function downloadCounselingRegister(){
       : `<span style="color:#999;">—</span>`;
 
     return `<tr class="reg-row" style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
         ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
         <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="background:#e5e7eb;color:#4b5563;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
         <span style="color:#666;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
         <span style="color:#777;font-size:9px;">📍 ${section}</span>
         ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#666;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#777;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
         ${complainantCell}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;vertical-align:top;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;vertical-align:top;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;max-width:140px;word-break:break-word;">${description}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${invCell}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${hndCell}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;max-width:140px;word-break:break-word;">${description}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${invCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${hndCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:70px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:220px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:80px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:80px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${processing}${logHtml}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:70px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:220px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:80px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:80px;"></td>
     </tr>`;
   }).join("");
 
@@ -5213,11 +5213,11 @@ function downloadCounselingRegister(){
     thead{display:table-header-group;}
     .reg-row{page-break-inside:avoid;break-inside:avoid;}
     .reg-row:nth-of-type(2n){page-break-after:always;break-after:page;}
-    th{background:#0a5f6a;color:#fff;padding:6px 5px;border:1px solid #084f58;font-size:9px;text-align:left;overflow-wrap:break-word;}
+    th{background:#0a5f6a;color:#fff;padding:6px 5px;border:1px solid #063a41;font-size:9px;text-align:left;overflow-wrap:break-word;}
     td{overflow-wrap:break-word;line-height:1.35;}
     tr:hover{background:#e6f7f9!important}
-    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#888;background:#fff;padding-top:2mm;}
-    .page-footer .credit{color:#999;margin-bottom:2px;}
+    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;background:#fff;padding-top:2mm;}
+    .page-footer .credit{color:#444;font-weight:600;margin-bottom:2px;}
     .page-footer .no-sig{font-style:italic;}
     @media print{body{padding:0}}
   </style></head>
@@ -5375,31 +5375,31 @@ function downloadPDF(){
       : `<span style="color:#999;">—</span>`;
 
     return `<tr style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
         ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
         <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="background:#e5e7eb;color:#4b5563;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
         <span style="color:#666;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
         <span style="color:#777;font-size:9px;">📍 ${section}</span>
         ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#666;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#777;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
         ${complainantCell}
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;vertical-align:top;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;vertical-align:top;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${invCell}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${hndCell}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;text-align:center;">
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${invCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${hndCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
+      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${processing}${logHtml}</td>
 
     </tr>`;
   }).join("");
@@ -5416,11 +5416,11 @@ function downloadPDF(){
     table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
     tr{page-break-inside:avoid;break-inside:avoid;}
     thead{display:table-header-group;}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;word-break:break-word;}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #063a41;font-size:10px;text-align:left;word-break:break-word;}
     td{word-break:break-word;overflow-wrap:break-word}
     tr:hover{background:#e6f7f9!important}
-    .footer{margin-top:16px;font-size:9px;color:#999;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
-    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#888;font-style:italic;background:#fff;padding-top:2mm;}
+    .footer{margin-top:16px;font-size:9px;color:#555;font-weight:600;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
+    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;font-style:italic;background:#fff;padding-top:2mm;}
     @media print{body{padding:0}}
   </style></head>
   <body>
@@ -5498,11 +5498,11 @@ function downloadManagementSummaryPDF(){
     const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[g.status]||"#999";
     const summary = (g.description||"—").replace(/</g,"&lt;").replace(/\n/g,"<br>");
     return `<tr style="background:${i%2?'#f4fbfc':'#fff'};vertical-align:top;">
-      <td style="padding:6px 8px;border:1px solid #c8e6e9;text-align:center;font-size:10px;">${i+1}</td>
-      <td style="padding:6px 8px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;">${g.date||"—"}</td>
-      <td style="padding:6px 8px;border:1px solid #c8e6e9;font-size:10px;">${(g.source||"—").replace(/</g,"&lt;")}</td>
-      <td style="padding:6px 8px;border:1px solid #c8e6e9;font-size:10px;">${summary}</td>
-      <td style="padding:6px 8px;border:1px solid #c8e6e9;text-align:center;">
+      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;text-align:center;font-size:10px;">${i+1}</td>
+      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;">${g.date||"—"}</td>
+      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;">${(g.source||"—").replace(/</g,"&lt;")}</td>
+      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;">${summary}</td>
+      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;">${g.status||"—"}</span>
       </td>
     </tr>`;
@@ -5519,10 +5519,10 @@ function downloadManagementSummaryPDF(){
     table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
     tr{page-break-inside:avoid;break-inside:avoid;}
     thead{display:table-header-group;}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #063a41;font-size:10px;text-align:left;}
     td{word-break:break-word;overflow-wrap:break-word}
-    .footer{margin-top:16px;font-size:9px;color:#999;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
-    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#888;font-style:italic;background:#fff;padding-top:2mm;}
+    .footer{margin-top:16px;font-size:9px;color:#555;font-weight:600;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
+    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;font-style:italic;background:#fff;padding-top:2mm;}
     @media print{body{padding:0}}
   </style></head>
   <body>
