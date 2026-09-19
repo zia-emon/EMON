@@ -5167,7 +5167,7 @@ function downloadCounselingRegister(){
         + (hndInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(hndInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
       : `<span style="color:#999;">—</span>`;
 
-    return `<tr style="background:${bg};vertical-align:top;">
+    return `<tr class="reg-row" style="background:${bg};vertical-align:top;">
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
@@ -5193,30 +5193,32 @@ function downloadCounselingRegister(){
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
       <td style="padding:5px 6px;border:1px solid #c8e6e9;font-size:10px;">${processing}${logHtml}</td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:60px;min-width:70px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:60px;min-width:70px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:60px;min-width:70px;"></td>
-      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:60px;min-width:70px;"></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:70px;"></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:220px;"></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:80px;"></td>
+      <td style="padding:5px 6px;border:1px solid #c8e6e9;height:200px;min-width:80px;"></td>
     </tr>`;
   }).join("");
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
   <title>AKH Counseling Register</title>
   <style>
-    @page{margin:10mm 8mm 18mm 8mm}
+    @page{margin:10mm 8mm 18mm 8mm;size:landscape;}
     body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#1a3a3a;font-size:11px}
     .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a5f6a;padding-bottom:10px;margin-bottom:14px}
     .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
     .header-left p{margin:2px 0;color:#555;font-size:10px}
     .header-right{text-align:right;font-size:10px;color:#666}
-    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
-    tr{page-break-inside:avoid;break-inside:avoid;}
+    table{width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed}
     thead{display:table-header-group;}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #084f58;font-size:10px;text-align:left;word-break:break-word;}
-    td{word-break:break-word;overflow-wrap:break-word}
+    .reg-row{page-break-inside:avoid;break-inside:avoid;}
+    .reg-row:nth-of-type(2n){page-break-after:always;break-after:page;}
+    th{background:#0a5f6a;color:#fff;padding:6px 5px;border:1px solid #084f58;font-size:9px;text-align:left;overflow-wrap:break-word;}
+    td{overflow-wrap:break-word;line-height:1.35;}
     tr:hover{background:#e6f7f9!important}
-    .footer{margin-top:16px;font-size:9px;color:#999;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
-    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#888;font-style:italic;background:#fff;padding-top:2mm;}
+    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#888;background:#fff;padding-top:2mm;}
+    .page-footer .credit{color:#999;margin-bottom:2px;}
+    .page-footer .no-sig{font-style:italic;}
     @media print{body{padding:0}}
   </style></head>
   <body>
@@ -5238,9 +5240,9 @@ function downloadCounselingRegister(){
     </div>
     <table>
       <colgroup>
-        <col style="width:7%"><col style="width:9%"><col style="width:8%"><col style="width:7%">
-        <col style="width:12%"><col style="width:7%"><col style="width:7%"><col style="width:6%">
-        <col style="width:7%"><col style="width:8%"><col style="width:10%"><col style="width:6%"><col style="width:6%">
+        <col style="width:7%"><col style="width:8%"><col style="width:7%"><col style="width:6%">
+        <col style="width:10%"><col style="width:6%"><col style="width:6%"><col style="width:5%">
+        <col style="width:6%"><col style="width:7%"><col style="width:20%"><col style="width:6%"><col style="width:6%">
       </colgroup>
       <thead><tr>
         <th>${_ch.date||"Date / Countdown"}</th>
@@ -5259,8 +5261,10 @@ function downloadCounselingRegister(){
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
-    <div class="no-sig-footer">This copy is software generated, no authorized signature is required</div>
+    <div class="page-footer">
+      <div class="credit">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
+      <div class="no-sig">This copy is software generated, no authorized signature is required</div>
+    </div>
     <script>window.onload=()=>{window.print()}<\/script>
   </body></html>`;
   const win=window.open("","_blank");
