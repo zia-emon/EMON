@@ -5494,6 +5494,23 @@ function downloadManagementSummaryPDF(){
   if(!src.length){toast("⚠ এই তারিখের মধ্যে কোনো রেকর্ড নেই","err");return;}
   const today = new Date().toLocaleDateString("bn-BD", {year:"numeric",month:"long",day:"numeric"});
 
+  // Source summary — how many grievances came from each source
+  const sourceCount={};
+  src.forEach(g=>{ const s=g.source||"Unspecified"; sourceCount[s]=(sourceCount[s]||0)+1; });
+  const sourceRows=Object.entries(sourceCount).sort((a,b)=>b[1]-a[1]).map(([s,c])=>
+    `<tr><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;">${(s||"—").replace(/</g,"&lt;")}</td><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;text-align:center;font-weight:700;">${c}</td></tr>`
+  ).join("");
+
+  // Status summary — Pending / Under Investigation / Resolved / Closed counts
+  const STATUS_ORDER=["Pending","Under Investigation","Resolved","Closed"];
+  const statusCount={};
+  src.forEach(g=>{ const s=g.status||"Pending"; statusCount[s]=(statusCount[s]||0)+1; });
+  const statusKeys=[...STATUS_ORDER.filter(k=>statusCount[k]), ...Object.keys(statusCount).filter(k=>!STATUS_ORDER.includes(k))];
+  const stColorMap={Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"};
+  const statusRows=statusKeys.map(s=>
+    `<tr><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;"><span style="background:${stColorMap[s]||'#999'};color:#fff;padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600;">${s}</span></td><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;text-align:center;font-weight:700;">${statusCount[s]}</td></tr>`
+  ).join("");
+
   const rows = src.map((g,i)=>{
     const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[g.status]||"#999";
     const summary = (g.description||"—").replace(/</g,"&lt;").replace(/\n/g,"<br>");
@@ -5541,6 +5558,24 @@ function downloadManagementSummaryPDF(){
         <div>Management Summary</div>
       </div>
     </div>
+
+    <div style="display:flex;gap:14px;margin-bottom:16px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:700;color:#0a5f6a;margin-bottom:5px;">📍 Source Summary</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr><th style="padding:4px 8px;font-size:9px;">Source</th><th style="padding:4px 8px;font-size:9px;width:60px;">Quantity</th></tr></thead>
+          <tbody>${sourceRows}</tbody>
+        </table>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:700;color:#0a5f6a;margin-bottom:5px;">📊 Status Summary</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr><th style="padding:4px 8px;font-size:9px;">Status</th><th style="padding:4px 8px;font-size:9px;width:60px;">Quantity</th></tr></thead>
+          <tbody>${statusRows}</tbody>
+        </table>
+      </div>
+    </div>
+
     <table>
       <colgroup>
         <col style="width:7%"><col style="width:14%"><col style="width:17%"><col style="width:47%"><col style="width:15%">
