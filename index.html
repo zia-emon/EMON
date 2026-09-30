@@ -5121,13 +5121,13 @@ function downloadCounselingRegister(){
     const processing = (g.processing||"—").replace(/</g,"&lt;");
     let logHtml = "";
     if(g.processingLog && g.processingLog.length){
-      logHtml = '<div style="margin-top:4px;font-size:9px;color:#555;border-top:1px solid #ddd;padding-top:3px;">'
+      logHtml = '<div style="margin-top:4px;font-size:9px;color:#222;border-top:1px solid #ddd;padding-top:3px;">'
         + g.processingLog.slice().reverse().map(pl =>
             `<div style="padding:1px 0;">📋 ${pl.date||""} — ${(pl.action||"").replace(/</g,"&lt;")}</div>`
           ).join("")
         + "</div>";
     }
-    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[status]||"#999";
+    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[status]||"#000";
     const typeColors = {"ধারা ২৩/৪ (ক)":"#f87171","ধারা ২৩/৪ (খ)":"#fb923c","ধারা ২৩/৪ (গ)":"#a78bfa","ধারা ২৩/৪ (ঘ)":"#38bdf8","ধারা ২৩/৪ (ঙ)":"#4ade80","ধারা ২৩/৪ (চ)":"#f472b6","ধারা ৫২(ক)":"#818cf8"};
     const typeClr = typeColors[g.type]||"#0a5f6a";
     const bg = i%2 ? "#f0fafa" : "#ffffff";
@@ -5135,89 +5135,89 @@ function downloadCounselingRegister(){
     let complainantCell;
     if(complainantName){
       complainantCell = `<strong>${complainantName}</strong>`
-        + `<br><span style="color:#666;font-size:9px;">${complainantDesig}</span>`
+        + `<br><span style="color:#222;font-size:9px;">${complainantDesig}</span>`
         + (complainantId?`<br><span style="color:#0369a1;font-size:9px;">ID: ${complainantId}</span>`:"")
-        + (complainantSec?`<br><span style="color:#777;font-size:9px;">📍 ${complainantSec}</span>`:"")
+        + (complainantSec?`<br><span style="color:#333;font-size:9px;">📍 ${complainantSec}</span>`:"")
         + (source?`<br><span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">/ ${source}</span>`:"");
     } else if(source){
       complainantCell = `<span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">/ ${source}</span>`;
     } else {
-      complainantCell = `<span style="color:#999;">—</span>`;
+      complainantCell = `<span style="color:#000;">—</span>`;
     }
     if(g.complainants && g.complainants.length){
       complainantCell += g.complainants.map(c=>{
         const cn=(c.name||"—").replace(/</g,"&lt;"), cd=(c.desig||"").replace(/</g,"&lt;"),
               ci=(c.id||"").replace(/</g,"&lt;"), cs=(c.section||"").replace(/</g,"&lt;");
         return `<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #f0c0c0;"><strong>${cn}</strong>`
-          + (cd?`<br><span style="color:#666;font-size:9px;">${cd}</span>`:"")
+          + (cd?`<br><span style="color:#222;font-size:9px;">${cd}</span>`:"")
           + (ci?`<br><span style="color:#0369a1;font-size:9px;">ID: ${ci}</span>`:"")
-          + (cs?`<br><span style="color:#777;font-size:9px;">📍 ${cs}</span>`:"")
+          + (cs?`<br><span style="color:#333;font-size:9px;">📍 ${cs}</span>`:"")
           + `</div>`;
       }).join("");
     }
 
     const invCell = invInfo
       ? `<strong>${(invInfo.name||"").replace(/</g,"&lt;")}</strong>`
-        + (invInfo.designation?`<br><span style="color:#666;font-size:9px;">${(invInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (invInfo.designation?`<br><span style="color:#222;font-size:9px;">${(invInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
         + (invInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(invInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
-      : `<span style="color:#999;">—</span>`;
+      : `<span style="color:#000;">—</span>`;
     const hndCell = hndInfo
       ? `<strong>${(hndInfo.name||"").replace(/</g,"&lt;")}</strong>`
-        + (hndInfo.designation?`<br><span style="color:#666;font-size:9px;">${(hndInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (hndInfo.designation?`<br><span style="color:#222;font-size:9px;">${(hndInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
         + (hndInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(hndInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
-      : `<span style="color:#999;">—</span>`;
+      : `<span style="color:#000;">—</span>`;
 
     return `<tr class="reg-row" style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;word-break:break-word;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
-        ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
+        ${displayRefNo(g)?`<br><span style="color:#333;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">
         <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="background:#e5e7eb;color:#4b5563;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
-        <span style="color:#666;font-size:9px;">${designation}</span><br>
+        <span style="color:#222;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
-        <span style="color:#777;font-size:9px;">📍 ${section}</span>
-        ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#666;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#777;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
+        <span style="color:#333;font-size:9px;">📍 ${section}</span>
+        ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#222;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#333;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">
         ${complainantCell}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;vertical-align:top;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;text-align:center;vertical-align:top;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;max-width:140px;word-break:break-word;">${description}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${invCell}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${hndCell}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;max-width:140px;word-break:break-word;">${description}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${invCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${hndCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${processing}${logHtml}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:70px;"></td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:220px;"></td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:80px;"></td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;height:200px;min-width:80px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${processing}${logHtml}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;height:200px;min-width:70px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;height:200px;min-width:220px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;height:200px;min-width:80px;"></td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;height:200px;min-width:80px;"></td>
     </tr>`;
   }).join("");
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
   <title>AKH Counseling Register</title>
   <style>
-    @page{margin:10mm 8mm 18mm 8mm;size:landscape;}
-    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#1a3a3a;font-size:11px}
+    @page{margin:10mm 8mm 22mm 8mm;size:landscape;}
+    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#000000;font-size:11px}
     .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a5f6a;padding-bottom:10px;margin-bottom:14px}
     .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
-    .header-left p{margin:2px 0;color:#555;font-size:10px}
-    .header-right{text-align:right;font-size:10px;color:#666}
-    table{width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed}
+    .header-left p{margin:2px 0;color:#222;font-size:10px}
+    .header-right{text-align:right;font-size:10px;color:#222}
+    table{width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed;margin-bottom:6mm}
     thead{display:table-header-group;}
     .reg-row{page-break-inside:avoid;break-inside:avoid;}
-    .reg-row:nth-of-type(2n){page-break-after:always;break-after:page;}
-    th{background:#0a5f6a;color:#fff;padding:6px 5px;border:1px solid #063a41;font-size:9px;text-align:left;overflow-wrap:break-word;}
+    .reg-row:not(:last-child){page-break-after:always;break-after:page;}
+    th{background:#0a5f6a;color:#fff;padding:6px 5px;border:1px solid #000000;font-size:9px;text-align:left;overflow-wrap:break-word;}
     td{overflow-wrap:break-word;line-height:1.35;}
     tr:hover{background:#e6f7f9!important}
-    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;background:#fff;padding-top:2mm;}
-    .page-footer .credit{color:#444;font-weight:600;margin-bottom:2px;}
+    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#222;background:#fff;padding-top:2mm;}
+    .page-footer .credit{color:#000;font-weight:600;margin-bottom:2px;}
     .page-footer .no-sig{font-style:italic;}
     @media print{body{padding:0}}
   </style></head>
@@ -5323,14 +5323,14 @@ function downloadPDF(){
     // Processing log
     let logHtml = "";
     if(g.processingLog && g.processingLog.length){
-      logHtml = '<div style="margin-top:4px;font-size:9px;color:#555;border-top:1px solid #ddd;padding-top:3px;">'
+      logHtml = '<div style="margin-top:4px;font-size:9px;color:#222;border-top:1px solid #ddd;padding-top:3px;">'
         + g.processingLog.slice().reverse().map(pl =>
             `<div style="padding:1px 0;">📋 ${pl.date||""} — ${(pl.action||"").replace(/</g,"&lt;")}</div>`
           ).join("")
         + "</div>";
     }
     // Status badge color
-    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[status]||"#999";
+    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[status]||"#000";
     // Type pill color (based on class mapping)
     const typeColors = {"ধারা ২৩/৪ (ক)":"#f87171","ধারা ২৩/৪ (খ)":"#fb923c","ধারা ২৩/৪ (গ)":"#a78bfa","ধারা ২৩/৪ (ঘ)":"#38bdf8","ধারা ২৩/৪ (ঙ)":"#4ade80","ধারা ২৩/৪ (চ)":"#f472b6","ধারা ৫২(ক)":"#818cf8"};
     const typeClr = typeColors[g.type]||"#0a5f6a";
@@ -5341,23 +5341,23 @@ function downloadPDF(){
     let complainantCell;
     if(complainantName){
       complainantCell = `<strong>${complainantName}</strong>`
-        + `<br><span style="color:#666;font-size:9px;">${complainantDesig}</span>`
+        + `<br><span style="color:#222;font-size:9px;">${complainantDesig}</span>`
         + (complainantId?`<br><span style="color:#0369a1;font-size:9px;">ID: ${complainantId}</span>`:"")
-        + (complainantSec?`<br><span style="color:#777;font-size:9px;">📍 ${complainantSec}</span>`:"")
+        + (complainantSec?`<br><span style="color:#333;font-size:9px;">📍 ${complainantSec}</span>`:"")
         + (source?`<br><span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">/ ${source}</span>`:"");
     } else if(source){
       complainantCell = `<span style="background:#e0f7fa;color:#0369a1;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">/ ${source}</span>`;
     } else {
-      complainantCell = `<span style="color:#999;">—</span>`;
+      complainantCell = `<span style="color:#000;">—</span>`;
     }
     if(g.complainants && g.complainants.length){
       complainantCell += g.complainants.map(c=>{
         const cn=(c.name||"—").replace(/</g,"&lt;"), cd=(c.desig||"").replace(/</g,"&lt;"),
               ci=(c.id||"").replace(/</g,"&lt;"), cs=(c.section||"").replace(/</g,"&lt;");
         return `<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #f0c0c0;"><strong>${cn}</strong>`
-          + (cd?`<br><span style="color:#666;font-size:9px;">${cd}</span>`:"")
+          + (cd?`<br><span style="color:#222;font-size:9px;">${cd}</span>`:"")
           + (ci?`<br><span style="color:#0369a1;font-size:9px;">ID: ${ci}</span>`:"")
-          + (cs?`<br><span style="color:#777;font-size:9px;">📍 ${cs}</span>`:"")
+          + (cs?`<br><span style="color:#333;font-size:9px;">📍 ${cs}</span>`:"")
           + `</div>`;
       }).join("");
     }
@@ -5365,41 +5365,41 @@ function downloadPDF(){
     // Investigator / Handler cells — mirror the log: Name / Designation / ID stacked
     const invCell = invInfo
       ? `<strong>${(invInfo.name||"").replace(/</g,"&lt;")}</strong>`
-        + (invInfo.designation?`<br><span style="color:#666;font-size:9px;">${(invInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (invInfo.designation?`<br><span style="color:#222;font-size:9px;">${(invInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
         + (invInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(invInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
-      : `<span style="color:#999;">—</span>`;
+      : `<span style="color:#000;">—</span>`;
     const hndCell = hndInfo
       ? `<strong>${(hndInfo.name||"").replace(/</g,"&lt;")}</strong>`
-        + (hndInfo.designation?`<br><span style="color:#666;font-size:9px;">${(hndInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
+        + (hndInfo.designation?`<br><span style="color:#222;font-size:9px;">${(hndInfo.designation||"").replace(/</g,"&lt;")}</span>`:"")
         + (hndInfo.known?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(hndInfo.id||"").replace(/</g,"&lt;")}</span>`:"")
-      : `<span style="color:#999;">—</span>`;
+      : `<span style="color:#000;">—</span>`;
 
-    return `<tr style="background:${bg};vertical-align:top;">
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;word-break:break-word;">
+    return `<tr class="case-row" style="background:${bg};vertical-align:top;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;font-family:monospace;word-break:break-word;">
         ${date}<br>
         <span style="color:${_cdClr};font-weight:700;font-size:9px;">${_cdTxt}</span>
-        ${displayRefNo(g)?`<br><span style="color:#888;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
+        ${displayRefNo(g)?`<br><span style="color:#333;font-size:8px;">${(displayRefNo(g)||"").replace(/</g,"&lt;")}</span>`:""}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">
         <strong>${empName}</strong>${g.defendantType==='external'?` <span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">🏢 Supplier</span>`:g.defendantType==='anonymous'?` <span style="background:#e5e7eb;color:#4b5563;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;">❓ Anonymous</span>`:""}<br>
-        <span style="color:#666;font-size:9px;">${designation}</span><br>
+        <span style="color:#222;font-size:9px;">${designation}</span><br>
         ${empId?`<span style="color:#0369a1;font-size:9px;">ID: ${empId}</span><br>`:""}
-        <span style="color:#777;font-size:9px;">📍 ${section}</span>
-        ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#666;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#777;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
+        <span style="color:#333;font-size:9px;">📍 ${section}</span>
+        ${g.defendants&&g.defendants.length?g.defendants.map(c=>`<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #b6d9dc;"><strong>${(c.name||"—").replace(/</g,"&lt;")}</strong>${c.desig?`<br><span style="color:#222;font-size:9px;">${(c.desig||"").replace(/</g,"&lt;")}</span>`:""}${c.id?`<br><span style="color:#0369a1;font-size:9px;">ID: ${(c.id||"").replace(/</g,"&lt;")}</span>`:""}${c.section?`<br><span style="color:#333;font-size:9px;">📍 ${(c.section||"").replace(/</g,"&lt;")}</span>`:""}</div>`).join(""):""}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">
         ${complainantCell}
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;vertical-align:top;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;text-align:center;vertical-align:top;">
         <span style="background:${typeClr};color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;word-break:break-word;line-height:1.6;">${type.split(",").map(t=>t.trim()).join('</span><br><span style="background:'+typeClr+';color:#fff;padding:2px 6px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:normal;margin-top:2px;">')}</span>
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${invCell}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${hndCell}</td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;text-align:center;">
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;max-width:160px;word-break:break-word;">${description}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${invCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${hndCell}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;">${status}</span>
       </td>
-      <td style="padding:5px 6px;border:1.2px solid #5b9ca0;font-size:10px;">${processing}${logHtml}</td>
+      <td style="padding:5px 6px;border:1.2px solid #000000;font-size:10px;">${processing}${logHtml}</td>
 
     </tr>`;
   }).join("");
@@ -5407,20 +5407,22 @@ function downloadPDF(){
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
   <title>AKH Grievance Report</title>
   <style>
-    @page{margin:10mm 8mm 18mm 8mm}
-    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#1a3a3a;font-size:11px}
+    @page{margin:10mm 8mm 12mm 8mm}
+    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#000000;font-size:11px}
     .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a5f6a;padding-bottom:10px;margin-bottom:14px}
     .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
-    .header-left p{margin:2px 0;color:#555;font-size:10px}
-    .header-right{text-align:right;font-size:10px;color:#666}
-    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
-    tr{page-break-inside:avoid;break-inside:avoid;}
+    .header-left p{margin:2px 0;color:#222;font-size:10px}
+    .header-right{text-align:right;font-size:10px;color:#222}
+    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed;margin-bottom:6mm}
+    tbody tr{page-break-inside:avoid;break-inside:avoid;}
+    tbody tr:nth-of-type(15n):not(:last-child){page-break-after:always;break-after:page;}
     thead{display:table-header-group;}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #063a41;font-size:10px;text-align:left;word-break:break-word;}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #000000;font-size:10px;text-align:left;word-break:break-word;}
     td{word-break:break-word;overflow-wrap:break-word}
     tr:hover{background:#e6f7f9!important}
-    .footer{margin-top:16px;font-size:9px;color:#555;font-weight:600;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
-    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;font-style:italic;background:#fff;padding-top:2mm;}
+    .page-footer{position:fixed;bottom:1mm;left:0;right:0;text-align:center;font-size:9px;color:#222;background:#fff;padding-top:2mm;}
+    .page-footer .credit{color:#000;font-weight:600;margin-bottom:2px;}
+    .page-footer .no-sig{font-style:italic;}
     @media print{body{padding:0}}
   </style></head>
   <body>
@@ -5466,8 +5468,10 @@ function downloadPDF(){
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
-    <div class="no-sig-footer">This copy is software generated, no authorized signature is required</div>
+    <div class="page-footer">
+      <div class="credit">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
+      <div class="no-sig">This copy is software generated, no authorized signature is required</div>
+    </div>
     <script>window.onload=()=>{window.print()}<\/script>
   </body></html>`;
   const win=window.open("","_blank");
@@ -5498,7 +5502,7 @@ function downloadManagementSummaryPDF(){
   const sourceCount={};
   src.forEach(g=>{ const s=g.source||"Unspecified"; sourceCount[s]=(sourceCount[s]||0)+1; });
   const sourceRows=Object.entries(sourceCount).sort((a,b)=>b[1]-a[1]).map(([s,c])=>
-    `<tr><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;">${(s||"—").replace(/</g,"&lt;")}</td><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;text-align:center;font-weight:700;">${c}</td></tr>`
+    `<tr><td style="padding:4px 8px;border:1.2px solid #000000;font-size:9px;">${(s||"—").replace(/</g,"&lt;")}</td><td style="padding:4px 8px;border:1.2px solid #000000;font-size:9px;text-align:center;font-weight:700;">${c}</td></tr>`
   ).join("");
 
   // Status summary — Pending / Under Investigation / Resolved / Closed counts
@@ -5508,18 +5512,18 @@ function downloadManagementSummaryPDF(){
   const statusKeys=[...STATUS_ORDER.filter(k=>statusCount[k]), ...Object.keys(statusCount).filter(k=>!STATUS_ORDER.includes(k))];
   const stColorMap={Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"};
   const statusRows=statusKeys.map(s=>
-    `<tr><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;"><span style="background:${stColorMap[s]||'#999'};color:#fff;padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600;">${s}</span></td><td style="padding:4px 8px;border:1.2px solid #5b9ca0;font-size:9px;text-align:center;font-weight:700;">${statusCount[s]}</td></tr>`
+    `<tr><td style="padding:4px 8px;border:1.2px solid #000000;font-size:9px;"><span style="background:${stColorMap[s]||'#000'};color:#fff;padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600;">${s}</span></td><td style="padding:4px 8px;border:1.2px solid #000000;font-size:9px;text-align:center;font-weight:700;">${statusCount[s]}</td></tr>`
   ).join("");
 
   const rows = src.map((g,i)=>{
-    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[g.status]||"#999";
+    const stColor = {Pending:"#f59e0b","Under Investigation":"#3b82f6",Resolved:"#22c55e",Closed:"#6b7280"}[g.status]||"#000";
     const summary = (g.description||"—").replace(/</g,"&lt;").replace(/\n/g,"<br>");
     return `<tr style="background:${i%2?'#f4fbfc':'#fff'};vertical-align:top;">
-      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;text-align:center;font-size:10px;">${i+1}</td>
-      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;font-family:monospace;">${g.date||"—"}</td>
-      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;">${(g.source||"—").replace(/</g,"&lt;")}</td>
-      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;font-size:10px;">${summary}</td>
-      <td style="padding:6px 8px;border:1.2px solid #5b9ca0;text-align:center;">
+      <td style="padding:6px 8px;border:1.2px solid #000000;text-align:center;font-size:10px;">${i+1}</td>
+      <td style="padding:6px 8px;border:1.2px solid #000000;font-size:10px;font-family:monospace;">${g.date||"—"}</td>
+      <td style="padding:6px 8px;border:1.2px solid #000000;font-size:10px;">${(g.source||"—").replace(/</g,"&lt;")}</td>
+      <td style="padding:6px 8px;border:1.2px solid #000000;font-size:10px;">${summary}</td>
+      <td style="padding:6px 8px;border:1.2px solid #000000;text-align:center;">
         <span style="background:${stColor};color:#fff;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;">${g.status||"—"}</span>
       </td>
     </tr>`;
@@ -5528,18 +5532,20 @@ function downloadManagementSummaryPDF(){
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
   <title>AKH Grievance Management Summary</title>
   <style>
-    @page{margin:10mm 8mm 18mm 8mm}
-    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#1a3a3a;font-size:11px}
+    @page{margin:10mm 8mm 20mm 8mm}
+    body{font-family:"Arial",sans-serif;margin:0;padding:16px;color:#000000;font-size:11px}
     .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a5f6a;padding-bottom:10px;margin-bottom:14px}
     .header-left h1{margin:0;font-size:18px;color:#0a5f6a}
-    .header-left p{margin:2px 0;color:#555;font-size:10px}
-    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
-    tr{page-break-inside:avoid;break-inside:avoid;}
+    .header-left p{margin:2px 0;color:#222;font-size:10px}
+    table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed;margin-bottom:6mm}
+    tbody tr{page-break-inside:avoid;break-inside:avoid;}
+    tbody tr:nth-of-type(15n):not(:last-child){page-break-after:always;break-after:page;}
     thead{display:table-header-group;}
-    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #063a41;font-size:10px;text-align:left;}
+    th{background:#0a5f6a;color:#fff;padding:7px 6px;border:1px solid #000000;font-size:10px;text-align:left;}
     td{word-break:break-word;overflow-wrap:break-word}
-    .footer{margin-top:16px;font-size:9px;color:#555;font-weight:600;text-align:right;border-top:2px solid #0a5f6a;padding-top:8px}
-    .no-sig-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#555;font-style:italic;background:#fff;padding-top:2mm;}
+    .page-footer{position:fixed;bottom:4mm;left:0;right:0;text-align:center;font-size:9px;color:#222;background:#fff;padding-top:2mm;}
+    .page-footer .credit{color:#000;font-weight:600;margin-bottom:2px;}
+    .page-footer .no-sig{font-style:italic;}
     @media print{body{padding:0}}
   </style></head>
   <body>
@@ -5553,7 +5559,7 @@ function downloadManagementSummaryPDF(){
           ${(dateFrom||dateTo)?`<p style="margin:2px 0;">Period: ${dateFrom||"শুরু থেকে"} — ${dateTo||"এখন পর্যন্ত"}</p>`:""}
         </div>
       </div>
-      <div style="text-align:right;font-size:10px;color:#666;">
+      <div style="text-align:right;font-size:10px;color:#222;">
         <div style="font-size:22px;font-weight:900;color:#0a5f6a;">AKH</div>
         <div>Management Summary</div>
       </div>
@@ -5585,8 +5591,10 @@ function downloadManagementSummaryPDF(){
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="footer">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
-    <div class="no-sig-footer">This copy is software generated, no authorized signature is required</div>
+    <div class="page-footer">
+      <div class="credit">AKH Grievance Tracker &nbsp;|&nbsp; Developed by Z. H. EMON &nbsp;|&nbsp; Report Generated: ${today}</div>
+      <div class="no-sig">This copy is software generated, no authorized signature is required</div>
+    </div>
     <script>window.onload=()=>{window.print()}<\/script>
   </body></html>`;
   const win=window.open("","_blank");
