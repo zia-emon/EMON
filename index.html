@@ -467,6 +467,8 @@ tbody .drow:not(:last-child) td{
 .eff-banner span{display:inline-block;padding-left:100%;font-size:11px;font-weight:700;color:var(--aqua);animation:eff-scroll 14s linear infinite;}
 @keyframes eff-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}/* ═══ BUYER MODE — restricted, read-only, buyer-approved-only view ═══ */
 .admin-only-col{display:none !important;}
+body:not(.is-super-admin-mode) .sa-only{display:none !important;}
+@media print{body:not(.is-super-admin-mode) *{visibility:hidden !important;}}
 body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
 </style>
 
@@ -620,8 +622,8 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
     </div>
     <ul class="nav-list">
       <li class="nav-item active" id="n-dash" onclick="goTo('dash')" data-en="📊 Dashboard" data-bn="📊 ড্যাশবোর্ড">📊 Dashboard</li>
-      <li class="nav-item" id="n-acc" onclick="goTo('acc')" data-en="👥 Accounts Node" data-bn="👥 অ্যাকাউন্টস নোড">👥 Accounts Node</li>
-      <li class="nav-item" id="n-tl" onclick="goTo('tl')" data-en="📅 Timeline Events" data-bn="📅 টাইমলাইন">📅 Timeline Events</li>
+      <li class="nav-item sa-only" id="n-acc" onclick="goTo('acc')" data-en="👥 Accounts Node" data-bn="👥 অ্যাকাউন্টস নোড">👥 Accounts Node</li>
+      <li class="nav-item sa-only" id="n-tl" onclick="goTo('tl')" data-en="📅 Timeline Events" data-bn="📅 টাইমলাইন">📅 Timeline Events</li>
       <li class="nav-item" id="n-set" onclick="goTo('set')" data-en="⚙️ Settings" data-bn="⚙️ সেটিংস">⚙️ Settings</li>
       <li class="nav-item" id="n-users" onclick="goTo('users')" style="display:none;" data-en="👤 User Management" data-bn="👤 ইউজার ব্যবস্থাপনা">👤 User Management</li>
     </ul>
@@ -644,7 +646,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
       <div class="topbar-right" style="display:flex;align-items:center;gap:8px;">
         <button class="btn-top" id="tb-dark-toggle" onclick="toggleDarkMode()" title="Dark Mode" style="padding:7px 12px;font-size:16px;">🌙</button>
         <button class="btn-top" id="tb-refresh-btn" onclick="refreshData()" title="Refresh Data" style="padding:7px 12px;font-size:16px;">🔄</button>
-        <button class="btn-top" onclick="downloadPDF()" style="background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-weight:700;">📄 Download PDF</button>
+        <button class="btn-top sa-only" onclick="downloadPDF()" style="background:linear-gradient(180deg,#2aeeb5,#059669);border:none;color:white;font-weight:700;">📄 Download PDF</button>
         <button id="topbar-logout-btn" onclick="lsLogout()" style="display:none;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#ef4444;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚪 Logout</button>
       </div>
     </header>
@@ -655,7 +657,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
         <h2 id="dash-title" style="font-size:20px;font-weight:800;color:var(--aqua);">Operational Overview</h2>
 
         <!-- STATS -->
-        <div class="stats-grid" id="internal-stats-panel">
+        <div class="stats-grid sa-only" id="internal-stats-panel">
           <div class="stat-card af" onclick="filterStat('')">
             <div class="stat-hdr"><span class="stat-lbl" id="lbl-total" data-en="Total Cases" data-bn="সর্বমোট কেস">Total Cases</span><span class="sig sig-b"></span></div>
             <div class="stat-num" id="cnt-total">0</div><div class="stat-foot" data-en="Live Logs" data-bn="সচল তালিকা">Live Logs</div>
@@ -1089,7 +1091,7 @@ body.is-super-admin-mode .admin-only-col{display:table-cell !important;}
             </div>
           </div>
 
-          <div class="fg" style="margin-top:18px;">
+          <div class="fg sa-only" style="margin-top:18px;">
             <label style="font-size:14px;color:var(--aqua);" data-en="💾 Download Data" data-bn="💾 ডেটা ডাউনলোড">💾 Download Data</label>
             <div style="display:flex;gap:7px;margin-top:7px;">
               <input type="date" id="pdf-date-from" class="fc" style="flex:1;font-size:11px;" title="থেকে তারিখ">
@@ -1340,6 +1342,7 @@ migrateStaffListsIfNeeded();
 document.addEventListener("fb-ready", migrateStaffListsIfNeeded);
 
 let grievances=[], filtered=[], page=1;
+let _lastTbodyHTML=null; // skip re-render when a remote sync doesn't change what's on screen
 const PER=5;
 let notifOn=(localStorage.getItem("akh_notif_on")??"true")==="true", lang="en", fbOnline=false;
 
@@ -1423,6 +1426,7 @@ window._onFBOffline=function(){setSyncStatus(false);};
 // ═══ PERSIST ═══
 let _saveTimer=null;
 function persistOne(g){
+  try{_touchCase(g.id);}catch(e){}
   applyFilters();
   // Firebase — primary storage (unlimited)
   if(window._fb&&fbOnline){
@@ -1851,6 +1855,7 @@ function lsOnSuccess(){
 }
 
 function _doLogoutNow(){
+  try{ (window._myCases||new Map()).forEach(t=>clearTimeout(t)); window._myCases=new Map(); }catch(e){}
   window._currentUser=null;
   window._isSuperAdmin=false;
   window._isMainSuperAdmin=false;
@@ -2525,6 +2530,7 @@ async function editUserPass(uid, username){
 }
 
 function goTo(id){
+  if((id==='acc'||id==='tl') && !window._isSuperAdmin) id='dash';
   // Remove active from all nav items and sections
   document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
@@ -2587,8 +2593,34 @@ function filterByType(catLabel){
 // Data scope: Buyer only ever sees Super-Admin-marked ("buyerVisible") cases —
 // everywhere (log, stats, chart, accounts, timeline, PDF). Everyone else sees
 // everything, same as before.
+// ── Non-Super-Admin users: only the case(s) they personally just added /
+// updated are shown, and each one auto-hides a few seconds after the work
+// on it is finished. (Exact Ref No / ID typed in Search also finds a case,
+// so a user can still open one specific case to update it.)
+const AUTO_HIDE_MS=10000;
+window._myCases=window._myCases||new Map(); // case id -> auto-hide timer
+function _touchCase(id){
+  if(window._isSuperAdmin||!id) return;
+  const old=window._myCases.get(id); if(old) clearTimeout(old);
+  const arm=()=>setTimeout(()=>{
+    // still being edited in the form? keep it visible and check again later
+    if((document.getElementById("edit-id")?.value||"")===id){ window._myCases.set(id,arm()); return; }
+    window._myCases.delete(id);
+    try{applyFilters();}catch(e){}
+  },AUTO_HIDE_MS);
+  window._myCases.set(id,arm());
+}
+function _exactSearchHit(g){
+  const q=(document.getElementById("search")?.value||"").trim().toLowerCase();
+  return !!q && ((g.refNo||"").toLowerCase()===q || (g.id||"").toLowerCase()===q);
+}
+function _canSeeCase(g){
+  if(window._isSuperAdmin) return true;
+  return window._myCases.has(g.id) || _exactSearchHit(g);
+}
 function visibleGrievances(){
-  return window._isBuyer ? grievances.filter(g=>g.buyerVisible) : grievances;
+  const base=window._isBuyer ? grievances.filter(g=>g.buyerVisible) : grievances;
+  return window._isSuperAdmin ? base : base.filter(_canSeeCase);
 }
 
 // Buyer must never see the REAL ref no. (e.g. .../06, .../10) since gaps would
@@ -2647,6 +2679,8 @@ function applyFilters(resetPage){
 
   filtered=grievances.filter(g=>{
     if(window._isBuyer && !g.buyerVisible) return false;
+    if(!_canSeeCase(g)) return false;
+    if(!window._isSuperAdmin && _exactSearchHit(g)) return true; // exact Ref No/ID search
     const invEmp = g.investigator ? findEmployee(g.investigator) : null;
     const hndEmp = g.handler ? findEmployee(g.handler) : null;
     const mQ=!q||[g.empId,g.empName,g.section,g.designation,g.complainantName,g.complainantDesig,g.description,g.type,g.investigator,g.handler,invEmp?.name,invEmp?.designation,hndEmp?.name,hndEmp?.designation,g.source,g.processing,...(g.complainants||[]).flatMap(c=>[c.name,c.id]),...(g.defendants||[]).flatMap(c=>[c.name,c.id])].some(f=>(f||"").toLowerCase().includes(q));
@@ -2750,7 +2784,7 @@ function renderTable(){
   const start=(page-1)*PER;
   const slice=filtered.slice(start,start+PER);
 
-  if(!slice.length){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--tm);">কোনো রেকর্ড নেই</td></tr>`;document.getElementById("page-info").textContent="No records";document.getElementById("pager-btns").innerHTML="";return;}
+  if(!slice.length){const _empty=`<tr><td colspan="10" style="text-align:center;padding:28px;color:var(--tm);">${window._isSuperAdmin?"কোনো রেকর্ড নেই":"কোনো কেস দেখানো হচ্ছে না — নতুন কেস যোগ করুন বা Ref No লিখে সার্চ করুন"}</td></tr>`;if(_empty!==_lastTbodyHTML){_lastTbodyHTML=_empty;tbody.innerHTML=_empty;}document.getElementById("page-info").textContent="No records";document.getElementById("pager-btns").innerHTML="";return;}
 
   // Repeat-offender detection: count how many cases name each defendant
   // (by ID when known, else by name) across everything this user can see —
@@ -2762,7 +2796,7 @@ function renderTable(){
     if(key) _offenderCount[key]=(_offenderCount[key]||0)+1;
   });
 
-  tbody.innerHTML=slice.map(g=>{
+  const rowsHtml=slice.map(g=>{
     const tm=TYPE_MAP[g.type]||{cls:"pl"};
     const opa={Pending:["1","0.3","0.3","0.3"],"Under Investigation":["0.3","1","0.3","0.3"],Resolved:["0.3","0.3","1","0.3"],Closed:["0.3","0.3","0.3","1"]}[g.status]||["0.3","0.3","0.3","0.3"];
     const procOpts=`<option value=""${g.processing?"":" selected"}>— নির্বাচন করুন —</option>`+PROC_OPTS.map(o=>`<option${g.processing===o?" selected":""}>${o}</option>`).join("");
@@ -2848,6 +2882,15 @@ function renderTable(){
       </td>
     </tr>`;
   }).join("");
+
+  // Skip the actual DOM rebuild when nothing on this page actually changed —
+  // a remote Firebase sync often touches a case that isn't even on the
+  // currently-visible page/filter, so re-painting all rows anyway was
+  // pure unnecessary churn and is what showed up as a visible "shake".
+  if(rowsHtml!==_lastTbodyHTML){
+    _lastTbodyHTML=rowsHtml;
+    tbody.innerHTML=rowsHtml;
+  }
 
   document.getElementById("page-info").textContent=`Page ${page}/${pages} · ${total} records · Showing ${start+1}–${Math.min(start+PER,total)}`;
 
@@ -4284,13 +4327,20 @@ function renderChart(){
     // same tab (e.g. an admin login before a buyer logs in) keeps redrawing
     // its own stale full-data pixels forever — canceling it and wiping the
     // canvas here is what actually stops that leak from being visible.
-    if(_chartAnim){ cancelAnimationFrame(_chartAnim); _chartAnim=null; }
+    if(_chartAnim){ cancelAnimationFrame(_chartAnim); _chartAnim=null; } canvas._lastSig=null;
     canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
     legend.innerHTML="<span style='font-size:9px;color:var(--tm)'>No data</span>";
     return;
   }
 
   const data = labels.map(l=>counts[l]);
+  // If this exact chart (labels+counts) is already drawn and animating,
+  // don't restart it — this is what was showing up as the donut chart
+  // visibly "jumping" back to empty and re-growing every time anyone's
+  // change synced in, even when it didn't touch these counts at all.
+  const _sig = labels.join(",")+"|"+data.join(",");
+  if(canvas._lastSig===_sig && _chartAnim){ return; }
+  canvas._lastSig=_sig;
   const BASE_PALETTE = [
     {a:"#ff4757",b:"#ff6b81",glow:"#ff475780"},
     {a:"#ffa502",b:"#ffc048",glow:"#ffa50280"},
@@ -4458,13 +4508,16 @@ function renderChart2(){
   ];
   const total = labels.reduce((sum,l)=>sum+counts[l],0);
   if(total===0){
-    if(_chart2Anim){ cancelAnimationFrame(_chart2Anim); _chart2Anim=null; }
+    if(_chart2Anim){ cancelAnimationFrame(_chart2Anim); _chart2Anim=null; } canvas._lastSig=null;
     canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
     legend.innerHTML="<span style='font-size:9px;color:var(--tm)'>No data</span>";
     return;
   }
 
   const data = labels.map(l=>counts[l]);
+  const _sig2 = labels.join(",")+"|"+data.join(",");
+  if(canvas._lastSig===_sig2 && _chart2Anim){ return; }
+  canvas._lastSig=_sig2;
   const STATUS_PALETTE = {
     "Pending":       {a:"#f6b93b",b:"#fad390",glow:"#f6b93b80"},
     "Under Investigation": {a:"#1e90ff",b:"#74b9ff",glow:"#1e90ff80"},
@@ -5021,6 +5074,7 @@ function triggerDownload(url, filename){
   setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
 }
 function downloadCSV(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   const list=visibleGrievances();
   if(!list.length){toast("⚠ No data","err");return;}
   const h=["Date","Employee ID","Employee Name","Section","Type","Description","Investigator","Handler","Status","Processing"];
@@ -5030,6 +5084,7 @@ function downloadCSV(){
   toast("✓ CSV Downloaded","ok");
 }
 function downloadJSON(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   const list=visibleGrievances();
   if(!list.length){toast("⚠ No data","err");return;}
   const blob=new Blob([JSON.stringify(list,null,2)],{type:"application/json"});
@@ -5040,6 +5095,7 @@ const _AKH_LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAMsAAABaCAYAAAAWwaLVAACGhUlEQVR42
 // ═══ COUNSELING REGISTER — selection mode ═══
 window._registerSelected = new Set();
 function toggleRegisterSelectMode(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   const cells=document.querySelectorAll(".register-select-cell, #th-select-col");
   const isOn = document.getElementById("th-select-col").style.display !== "none";
   cells.forEach(c=>{ c.style.display = isOn ? "none" : "table-cell"; });
@@ -5072,6 +5128,7 @@ function updateRegisterSelectedCount(){
 // generates one for everything in the current date range, same as the
 // other PDF options.
 function downloadCounselingRegister(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   if(!visibleGrievances().length){toast("⚠ No data to export","err");return;}
   if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
   const dateFrom=document.getElementById("pdf-date-from")?.value||"";
@@ -5274,6 +5331,7 @@ function downloadCounselingRegister(){
 }
 
 function downloadPDF(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   if(!visibleGrievances().length){toast("⚠ No data to export","err");return;}
   if(window._isBuyer) window._buyerRefNoMap=getBuyerRefNoMap();
   const dateFrom=document.getElementById("pdf-date-from")?.value||"";
@@ -5485,6 +5543,7 @@ function downloadPDF(){
 // or investigation details, so it's safe to circulate more widely than the
 // full detailed report.
 function downloadManagementSummaryPDF(){
+  if(!window._isSuperAdmin){toast("⚠ শুধুমাত্র Super Admin রিপোর্ট/PDF দেখতে ও ডাউনলোড করতে পারবে","err");return;}
   if(!visibleGrievances().length){toast("⚠ No data to export","err");return;}
   const dateFrom=document.getElementById("pdf-date-from")?.value||"";
   const dateTo=document.getElementById("pdf-date-to")?.value||"";
